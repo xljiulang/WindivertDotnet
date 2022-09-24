@@ -8,7 +8,7 @@
 
         public WinDivertLayer Layer;
 
-        public ulong Flags;
+        public long Flags;
 
         public short Priority;
     }

@@ -4,11 +4,11 @@ namespace WindivertDotnet
 {
     public unsafe struct WinDivertDataFlow
     {
-        public ulong EndpointId;
+        public long EndpointId;
 
-        public ulong ParentEndpointId;
+        public long ParentEndpointId;
 
-        public uint ProcessId;
+        public int ProcessId;
 
         public fixed uint LocalAddr[4];
 
