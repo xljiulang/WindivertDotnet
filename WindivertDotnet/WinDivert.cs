@@ -16,7 +16,7 @@ namespace WindivertDotnet
         /// <param name="priority"></param>
         /// <param name="flags"></param>
         /// <exception cref="Win32Exception"></exception>
-        public WinDivert(string filter, WinDivertLayer layer, short priority = 0, WinDivertFlag flags = WinDivertFlag.None)
+        public WinDivert(string filter, WinDivertLayer layer, short priority = 0, WinDivertFlag flags = WinDivertFlag.Read)
         {
             this.handle = WinDivertNative.WinDivertOpen(filter, layer, priority, flags);
             if (this.handle.IsInvalid)

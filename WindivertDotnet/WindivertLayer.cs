@@ -1,6 +1,6 @@
 ﻿namespace WindivertDotnet
 {
-    public enum WinDivertLayer
+    public enum WinDivertLayer : byte
     {
         Network = 0,
         NetworkForward = 1,

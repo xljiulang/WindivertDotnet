@@ -2,18 +2,14 @@
 {
     public struct WinDivertDataReflect
     {
-        [NativeTypeName("INT64")]
         public long Timestamp;
 
-        [NativeTypeName("UINT32")]
-        public uint ProcessId;
+        public int ProcessId;
 
         public WinDivertLayer Layer;
 
-        [NativeTypeName("UINT64")]
         public ulong Flags;
 
-        [NativeTypeName("INT16")]
         public short Priority;
     }
 }

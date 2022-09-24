@@ -1,6 +1,6 @@
 ﻿namespace WindivertDotnet
 {
-    public enum WinDivertEvent
+    public enum WinDivertEvent : byte
     {
         NetworkPacket = 0,
         FlowEstablished = 1,
