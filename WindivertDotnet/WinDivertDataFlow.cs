@@ -1,6 +1,6 @@
 ﻿namespace WindivertDotnet
 {
-    public unsafe partial struct WINDIVERT_DATA_FLOW
+    public unsafe struct WinDivertDataFlow
     {
         [NativeTypeName("UINT64")]
         public ulong EndpointId;

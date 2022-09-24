@@ -1,10 +1,10 @@
 ﻿using System;
 
 namespace WindivertDotnet
-{
-    [Flags]
-    public enum WindivertFlag : ulong
+{   
+    public enum WinDivertFlag : ulong
     {
+        None = 0,
         Sniff = 0x0001,
         Drop = 0x0002,
         Recv = 0x0004,
@@ -13,6 +13,5 @@ namespace WindivertDotnet
         Write = Send,
         NoInstall = 0x0010,
         Fragments = 0x0020,
-        ReadWrite = Read | Write
     }
 }

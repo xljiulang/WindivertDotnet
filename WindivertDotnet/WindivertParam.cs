@@ -1,6 +1,6 @@
 ﻿namespace WindivertDotnet
 {
-    public enum WindivertParam
+    public enum WinDivertParam
     {
         QueueLength = 0,
         QueueTime = 1,

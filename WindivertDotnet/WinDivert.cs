@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace WindivertDotnet
 {
@@ -16,7 +16,7 @@ namespace WindivertDotnet
         /// <param name="priority"></param>
         /// <param name="flags"></param>
         /// <exception cref="Win32Exception"></exception>
-        public WinDivert(string filter, WindivertLayer layer, short priority, WindivertFlag flags)
+        public WinDivert(string filter, WinDivertLayer layer, short priority = 0, WinDivertFlag flags = WinDivertFlag.None)
         {
             this.handle = WinDivertNative.WinDivertOpen(filter, layer, priority, flags);
             if (this.handle.IsInvalid)
@@ -26,16 +26,22 @@ namespace WindivertDotnet
         }
 
 
-        public bool WinDivertRecv(
-            WinDivertPacket packet,
-            ref WindivertAddress addr)
+        public bool WinDivertRecv(WinDivertPacket packet, ref WinDivertAddress addr)
         {
             var length = 0;
             var result = WinDivertNative.WinDivertRecv(this.handle, packet.Handle, packet.Capacity, ref length, ref addr);
             packet.Length = length;
             return result;
-        } 
-       
+        }
+
+        public Task<bool> WinDivertRecvAsync(WinDivertPacket packet, ref WinDivertAddress addr)
+        {
+            var length = 0;
+            var result = WinDivertNative.WinDivertRecv(this.handle, packet.Handle, packet.Capacity, ref length, ref addr);
+            packet.Length = length;
+            return Task.FromResult(true);
+        }
+
 
         public void Dispose()
         {

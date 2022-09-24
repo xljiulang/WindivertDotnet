@@ -5,12 +5,14 @@ namespace WindivertDotnet
 {
     sealed class WinDivertHandle : SafeHandle
     {
+        private static readonly IntPtr invalidHandleValue = new(unchecked((long)ulong.MaxValue));
+
         private WinDivertHandle()
-            : base(invalidHandleValue: IntPtr.MaxValue, ownsHandle: true)
+            : base(invalidHandleValue, ownsHandle: true)
         {
         }
 
-        public override bool IsInvalid => this.handle == IntPtr.MaxValue;
+        public override bool IsInvalid => this.handle == invalidHandleValue;
 
         protected override bool ReleaseHandle()
         {

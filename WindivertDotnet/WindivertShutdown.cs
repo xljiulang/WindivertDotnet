@@ -3,7 +3,7 @@
 namespace WindivertDotnet
 {
     [Flags]
-    public enum WindivertShutdown
+    public enum WinDivertShutdown
     {
         Recv = 0x1,
         Send = 0x2,

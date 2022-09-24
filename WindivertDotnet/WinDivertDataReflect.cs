@@ -1,6 +1,6 @@
 ﻿namespace WindivertDotnet
 {
-    public partial struct WINDIVERT_DATA_REFLECT
+    public struct WinDivertDataReflect
     {
         [NativeTypeName("INT64")]
         public long Timestamp;
@@ -8,7 +8,7 @@
         [NativeTypeName("UINT32")]
         public uint ProcessId;
 
-        public WindivertLayer Layer;
+        public WinDivertLayer Layer;
 
         [NativeTypeName("UINT64")]
         public ulong Flags;
