@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.32912.340
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindivertDotnet", "WindivertDotnet\WindivertDotnet.csproj", "{070A2A01-6E1E-4094-9433-C62E65DBD2FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App", "App\App.csproj", "{9EA97509-CBC0-414E-9C76-283AAA379347}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{070A2A01-6E1E-4094-9433-C62E65DBD2FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{070A2A01-6E1E-4094-9433-C62E65DBD2FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{070A2A01-6E1E-4094-9433-C62E65DBD2FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{070A2A01-6E1E-4094-9433-C62E65DBD2FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EA97509-CBC0-414E-9C76-283AAA379347}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EA97509-CBC0-414E-9C76-283AAA379347}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EA97509-CBC0-414E-9C76-283AAA379347}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EA97509-CBC0-414E-9C76-283AAA379347}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {23DBE1F7-831E-4D48-93C0-BA0A7596A3F6}
+	EndGlobalSection
+EndGlobal
