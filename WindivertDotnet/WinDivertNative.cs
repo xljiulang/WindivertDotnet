@@ -11,9 +11,9 @@ namespace WindivertDotnet
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern WinDivertHandle WinDivertOpen(
             [MarshalAs(UnmanagedType.LPStr)] string filter,
-            WINDIVERT_LAYER layer,
+            WindivertLayer layer,
             short priority,
-            WINDIVERT_FLAG flags);
+            WindivertFlag flags);
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertRecv(
@@ -37,7 +37,7 @@ namespace WindivertDotnet
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         [return: NativeTypeName("BOOL")]
-        public static extern int WinDivertShutdown([NativeTypeName("HANDLE")] WinDivertHandle handle, WINDIVERT_SHUTDOWN how);
+        public static extern int WinDivertShutdown([NativeTypeName("HANDLE")] WinDivertHandle handle, WindivertShutdown how);
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         [return: NativeTypeName("BOOL")]
@@ -45,11 +45,11 @@ namespace WindivertDotnet
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         [return: NativeTypeName("BOOL")]
-        public static extern int WinDivertSetParam([NativeTypeName("HANDLE")] WinDivertHandle handle, WINDIVERT_PARAM param1, [NativeTypeName("UINT64")] ulong value);
+        public static extern int WinDivertSetParam([NativeTypeName("HANDLE")] WinDivertHandle handle, WindivertParam param1, [NativeTypeName("UINT64")] ulong value);
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         [return: NativeTypeName("BOOL")]
-        public static extern int WinDivertGetParam([NativeTypeName("HANDLE")] WinDivertHandle handle, WINDIVERT_PARAM param1, [NativeTypeName("UINT64 *")] ulong* pValue);
+        public static extern int WinDivertGetParam([NativeTypeName("HANDLE")] WinDivertHandle handle, WindivertParam param1, [NativeTypeName("UINT64 *")] ulong* pValue);
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         [return: NativeTypeName("UINT64")]
@@ -97,7 +97,7 @@ namespace WindivertDotnet
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         [return: NativeTypeName("BOOL")]
-        public static extern int WinDivertHelperCompileFilter([NativeTypeName("const char *")] sbyte* filter, WINDIVERT_LAYER layer, [NativeTypeName("char *")] sbyte* @object, uint objLen, [NativeTypeName("const char **")] sbyte** errorStr, uint* errorPos);
+        public static extern int WinDivertHelperCompileFilter([NativeTypeName("const char *")] sbyte* filter, WindivertLayer layer, [NativeTypeName("char *")] sbyte* @object, uint objLen, [NativeTypeName("const char **")] sbyte** errorStr, uint* errorPos);
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         [return: NativeTypeName("BOOL")]
@@ -105,7 +105,7 @@ namespace WindivertDotnet
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         [return: NativeTypeName("BOOL")]
-        public static extern int WinDivertHelperFormatFilter([NativeTypeName("const char *")] sbyte* filter, WINDIVERT_LAYER layer, [NativeTypeName("char *")] sbyte* buffer, uint bufLen);
+        public static extern int WinDivertHelperFormatFilter([NativeTypeName("const char *")] sbyte* filter, WindivertLayer layer, [NativeTypeName("char *")] sbyte* buffer, uint bufLen);
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         [return: NativeTypeName("UINT16")]

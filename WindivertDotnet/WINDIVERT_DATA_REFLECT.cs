@@ -8,7 +8,7 @@
         [NativeTypeName("UINT32")]
         public uint ProcessId;
 
-        public WINDIVERT_LAYER Layer;
+        public WindivertLayer Layer;
 
         [NativeTypeName("UINT64")]
         public ulong Flags;
