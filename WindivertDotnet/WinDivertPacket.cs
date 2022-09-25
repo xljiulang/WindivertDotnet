@@ -1,50 +1,47 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 
 namespace WindivertDotnet
 {
+    [DebuggerDisplay("Length = {Length}")]
     public class WinDivertPacket : IDisposable
     {
-        public int Capacity { get; }
+        private readonly WinDivertPacketHandle handle;
 
-        public IntPtr Handle { get; }
+        public int Capacity { get; }
 
         public int Length { get; set; }
 
-        public Span<byte> Span => this.GetSpan(this.Length);
+        public SafeHandle Handle => this.handle;
 
-        public unsafe Span<byte> GetSpan(int length)
-        {
-            return length > this.Capacity
-                ? throw new ArgumentOutOfRangeException(nameof(length))
-                : new Span<byte>(this.Handle.ToPointer(), length);
-        }
+        public Span<byte> Span => this.handle.GetSpan(this.Length);
 
         public WinDivertPacket(int capacity = ushort.MaxValue)
         {
             this.Capacity = capacity;
-            this.Handle = Marshal.AllocHGlobal(capacity);
+            this.handle = new WinDivertPacketHandle(capacity);
         }
 
         public void Dispose()
         {
-            Marshal.FreeHGlobal(this.Handle);
+            this.handle.Dispose();
         }
 
         public bool CalcChecksums(ref WinDivertAddress addr, ChecksumsFlag flag = ChecksumsFlag.All)
         {
-            return WinDivertNative.WinDivertHelperCalcChecksums(this.Handle, this.Length, ref addr, flag);
+            return WinDivertNative.WinDivertHelperCalcChecksums(this.handle, this.Length, ref addr, flag);
         }
 
         public bool DecrementTTL()
         {
-            return WinDivertNative.WinDivertHelperDecrementTTL(this.Handle, this.Length);
+            return WinDivertNative.WinDivertHelperDecrementTTL(this.handle, this.Length);
         }
 
         public int GetHash(long seed = 0)
         {
-            return WinDivertNative.WinDivertHelperHashPacket(this.Handle, this.Length, seed);
+            return WinDivertNative.WinDivertHelperHashPacket(this.handle, this.Length, seed);
         }
 
         public unsafe WinDivertParseResult GetParseResult()
@@ -62,7 +59,7 @@ namespace WindivertDotnet
             int nextLength;
 
             WinDivertNative.WinDivertHelperParsePacket(
-                this.Handle,
+                this.handle,
                 this.Length,
                 &pIPV4Header,
                 &pIPV6Header,

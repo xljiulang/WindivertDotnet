@@ -17,7 +17,7 @@ namespace WindivertDotnet
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertRecv(
             WinDivertHandle handle,
-            IntPtr pPacket,
+            SafeHandle pPacket,
             int packetLen,
             ref int pRecvLen,
             ref WinDivertAddress pAddr);
@@ -25,7 +25,7 @@ namespace WindivertDotnet
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertSend(
             WinDivertHandle handle,
-            IntPtr pPacket,
+            SafeHandle pPacket,
             int packetLen,
             ref int pSendLen,
             ref WinDivertAddress pAddr);
@@ -54,13 +54,13 @@ namespace WindivertDotnet
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern int WinDivertHelperHashPacket(
-            IntPtr pPacket,
+            SafeHandle pPacket,
             int packetLen,
             long seed = 0);
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertHelperParsePacket(
-            IntPtr pPacket,
+            SafeHandle pPacket,
             int packetLen,
             IPV4Header** ppIpHdr,
             IPV6Header** ppIpv6Hdr,
@@ -76,14 +76,14 @@ namespace WindivertDotnet
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertHelperCalcChecksums(
-          IntPtr pPacket,
+          SafeHandle pPacket,
           int packetLen,
           ref WinDivertAddress pAddr,
           ChecksumsFlag flags);
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertHelperDecrementTTL(
-            IntPtr pPacket,
+            SafeHandle pPacket,
             int packetLen);
     }
 }

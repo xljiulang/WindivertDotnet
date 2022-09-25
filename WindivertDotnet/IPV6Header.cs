@@ -8,36 +8,36 @@ namespace WindivertDotnet
     public struct IPV6Header
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public byte _bitfield1;
+        public byte bitfield1;
 
 
         public byte TrafficClass0
         {
-            get => (byte)(_bitfield1 & 0xFu);
-            set => _bitfield1 = (byte)((_bitfield1 & ~0xFu) | (value & 0xFu));
+            get => (byte)(bitfield1 & 0xFu);
+            set => bitfield1 = (byte)((bitfield1 & ~0xFu) | (value & 0xFu));
         }
 
         public byte Version
         {
-            get => (byte)((_bitfield1 >> 4) & 0xFu);
-            set => _bitfield1 = (byte)((_bitfield1 & ~(0xFu << 4)) | ((value & 0xFu) << 4));
+            get => (byte)((bitfield1 >> 4) & 0xFu);
+            set => bitfield1 = (byte)((bitfield1 & ~(0xFu << 4)) | ((value & 0xFu) << 4));
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        private byte _bitfield2;
+        private byte bitfield2;
 
 
         public byte FlowLabel0
         {
-            get => (byte)(_bitfield2 & 0xFu);
-            set => _bitfield2 = (byte)((_bitfield2 & ~0xFu) | (value & 0xFu));
+            get => (byte)(bitfield2 & 0xFu);
+            set => bitfield2 = (byte)((bitfield2 & ~0xFu) | (value & 0xFu));
         }
 
 
         public byte TrafficClass1
         {
-            get => (byte)((_bitfield2 >> 4) & 0xFu);
-            set => _bitfield2 = (byte)((_bitfield2 & ~(0xFu << 4)) | ((value & 0xFu) << 4));
+            get => (byte)((bitfield2 >> 4) & 0xFu);
+            set => bitfield2 = (byte)((bitfield2 & ~(0xFu << 4)) | ((value & 0xFu) << 4));
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]

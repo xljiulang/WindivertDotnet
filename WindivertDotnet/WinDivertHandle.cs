@@ -1,18 +1,13 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using Microsoft.Win32.SafeHandles;
 
 namespace WindivertDotnet
 {
-    sealed class WinDivertHandle : SafeHandle
+    sealed class WinDivertHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
-        private static readonly IntPtr invalidHandleValue = new(unchecked((long)ulong.MaxValue));
-
         private WinDivertHandle()
-            : base(invalidHandleValue, ownsHandle: true)
+            : base(true)
         {
         }
-
-        public override bool IsInvalid => this.handle == invalidHandleValue;
 
         protected override bool ReleaseHandle()
         {

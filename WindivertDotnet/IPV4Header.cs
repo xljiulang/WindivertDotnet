@@ -9,19 +9,19 @@ namespace WindivertDotnet
     public struct IPV4Header
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
-        private byte _bitfield;
+        private byte bitfield;
 
 
         public byte HdrLength
         {
-            get => (byte)(_bitfield & 0xFu);
-            set => _bitfield = (byte)((_bitfield & ~0xFu) | (value & 0xFu));
+            get => (byte)(bitfield & 0xFu);
+            set => bitfield = (byte)((bitfield & ~0xFu) | (value & 0xFu));
         }
 
         public byte Version
         {
-            get => (byte)((_bitfield >> 4) & 0xFu);
-            set => _bitfield = (byte)((_bitfield & ~(0xFu << 4)) | ((value & 0xFu) << 4));
+            get => (byte)((bitfield >> 4) & 0xFu);
+            set => bitfield = (byte)((bitfield & ~(0xFu << 4)) | ((value & 0xFu) << 4));
         }
 
         public byte TOS;

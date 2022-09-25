@@ -1,11 +1,14 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 
 namespace WindivertDotnet
 {
     public partial class WinDivert : IDisposable
     {
         private readonly WinDivertHandle handle;
+
+        public SafeHandle Handle => this.handle;
 
         public Version Version
         {
@@ -104,6 +107,11 @@ namespace WindivertDotnet
         {
             this.Shutdown(WinDivertShutdown.Both);
             this.handle.Dispose();
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(WinDivert)} v{this.Version}";
         }
     }
 }
