@@ -82,7 +82,7 @@ namespace WindivertDotnet
                 BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 1), srcAddrB);
                 BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 2), srcAddrC);
                 BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 3), srcAddrD);
-                return new IPAddress(bytes);
+                return new(bytes);
             }
             set
             {
@@ -112,7 +112,7 @@ namespace WindivertDotnet
                 BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 1), dstAddrB);
                 BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 2), dstAddrC);
                 BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 3), dstAddrD);
-                return new IPAddress(bytes);
+                return new(bytes);
             }
             set
             {

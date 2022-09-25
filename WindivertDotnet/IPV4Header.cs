@@ -1,5 +1,4 @@
-﻿using System;
-using System.Buffers.Binary;
+﻿using System.Buffers.Binary;
 using System.ComponentModel;
 using System.Net;
 using System.Net.Sockets;
@@ -74,7 +73,7 @@ namespace WindivertDotnet
 
         public IPAddress SrcAddr
         {
-            get => new IPAddress(unchecked(this.srcAddr));
+            get => new(unchecked(this.srcAddr));
             set => this.srcAddr = BinaryPrimitives.ReadUInt32LittleEndian(value.GetAddressBytes());
         }
 
@@ -83,7 +82,7 @@ namespace WindivertDotnet
 
         public IPAddress DstAddr
         {
-            get => new IPAddress(unchecked(this.dstAddr));
+            get => new(unchecked(this.dstAddr));
             set => this.dstAddr = BinaryPrimitives.ReadUInt32LittleEndian(value.GetAddressBytes());
         }
     }

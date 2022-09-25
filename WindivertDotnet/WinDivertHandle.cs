@@ -2,6 +2,9 @@
 
 namespace WindivertDotnet
 {
+    /// <summary>
+    /// WinDivert的句柄
+    /// </summary>
     sealed class WinDivertHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
         private WinDivertHandle()

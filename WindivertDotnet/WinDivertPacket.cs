@@ -5,45 +5,86 @@ using System.Runtime.InteropServices;
 
 namespace WindivertDotnet
 {
+    /// <summary>
+    /// 表示WinDivert的数据包
+    /// </summary>
     [DebuggerDisplay("Length = {Length}")]
-    public class WinDivertPacket : IDisposable
+    public sealed class WinDivertPacket : IDisposable
     {
         private readonly WinDivertPacketHandle handle;
 
+        /// <summary>
+        /// 获取最大容量
+        /// </summary>
         public int Capacity { get; }
 
+        /// <summary>
+        /// 获取或设置有效数据的长度
+        /// </summary>
         public int Length { get; set; }
 
+        /// <summary>
+        /// 获取关联的句柄
+        /// </summary>
         public SafeHandle Handle => this.handle;
 
+        /// <summary>
+        /// 获取数据视图
+        /// </summary>
         public Span<byte> Span => this.handle.GetSpan(this.Length);
 
+        /// <summary>
+        /// WinDivert的数据包
+        /// </summary>
+        /// <param name="capacity">最大容量</param>
         public WinDivertPacket(int capacity = ushort.MaxValue)
         {
             this.Capacity = capacity;
             this.handle = new WinDivertPacketHandle(capacity);
         }
 
+        /// <summary>
+        /// 释放相关资源
+        /// </summary>
         public void Dispose()
         {
             this.handle.Dispose();
         }
 
+        /// <summary>
+        /// 重新计算和修改相关的Checksums
+        /// </summary>
+        /// <param name="addr">地址信息</param>
+        /// <param name="flag"></param>
+        /// <returns></returns>
         public bool CalcChecksums(ref WinDivertAddress addr, ChecksumsFlag flag = ChecksumsFlag.All)
         {
             return WinDivertNative.WinDivertHelperCalcChecksums(this.handle, this.Length, ref addr, flag);
         }
 
+        /// <summary>
+        /// ttl减1
+        /// </summary>
+        /// <returns></returns>
         public bool DecrementTTL()
         {
             return WinDivertNative.WinDivertHelperDecrementTTL(this.handle, this.Length);
         }
 
+        /// <summary>
+        /// 获取包的哈希
+        /// </summary>
+        /// <param name="seed"></param>
+        /// <returns></returns>
         public int GetHash(long seed = 0)
         {
             return WinDivertNative.WinDivertHelperHashPacket(this.handle, this.Length, seed);
         }
 
+        /// <summary>
+        /// 获取包的解析结果
+        /// </summary>
+        /// <returns></returns>
         public unsafe WinDivertParseResult GetParseResult()
         {
             IPV4Header* pIPV4Header;

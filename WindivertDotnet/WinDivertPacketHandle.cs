@@ -4,6 +4,9 @@ using System.Runtime.InteropServices;
 
 namespace WindivertDotnet
 {
+    /// <summary>
+    /// WinDivertPacket的句柄 
+    /// </summary>
     sealed class WinDivertPacketHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
         private readonly int capacity;

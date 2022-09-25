@@ -4,12 +4,21 @@ using System.Runtime.InteropServices;
 
 namespace WindivertDotnet
 {
+    /// <summary>
+    /// 表示WinDivert的操作对象
+    /// </summary>
     public partial class WinDivert : IDisposable
     {
         private readonly WinDivertHandle handle;
 
+        /// <summary>
+        /// 获取对象的句柄
+        /// </summary>
         public SafeHandle Handle => this.handle;
 
+        /// <summary>
+        /// 获取软件版本
+        /// </summary>
         public Version Version
         {
             get
@@ -20,40 +29,15 @@ namespace WindivertDotnet
             }
         }
 
-
-        public static WinDivert LayerNetwork(string filter, short priority = 0, WinDivertFlag flag = WinDivertFlag.None)
-        {
-            return new WinDivert(filter, WinDivertLayer.Network, priority, flag);
-        }
-
-        public static WinDivert LayerNetworkForward(string filter, short priority = 0, WinDivertFlag flag = WinDivertFlag.None)
-        {
-            return new WinDivert(filter, WinDivertLayer.NetworkForward, priority, flag);
-        }
-
-        public static WinDivert LayerFlow(string filter, short priority = 0, WinDivertFlag flag = WinDivertFlag.Sniff | WinDivertFlag.RecvOnly)
-        {
-            return new WinDivert(filter, WinDivertLayer.Flow, priority, flag);
-        }
-        public static WinDivert LayerSocket(string filter, short priority = 0, WinDivertFlag flag = WinDivertFlag.RecvOnly)
-        {
-            return new WinDivert(filter, WinDivertLayer.Socket, priority, flag);
-        }
-
-        public static WinDivert LayerReflect(string filter, short priority = 0, WinDivertFlag flag = WinDivertFlag.Sniff | WinDivertFlag.RecvOnly)
-        {
-            return new WinDivert(filter, WinDivertLayer.Reflect, priority, flag);
-        }
-
         /// <summary>
-        /// Win32Exception
+        /// 创建一个WinDivert实例
         /// </summary>
-        /// <param name="filter"></param>
-        /// <param name="layer"></param>
-        /// <param name="priority"></param>
-        /// <param name="flags"></param>
+        /// <param name="filter">过滤器</param>
+        /// <param name="layer">工作层</param>
+        /// <param name="priority">优先级</param>
+        /// <param name="flags">标记</param>
         /// <exception cref="Win32Exception"></exception>
-        public WinDivert(string filter, WinDivertLayer layer, short priority, WinDivertFlag flags)
+        public WinDivert(string filter, WinDivertLayer layer, short priority = 0, WinDivertFlag flags = WinDivertFlag.None)
         {
             this.handle = WinDivertNative.WinDivertOpen(filter, layer, priority, flags);
             if (this.handle.IsInvalid)
@@ -62,6 +46,13 @@ namespace WindivertDotnet
             }
         }
 
+        /// <summary>
+        /// 读取数据包
+        /// </summary>
+        /// <param name="packet">数据包</param>
+        /// <param name="addr">地址信息</param>
+        /// <returns></returns>
+        /// <exception cref="Win32Exception"></exception>
         public int Recv(WinDivertPacket packet, ref WinDivertAddress addr)
         {
             var length = 0;
@@ -74,6 +65,13 @@ namespace WindivertDotnet
             return length;
         }
 
+        /// <summary>
+        /// 发送数据包
+        /// </summary>
+        /// <param name="packet">数据包</param>
+        /// <param name="addr">地址信息</param>
+        /// <returns></returns>
+        /// <exception cref="Win32Exception"></exception>
         public int Send(WinDivertPacket packet, ref WinDivertAddress addr)
         {
             var length = 0;
@@ -86,6 +84,12 @@ namespace WindivertDotnet
             return length;
         }
 
+        /// <summary>
+        /// 获取指定的参数值
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        /// <exception cref="Win32Exception"></exception>
         public long GetParam(WinDivertParam param)
         {
             var value = 0L;
@@ -93,16 +97,30 @@ namespace WindivertDotnet
             return result ? value : throw new Win32Exception();
         }
 
+        /// <summary>
+        /// 设置指定的参数值
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public bool SetParam(WinDivertParam param, long value)
         {
             return WinDivertNative.WinDivertSetParam(this.handle, param, value);
         }
 
+        /// <summary>
+        /// 关闭
+        /// </summary>
+        /// <param name="how"></param>
+        /// <returns></returns>
         public bool Shutdown(WinDivertShutdown how)
         {
             return WinDivertNative.WinDivertShutdown(this.handle, how);
         }
 
+        /// <summary>
+        /// 关闭并释放资源
+        /// </summary>
         public void Dispose()
         {
             this.Shutdown(WinDivertShutdown.Both);
