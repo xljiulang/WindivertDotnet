@@ -12,9 +12,9 @@ namespace WindivertDotnet
 
         public int Length { get; set; }
 
-        public Span<byte> Span => this.AsSpan(this.Length);
+        public Span<byte> Span => this.GetSpan(this.Length);
 
-        public unsafe Span<byte> AsSpan(int length)
+        public unsafe Span<byte> GetSpan(int length)
         {
             return length > this.Capacity
                 ? throw new ArgumentOutOfRangeException(nameof(length))
@@ -30,6 +30,21 @@ namespace WindivertDotnet
         public void Dispose()
         {
             Marshal.FreeHGlobal(this.Handle);
+        }
+
+        public bool CalcChecksums(ref WinDivertAddress addr, ChecksumsFlag flag = ChecksumsFlag.All)
+        {
+            return WinDivertNative.WinDivertHelperCalcChecksums(this.Handle, this.Length, ref addr, flag);
+        }
+
+        public bool DecrementTTL()
+        {
+            return WinDivertNative.WinDivertHelperDecrementTTL(this.Handle, this.Length);
+        }
+
+        public int GetHash(long seed = 0)
+        {
+            return WinDivertNative.WinDivertHelperHashPacket(this.Handle, this.Length, seed);
         }
 
         public unsafe WinDivertParseResult GetParseResult()
