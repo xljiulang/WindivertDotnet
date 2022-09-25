@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace WindivertDotnet
@@ -7,6 +8,7 @@ namespace WindivertDotnet
     /// <summary>
     /// 表示WinDivert的操作对象
     /// </summary>
+    [DebuggerDisplay("Filter = {Filter}, Layer = {Layer}")]
     public partial class WinDivert : IDisposable
     {
         private readonly WinDivertHandle handle;
@@ -15,6 +17,16 @@ namespace WindivertDotnet
         /// 获取对象的句柄
         /// </summary>
         public SafeHandle Handle => this.handle;
+
+        /// <summary>
+        /// 获取过滤器
+        /// </summary>
+        public string Filter { get; }
+
+        /// <summary>
+        /// 获取工作层
+        /// </summary>
+        public WinDivertLayer Layer { get; }
 
         /// <summary>
         /// 获取软件版本
@@ -28,6 +40,7 @@ namespace WindivertDotnet
                 return new Version(major, minor);
             }
         }
+
 
         /// <summary>
         /// 创建一个WinDivert实例
@@ -44,6 +57,8 @@ namespace WindivertDotnet
             {
                 throw new Win32Exception();
             }
+            this.Filter = filter;
+            this.Layer = layer;
         }
 
         /// <summary>
@@ -125,11 +140,6 @@ namespace WindivertDotnet
         {
             this.Shutdown(WinDivertShutdown.Both);
             this.handle.Dispose();
-        }
-
-        public override string ToString()
-        {
-            return $"{nameof(WinDivert)} v{this.Version}";
-        }
+        } 
     }
 }

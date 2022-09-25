@@ -12,7 +12,7 @@ namespace WindivertDotnet
     public sealed class WinDivertPacket : IDisposable
     {
         private readonly WinDivertPacketHandle handle;
-
+         
         /// <summary>
         /// 获取最大容量
         /// </summary>
