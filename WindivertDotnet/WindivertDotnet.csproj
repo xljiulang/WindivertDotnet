@@ -5,9 +5,10 @@
 		<Nullable>enable</Nullable>
 		<LangVersion>9.0</LangVersion>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<NoWarn>CS1591</NoWarn>
 		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
 	</PropertyGroup>
-
+ 
 	<ItemGroup>
 		<None Remove="WinDivert22\*\*" />
 		<EmbeddedResource Include="WinDivert22\*\*" />
