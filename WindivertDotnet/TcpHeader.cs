@@ -72,7 +72,7 @@ namespace WindivertDotnet
         }
 
         /// <summary>
-        /// 获取或设置TCP Header的长度
+        /// 获取或设置HdrLength位
         /// </summary>
         public ushort HdrLength
         {

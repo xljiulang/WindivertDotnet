@@ -2,6 +2,9 @@
 
 namespace WindivertDotnet
 {
+    /// <summary>
+    /// 校验和选项
+    /// </summary>
     [Flags]
     public enum ChecksumsFlag : ulong
     {

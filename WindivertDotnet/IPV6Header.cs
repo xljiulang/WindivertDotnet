@@ -5,19 +5,27 @@ using System.Net;
 
 namespace WindivertDotnet
 {
+    /// <summary>
+    /// IPv6头
+    /// </summary>
     [DebuggerDisplay("SrcAddr = {SrcAddr}, DstAddr = {DstAddr}, Size = {sizeof(IPV6Header)}")]
     public struct IPV6Header
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public byte bitfield1;
+        private byte bitfield1;
 
-
+        /// <summary>
+        /// 获取或设置流量类
+        /// </summary>
         public byte TrafficClass0
         {
             get => (byte)(bitfield1 & 0xFu);
             set => bitfield1 = (byte)((bitfield1 & ~0xFu) | (value & 0xFu));
         }
 
+        /// <summary>
+        /// 获取或设置版本
+        /// </summary>
         public byte Version
         {
             get => (byte)((bitfield1 >> 4) & 0xFu);
@@ -27,7 +35,9 @@ namespace WindivertDotnet
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private byte bitfield2;
 
-
+        /// <summary>
+        /// 获取或设置流标签
+        /// </summary>
         public byte FlowLabel0
         {
             get => (byte)(bitfield2 & 0xFu);
@@ -35,6 +45,9 @@ namespace WindivertDotnet
         }
 
 
+        /// <summary>
+        /// 获取或设置流量类
+        /// </summary>
         public byte TrafficClass1
         {
             get => (byte)((bitfield2 >> 4) & 0xFu);
@@ -44,6 +57,9 @@ namespace WindivertDotnet
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ushort flowLabel1;
 
+        /// <summary>
+        /// 获取或设置流标签
+        /// </summary>
         public ushort FlowLabel1
         {
             get => BinaryPrimitives.ReverseEndianness(flowLabel1);
@@ -54,15 +70,23 @@ namespace WindivertDotnet
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ushort length;
 
+        /// <summary>
+        /// 获取或设置有效负载长度
+        /// </summary>
         public ushort Length
         {
             get => BinaryPrimitives.ReverseEndianness(length);
             set => length = BinaryPrimitives.ReverseEndianness(value);
         }
 
-
+        /// <summary>
+        /// 获取或设置下一个报头
+        /// </summary>
         public byte NextHdr;
 
+        /// <summary>
+        /// 获取或设置跳跃限制
+        /// </summary>
         public byte HopLimit;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -74,6 +98,9 @@ namespace WindivertDotnet
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private uint srcAddrD;
 
+        /// <summary>
+        /// 获取或设置源IPv6
+        /// </summary>
         public IPAddress SrcAddr
         {
             get
@@ -104,6 +131,9 @@ namespace WindivertDotnet
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private uint dstAddrD;
 
+        /// <summary>
+        /// 获取或设置目的IPV6
+        /// </summary>
         public IPAddress DstAddr
         {
             get
