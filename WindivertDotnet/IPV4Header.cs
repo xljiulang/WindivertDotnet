@@ -88,7 +88,11 @@ namespace WindivertDotnet
         /// <summary>
         /// 获取或设置协议类型
         /// </summary>
-        public ProtocolType Protocol => (ProtocolType)protocol;
+        public ProtocolType Protocol
+        {
+            get => (ProtocolType)protocol;
+            set => protocol = (byte)value;
+        }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ushort checksum;

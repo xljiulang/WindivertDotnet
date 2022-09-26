@@ -21,6 +21,14 @@ namespace WindivertDotnet
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private byte protocol;
-        public ProtocolType Protocol => (ProtocolType)protocol;
+
+        /// <summary>
+        /// 获取或设置协议类型
+        /// </summary>
+        public ProtocolType Protocol
+        {
+            get => (ProtocolType)protocol;
+            set => protocol = (byte)value;
+        }
     }
 }
