@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace WindivertDotnet
 {
@@ -11,13 +10,7 @@ namespace WindivertDotnet
     [DebuggerDisplay("Filter = {Filter}, Layer = {Layer}")]
     public partial class WinDivert : IDisposable
     {
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly WinDivertHandle handle;
-
-        /// <summary>
-        /// 获取对象的句柄
-        /// </summary>
-        public SafeHandle Handle => this.handle;
+        private readonly WinDivertHandle handle; 
 
         /// <summary>
         /// 获取过滤器
@@ -32,6 +25,7 @@ namespace WindivertDotnet
         /// <summary>
         /// 获取软件版本
         /// </summary>
+        /// <exception cref="Win32Exception"></exception>
         public Version Version
         {
             get
@@ -45,6 +39,7 @@ namespace WindivertDotnet
         /// <summary>
         /// 获取或设置列队的容量大小
         /// </summary>
+        /// <exception cref="Win32Exception"></exception>
         public long QueueLength
         {
             get => this.GetParam(WinDivertParam.QueueLength);
@@ -54,6 +49,7 @@ namespace WindivertDotnet
         /// <summary>
         /// 获取或设自动丢弃数据包之前可以排队的最短时长
         /// </summary>
+        /// <exception cref="Win32Exception"></exception>
         public TimeSpan QueueTime
         {
             get => TimeSpan.FromMilliseconds(this.GetParam(WinDivertParam.QueueTime));
@@ -63,6 +59,7 @@ namespace WindivertDotnet
         /// <summary>
         /// 获取或设置存储在数据包队列中的最大字节数
         /// </summary>
+        /// <exception cref="Win32Exception"></exception>
         public long QueueSize
         {
             get => this.GetParam(WinDivertParam.QueueSize);
@@ -98,7 +95,7 @@ namespace WindivertDotnet
         public int Recv(WinDivertPacket packet, ref WinDivertAddress addr)
         {
             var length = 0;
-            var result = WinDivertNative.WinDivertRecv(this.handle, packet.Handle, packet.Capacity, ref length, ref addr);
+            var result = WinDivertNative.WinDivertRecv(this.handle, packet.Buffer, packet.Capacity, ref length, ref addr);
             if (result == false)
             {
                 throw new Win32Exception();
@@ -117,7 +114,7 @@ namespace WindivertDotnet
         public int Send(WinDivertPacket packet, ref WinDivertAddress addr)
         {
             var length = 0;
-            var result = WinDivertNative.WinDivertSend(this.handle, packet.Handle, packet.Length, ref length, ref addr);
+            var result = WinDivertNative.WinDivertSend(this.handle, packet.Buffer, packet.Length, ref length, ref addr);
             if (result == false)
             {
                 throw new Win32Exception();
@@ -144,7 +141,7 @@ namespace WindivertDotnet
         /// </summary>
         /// <param name="param"></param>
         /// <param name="value"></param>
-        /// <returns></returns>
+        /// <exception cref="Win32Exception"></exception>
         private void SetParam(WinDivertParam param, long value)
         {
             if (WinDivertNative.WinDivertSetParam(this.handle, param, value) == false)

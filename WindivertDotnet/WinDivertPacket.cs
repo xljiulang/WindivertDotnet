@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -16,26 +17,26 @@ namespace WindivertDotnet
         private int length;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly WinDivertPacketHandle handle;
+        private readonly WinDivertPacketBuffer buffer;
 
-        /// <summary>
-        /// 获取缓冲区句柄
-        /// </summary>
-        public SafeHandle Handle => this.handle;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal SafeHandle Buffer => this.buffer;
+
 
         /// <summary>
         /// 获取缓冲区容量
         /// </summary>
-        public int Capacity => this.handle.Capacity;
+        public int Capacity => this.buffer.Capacity;
 
         /// <summary>
         /// 获取有效数据视图
         /// </summary>
-        public Span<byte> Span => this.handle.GetSpan(this.Length);
+        public Span<byte> Span => this.buffer.GetSpan(this.Length);
 
         /// <summary>
         /// 获取或设置有效数据的长度
         /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public int Length
         {
             get => this.length;
@@ -55,8 +56,8 @@ namespace WindivertDotnet
         /// <param name="capacity">最大容量</param>
         public WinDivertPacket(int capacity = ushort.MaxValue)
         {
-            this.handle = new WinDivertPacketHandle(capacity);
-        } 
+            this.buffer = new WinDivertPacketBuffer(capacity);
+        }
 
         /// <summary>
         /// 重新计算和修改相关的Checksums
@@ -66,7 +67,7 @@ namespace WindivertDotnet
         /// <returns></returns>
         public bool CalcChecksums(ref WinDivertAddress addr, ChecksumsFlag flag = ChecksumsFlag.All)
         {
-            return WinDivertNative.WinDivertHelperCalcChecksums(this.handle, this.Length, ref addr, flag);
+            return WinDivertNative.WinDivertHelperCalcChecksums(this.buffer, this.Length, ref addr, flag);
         }
 
         /// <summary>
@@ -75,7 +76,7 @@ namespace WindivertDotnet
         /// <returns></returns>
         public bool DecrementTTL()
         {
-            return WinDivertNative.WinDivertHelperDecrementTTL(this.handle, this.Length);
+            return WinDivertNative.WinDivertHelperDecrementTTL(this.buffer, this.Length);
         }
 
         /// <summary>
@@ -85,13 +86,14 @@ namespace WindivertDotnet
         /// <returns></returns>
         public int GetHash(long seed = 0L)
         {
-            return WinDivertNative.WinDivertHelperHashPacket(this.handle, this.Length, seed);
+            return WinDivertNative.WinDivertHelperHashPacket(this.buffer, this.Length, seed);
         }
 
         /// <summary>
         /// 获取包的解析结果
         /// </summary>
         /// <returns></returns>
+        /// <exception cref="Win32Exception"></exception>
         public unsafe WinDivertParseResult GetParseResult()
         {
             IPV4Header* pIPV4Header;
@@ -106,8 +108,8 @@ namespace WindivertDotnet
             byte* pNext;
             int nextLength;
 
-            WinDivertNative.WinDivertHelperParsePacket(
-                this.handle,
+            var flag = WinDivertNative.WinDivertHelperParsePacket(
+                this.buffer,
                 this.Length,
                 &pIPV4Header,
                 &pIPV6Header,
@@ -120,6 +122,11 @@ namespace WindivertDotnet
                 &dataLength,
                 &pNext,
                 &nextLength);
+
+            if (flag == false)
+            {
+                throw new Win32Exception();
+            }
 
             return new WinDivertParseResult
             {
@@ -142,22 +149,22 @@ namespace WindivertDotnet
         /// </summary>
         public void Dispose()
         {
-            this.handle.Dispose();
+            this.buffer.Dispose();
         }
 
 
         /// <summary>
-        /// WinDivertPacket的句柄 
+        /// WinDivertPacket的缓存区
         /// </summary>
-        private class WinDivertPacketHandle : SafeHandleZeroOrMinusOneIsInvalid
+        private class WinDivertPacketBuffer : SafeHandleZeroOrMinusOneIsInvalid
         {
             public int Capacity { get; }
 
-            public WinDivertPacketHandle(int capacity)
+            public WinDivertPacketBuffer(int capacity)
                 : base(true)
             {
                 this.Capacity = capacity;
-                base.SetHandle(Marshal.AllocHGlobal(capacity));
+                this.SetHandle(Marshal.AllocHGlobal(capacity));
             }
 
             public unsafe Span<byte> GetSpan(int length)
@@ -170,6 +177,7 @@ namespace WindivertDotnet
             protected override bool ReleaseHandle()
             {
                 Marshal.FreeHGlobal(this.handle);
+                this.SetHandle(IntPtr.Zero);
                 return true;
             }
         }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Buffers.Binary;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Net;
 
@@ -9,7 +8,7 @@ namespace WindivertDotnet
     [DebuggerDisplay("SrcAddr = {SrcAddr}, DstAddr = {DstAddr}")]
     public struct IPV6Header
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public byte bitfield1;
 
 
@@ -25,7 +24,7 @@ namespace WindivertDotnet
             set => bitfield1 = (byte)((bitfield1 & ~(0xFu << 4)) | ((value & 0xFu) << 4));
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private byte bitfield2;
 
 
@@ -42,7 +41,7 @@ namespace WindivertDotnet
             set => bitfield2 = (byte)((bitfield2 & ~(0xFu << 4)) | ((value & 0xFu) << 4));
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ushort flowLabel1;
 
         public ushort FlowLabel1
@@ -52,7 +51,7 @@ namespace WindivertDotnet
         }
 
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ushort length;
 
         public ushort Length
@@ -66,13 +65,13 @@ namespace WindivertDotnet
 
         public byte HopLimit;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private uint srcAddrA;
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private uint srcAddrB;
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private uint srcAddrC;
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private uint srcAddrD;
 
         public IPAddress SrcAddr
@@ -96,13 +95,13 @@ namespace WindivertDotnet
             }
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private uint dstAddrA;
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private uint dstAddrB;
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private uint dstAddrC;
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private uint dstAddrD;
 
         public IPAddress DstAddr

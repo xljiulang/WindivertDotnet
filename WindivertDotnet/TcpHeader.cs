@@ -1,5 +1,4 @@
 ﻿using System.Buffers.Binary;
-using System.ComponentModel;
 using System.Diagnostics;
 
 namespace WindivertDotnet
@@ -7,7 +6,7 @@ namespace WindivertDotnet
     [DebuggerDisplay("SrcPort = {SrcPort}, DstPort = {DstPort}")]
     public struct TcpHeader
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ushort srcPort;
         public ushort SrcPort
         {
@@ -15,7 +14,7 @@ namespace WindivertDotnet
             set => srcPort = BinaryPrimitives.ReverseEndianness(value);
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ushort dstPort;
         public ushort DstPort
         {
@@ -24,7 +23,7 @@ namespace WindivertDotnet
         }
 
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private uint seqNum;
         public uint SeqNum
         {
@@ -33,7 +32,7 @@ namespace WindivertDotnet
         }
 
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private uint ackNum;
         public uint AckNum
         {
@@ -41,7 +40,7 @@ namespace WindivertDotnet
             set => ackNum = BinaryPrimitives.ReverseEndianness(value);
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ushort bitfield;
 
 
@@ -106,7 +105,7 @@ namespace WindivertDotnet
             set => bitfield = (ushort)((bitfield & ~(0x3u << 14)) | ((value & 0x3u) << 14));
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ushort window;
 
         public ushort Window
@@ -115,7 +114,7 @@ namespace WindivertDotnet
             set => window = BinaryPrimitives.ReverseEndianness(value);
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ushort checksum;
 
         public ushort Checksum
@@ -124,7 +123,7 @@ namespace WindivertDotnet
             set => checksum = BinaryPrimitives.ReverseEndianness(value);
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ushort urgPtr;
 
         public ushort UrgPtr

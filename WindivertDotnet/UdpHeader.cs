@@ -1,5 +1,4 @@
 ﻿using System.Buffers.Binary;
-using System.ComponentModel;
 using System.Diagnostics;
 
 namespace WindivertDotnet
@@ -7,7 +6,7 @@ namespace WindivertDotnet
     [DebuggerDisplay("SrcPort = {SrcPort}, DstPort = {DstPort}")]
     public struct UdpHeader
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ushort srcPort;
 
         public ushort SrcPort
@@ -16,7 +15,7 @@ namespace WindivertDotnet
             set => srcPort = BinaryPrimitives.ReverseEndianness(value);
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ushort dstPort;
 
         public ushort DstPort
@@ -26,10 +25,10 @@ namespace WindivertDotnet
         }
 
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ushort length;
 
-      
+
         public ushort Length
         {
             get => BinaryPrimitives.ReverseEndianness(length);
@@ -37,9 +36,9 @@ namespace WindivertDotnet
         }
 
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ushort checksum;
-      
+
         public ushort Checksum
         {
             get => BinaryPrimitives.ReverseEndianness(checksum);

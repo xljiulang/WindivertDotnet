@@ -1,5 +1,4 @@
 ﻿using System.Buffers.Binary;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
@@ -9,7 +8,7 @@ namespace WindivertDotnet
     [DebuggerDisplay("SrcAddr = {SrcAddr}, DstAddr = {DstAddr}")]
     public struct IPV4Header
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private byte bitfield;
 
 
@@ -27,7 +26,7 @@ namespace WindivertDotnet
 
         public byte TOS;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ushort length;
 
         public ushort Length
@@ -36,7 +35,7 @@ namespace WindivertDotnet
             set => length = BinaryPrimitives.ReverseEndianness(value);
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ushort id;
 
         public ushort Id
@@ -45,7 +44,7 @@ namespace WindivertDotnet
             set => id = BinaryPrimitives.ReverseEndianness(value);
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ushort fragOff0;
 
         public ushort FragOff0
@@ -56,12 +55,12 @@ namespace WindivertDotnet
 
         public byte TTL;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private byte protocol;
 
         public ProtocolType Protocol => (ProtocolType)protocol;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ushort checksum;
 
         public ushort Checksum
@@ -70,7 +69,7 @@ namespace WindivertDotnet
             set => checksum = BinaryPrimitives.ReverseEndianness(value);
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private uint srcAddr;
 
         public IPAddress SrcAddr
@@ -79,7 +78,7 @@ namespace WindivertDotnet
             set => this.srcAddr = BinaryPrimitives.ReadUInt32LittleEndian(value.GetAddressBytes());
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private uint dstAddr;
 
         public IPAddress DstAddr

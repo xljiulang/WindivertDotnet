@@ -1,5 +1,4 @@
 ﻿using System.Buffers.Binary;
-using System.ComponentModel;
 using System.Diagnostics;
 
 namespace WindivertDotnet
@@ -11,7 +10,7 @@ namespace WindivertDotnet
 
         public byte Code;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ushort checksum;
 
         public ushort Checksum
