@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace WindivertDotnet
 {
-    [DebuggerDisplay("Type = {Type}, Code = {Code}")]
+    [DebuggerDisplay("Type = {Type}, Code = {Code}, Size = {sizeof(IcmpV4Header)}")]
     public struct IcmpV4Header
     {
         public byte Type;

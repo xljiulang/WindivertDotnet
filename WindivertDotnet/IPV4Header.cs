@@ -5,7 +5,10 @@ using System.Net.Sockets;
 
 namespace WindivertDotnet
 {
-    [DebuggerDisplay("SrcAddr = {SrcAddr}, DstAddr = {DstAddr}")]
+    /// <summary>
+    /// IPV4头
+    /// </summary>
+    [DebuggerDisplay("SrcAddr = {SrcAddr}, DstAddr = {DstAddr}, Size = {sizeof(IPV4Header)}")]
     public struct IPV4Header
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]

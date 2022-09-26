@@ -5,7 +5,7 @@ using System.Net;
 
 namespace WindivertDotnet
 {
-    [DebuggerDisplay("SrcAddr = {SrcAddr}, DstAddr = {DstAddr}")]
+    [DebuggerDisplay("SrcAddr = {SrcAddr}, DstAddr = {DstAddr}, Size = {sizeof(IPV6Header)}")]
     public struct IPV6Header
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
