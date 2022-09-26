@@ -11,6 +11,7 @@ namespace WindivertDotnet
     [DebuggerDisplay("Filter = {Filter}, Layer = {Layer}")]
     public partial class WinDivert : IDisposable
     {
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly WinDivertHandle handle;
 
         /// <summary>
@@ -41,6 +42,32 @@ namespace WindivertDotnet
             }
         }
 
+        /// <summary>
+        /// 获取或设置列队的容量大小
+        /// </summary>
+        public long QueueLength
+        {
+            get => this.GetParam(WinDivertParam.QueueLength);
+            set => this.SetParam(WinDivertParam.QueueLength, value);
+        }
+
+        /// <summary>
+        /// 获取或设自动丢弃数据包之前可以排队的最短时长
+        /// </summary>
+        public TimeSpan QueueTime
+        {
+            get => TimeSpan.FromMilliseconds(this.GetParam(WinDivertParam.QueueTime));
+            set => this.SetParam(WinDivertParam.QueueTime, (long)value.TotalMilliseconds);
+        }
+
+        /// <summary>
+        /// 获取或设置存储在数据包队列中的最大字节数
+        /// </summary>
+        public long QueueSize
+        {
+            get => this.GetParam(WinDivertParam.QueueSize);
+            set => this.SetParam(WinDivertParam.QueueSize, value);
+        }
 
         /// <summary>
         /// 创建一个WinDivert实例
@@ -105,7 +132,7 @@ namespace WindivertDotnet
         /// <param name="param"></param>
         /// <returns></returns>
         /// <exception cref="Win32Exception"></exception>
-        public long GetParam(WinDivertParam param)
+        private long GetParam(WinDivertParam param)
         {
             var value = 0L;
             var result = WinDivertNative.WinDivertGetParam(this.handle, param, ref value);
@@ -118,9 +145,12 @@ namespace WindivertDotnet
         /// <param name="param"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public bool SetParam(WinDivertParam param, long value)
+        private void SetParam(WinDivertParam param, long value)
         {
-            return WinDivertNative.WinDivertSetParam(this.handle, param, value);
+            if (WinDivertNative.WinDivertSetParam(this.handle, param, value) == false)
+            {
+                throw new Win32Exception();
+            }
         }
 
         /// <summary>
@@ -140,6 +170,6 @@ namespace WindivertDotnet
         {
             this.Shutdown(WinDivertShutdown.Both);
             this.handle.Dispose();
-        } 
+        }
     }
 }

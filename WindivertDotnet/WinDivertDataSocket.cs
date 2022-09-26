@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System.ComponentModel;
+using System.Net.Sockets;
 
 namespace WindivertDotnet
 {
@@ -18,6 +19,7 @@ namespace WindivertDotnet
 
         public ushort RemotePort;
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         private byte protocol;
         public ProtocolType Protocol => (ProtocolType)protocol;
     }

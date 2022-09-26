@@ -9,18 +9,18 @@ namespace WindivertDotnet
     /// </summary>
     sealed class WinDivertPacketHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
-        private readonly int capacity;
+        public int Capacity { get; }
 
         public WinDivertPacketHandle(int capacity)
             : base(true)
         {
-            this.capacity = capacity;
+            this.Capacity = capacity;
             base.SetHandle(Marshal.AllocHGlobal(capacity));
         }
 
         public unsafe Span<byte> GetSpan(int length)
         {
-            return length > this.capacity
+            return length > this.Capacity
                 ? throw new ArgumentOutOfRangeException(nameof(length))
                 : new Span<byte>(this.handle.ToPointer(), length);
         }

@@ -11,27 +11,42 @@ namespace WindivertDotnet
     [DebuggerDisplay("Length = {Length}")]
     public sealed class WinDivertPacket : IDisposable
     {
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private int length;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly WinDivertPacketHandle handle;
-         
-        /// <summary>
-        /// 获取最大容量
-        /// </summary>
-        public int Capacity { get; }
 
         /// <summary>
-        /// 获取或设置有效数据的长度
-        /// </summary>
-        public int Length { get; set; }
-
-        /// <summary>
-        /// 获取关联的句柄
+        /// 获取缓冲区句柄
         /// </summary>
         public SafeHandle Handle => this.handle;
 
         /// <summary>
-        /// 获取数据视图
+        /// 获取缓冲区容量
+        /// </summary>
+        public int Capacity => this.handle.Capacity;
+
+        /// <summary>
+        /// 获取有效数据视图
         /// </summary>
         public Span<byte> Span => this.handle.GetSpan(this.Length);
+
+        /// <summary>
+        /// 获取或设置有效数据的长度
+        /// </summary>
+        public int Length
+        {
+            get => this.length;
+            set
+            {
+                if (value < 0 || value > this.Capacity)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(Length));
+                }
+                this.length = value;
+            }
+        }
 
         /// <summary>
         /// WinDivert的数据包
@@ -39,7 +54,6 @@ namespace WindivertDotnet
         /// <param name="capacity">最大容量</param>
         public WinDivertPacket(int capacity = ushort.MaxValue)
         {
-            this.Capacity = capacity;
             this.handle = new WinDivertPacketHandle(capacity);
         }
 

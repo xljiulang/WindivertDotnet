@@ -3,7 +3,7 @@
     /// <summary>
     /// 参数枚举
     /// </summary>
-    public enum WinDivertParam
+    enum WinDivertParam
     {
         /// <summary>
         /// 列队长度
