@@ -1,8 +1,10 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace WindivertDotnet
 {
     [StructLayout(LayoutKind.Explicit)]
+    [DebuggerDisplay("Flags = {Flags}")]
     public unsafe struct WinDivertAddress
     {
         [FieldOffset(0)]

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32.SafeHandles;
+using System;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -8,7 +9,7 @@ namespace WindivertDotnet
     /// <summary>
     /// 表示WinDivert的数据包
     /// </summary>
-    [DebuggerDisplay("Length = {Length}")]
+    [DebuggerDisplay("Length = {Length}, Capacity = {Capacity}")]
     public sealed class WinDivertPacket : IDisposable
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -55,15 +56,7 @@ namespace WindivertDotnet
         public WinDivertPacket(int capacity = ushort.MaxValue)
         {
             this.handle = new WinDivertPacketHandle(capacity);
-        }
-
-        /// <summary>
-        /// 释放相关资源
-        /// </summary>
-        public void Dispose()
-        {
-            this.handle.Dispose();
-        }
+        } 
 
         /// <summary>
         /// 重新计算和修改相关的Checksums
@@ -90,7 +83,7 @@ namespace WindivertDotnet
         /// </summary>
         /// <param name="seed"></param>
         /// <returns></returns>
-        public int GetHash(long seed = 0)
+        public int GetHash(long seed = 0L)
         {
             return WinDivertNative.WinDivertHelperHashPacket(this.handle, this.Length, seed);
         }
@@ -142,6 +135,43 @@ namespace WindivertDotnet
                 Next = pNext,
                 NextLength = nextLength
             };
+        }
+
+        /// <summary>
+        /// 释放相关资源
+        /// </summary>
+        public void Dispose()
+        {
+            this.handle.Dispose();
+        }
+
+
+        /// <summary>
+        /// WinDivertPacket的句柄 
+        /// </summary>
+        private class WinDivertPacketHandle : SafeHandleZeroOrMinusOneIsInvalid
+        {
+            public int Capacity { get; }
+
+            public WinDivertPacketHandle(int capacity)
+                : base(true)
+            {
+                this.Capacity = capacity;
+                base.SetHandle(Marshal.AllocHGlobal(capacity));
+            }
+
+            public unsafe Span<byte> GetSpan(int length)
+            {
+                return length > this.Capacity
+                    ? throw new ArgumentOutOfRangeException(nameof(length))
+                    : new Span<byte>(this.handle.ToPointer(), length);
+            }
+
+            protected override bool ReleaseHandle()
+            {
+                Marshal.FreeHGlobal(this.handle);
+                return true;
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net.Sockets;
 
 namespace WindivertDotnet
@@ -6,6 +7,7 @@ namespace WindivertDotnet
     /// <summary>
     /// 表示包解析结果
     /// </summary>
+    [DebuggerDisplay("Protocol = {Protocol}, DataLength = {DataLength}")]
     public sealed unsafe class WinDivertParseResult
     {
         /// <summary>

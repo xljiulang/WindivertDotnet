@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Buffers.Binary;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Net;
 
 namespace WindivertDotnet
 {
+    [DebuggerDisplay("SrcAddr = {SrcAddr}, DstAddr = {DstAddr}")]
     public struct IPV6Header
     {
         [EditorBrowsable(EditorBrowsableState.Never)]

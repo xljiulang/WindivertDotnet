@@ -1,8 +1,10 @@
 ﻿using System.Buffers.Binary;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace WindivertDotnet
 {
+    [DebuggerDisplay("Type = {Type}, Code = {Code}")]
     public struct IcmpV6Header
     {
         public byte Type;

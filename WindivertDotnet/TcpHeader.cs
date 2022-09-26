@@ -1,8 +1,10 @@
 ﻿using System.Buffers.Binary;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace WindivertDotnet
 {
+    [DebuggerDisplay("SrcPort = {SrcPort}, DstPort = {DstPort}")]
     public struct TcpHeader
     {
         [EditorBrowsable(EditorBrowsableState.Never)]

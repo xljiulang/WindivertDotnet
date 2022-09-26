@@ -1,7 +1,5 @@
-﻿using System;
-
-namespace WindivertDotnet
-{   
+﻿namespace WindivertDotnet
+{
     public enum WinDivertFlag : ulong
     {
         None = 0,

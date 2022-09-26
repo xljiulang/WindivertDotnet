@@ -5,6 +5,7 @@ namespace WindivertDotnet
     [Flags]
     public enum WinDivertAddressFlag : byte
     {
+        None = 0,
         Sniffed = 0x1,
         Outbound = 0x2,
         Loopback = 0x4,
