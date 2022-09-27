@@ -8,15 +8,18 @@ namespace App
     {
         unsafe static void Main(string[] args)
         {
-            using var divert = new WinDivert("(((((true and (( tcp )))) or ((ip.SrcAddr == 127.0.0.1)))) and tcp.Rst)", WinDivertLayer.Network);
+            Expression<Func<bool, bool>> e1 = item => item == true;
+            var e2 = e1.Reduce();
+
+            // using var divert = new WinDivert("(((true and (tcp )) or (ip.SrcAddr == 127.0.0.1)) and tcp.Rst)", WinDivertLayer.Network);
             // using var packet = new WinDivertPacket();
             // var addr = new WinDivertAddress();
 
             var filter = Filter
                 .True()
-                .And(f => (!f.TcpProtocol == false))
-                .Or(f => f.Ip.SrcAddr == IPAddress.Loopback.ToString())
-                .And(item => item.Tcp.Rst)
+                .And(f => (true == true))
+                // .Or(f => f.Ip.SrcAddr == IPAddress.Loopback.ToString())
+                .And(item => item.Tcp.Rst != false)
                 .ToFilter();
 
             //divert.Recv(packet, ref addr);
