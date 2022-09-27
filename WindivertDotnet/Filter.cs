@@ -254,8 +254,10 @@ namespace WindivertDotnet
             protected override Expression VisitBinary(BinaryExpression node)
             {
                 // 简化 xxx && true
+                // 简化 xxx || false
                 // 简化 xxx == true
                 if (IsAndTrueSubNode(node, node.Left) ||
+                    IsOrFlaseSubNode(node, node.Left) ||
                     IsEqualTrueSubNode(node, node.Left))
                 {
                     this.changed = true;
@@ -263,12 +265,30 @@ namespace WindivertDotnet
                 }
 
                 // 简化 xxx && true
+                // 简化 xxx || false
                 // 简化 xxx == true
                 if (IsAndTrueSubNode(node, node.Right) ||
+                    IsOrFlaseSubNode(node, node.Right) ||
                     IsEqualTrueSubNode(node, node.Right))
                 {
                     this.changed = true;
                     return node.Left;
+                }
+
+                // xxx || true 简化为 true
+                if (IsOrTrueSubNode(node, node.Left) ||
+                   IsOrTrueSubNode(node, node.Right))
+                {
+                    this.changed = true;
+                    return Expression.Constant(true);
+                }
+
+                // xxx && false 简化为 false
+                if (IsAndFalseSubNode(node, node.Left) ||
+                   IsAndFalseSubNode(node, node.Right))
+                {
+                    this.changed = true;
+                    return Expression.Constant(false);
                 }
 
                 // xxx == fasle 转换为 !xxx
@@ -277,7 +297,6 @@ namespace WindivertDotnet
                     this.changed = true;
                     return Expression.MakeUnary(ExpressionType.Not, node.Right, null);
                 }
-
                 // xxx == fasle 转换为 !xxx
                 if (IsEqualFasleSubNode(node, node.Right))
                 {
@@ -291,30 +310,85 @@ namespace WindivertDotnet
 
             private static bool IsEqualTrueSubNode(BinaryExpression node, Expression subNode)
             {
-                if (subNode is ConstantExpression constantExpression && constantExpression.Value is bool value)
+                if (TryGetBoolValue(subNode, out var value) == false)
                 {
-                    return node.NodeType == ExpressionType.Equal && value // xxx == true
-                         || node.NodeType == ExpressionType.NotEqual && !value;  // xxx != false 
+                    return false;
                 }
-                return false;
+
+                return node.NodeType == ExpressionType.Equal && value ||    // xxx == true
+                    node.NodeType == ExpressionType.NotEqual && !value;      // xxx != false               
             }
 
             private static bool IsEqualFasleSubNode(BinaryExpression node, Expression subNode)
             {
-                if (subNode is ConstantExpression constantExpression && constantExpression.Value is bool value)
+                if (TryGetBoolValue(subNode, out var value) == false)
                 {
-                    return node.NodeType == ExpressionType.Equal && !value // xxx == false
-                         || node.NodeType == ExpressionType.NotEqual && value;  // xxx != true 
+                    return false;
                 }
-                return false;
+
+                return node.NodeType == ExpressionType.Equal && !value ||    // xxx == false
+                    node.NodeType == ExpressionType.NotEqual && value;       // xxx != true 
             }
 
             private static bool IsAndTrueSubNode(BinaryExpression node, Expression subNode)
             {
-                if (subNode is ConstantExpression constantExpression && constantExpression.Value is bool value)
+                if (TryGetBoolValue(subNode, out var value) == false)
                 {
-                    return (node.NodeType == ExpressionType.And || node.NodeType == ExpressionType.AndAlso) && value; // xxx && true
+                    return false;
                 }
+
+                // xxx && true
+                return (node.NodeType == ExpressionType.And || node.NodeType == ExpressionType.AndAlso) && value;
+            }
+
+            private static bool IsAndFalseSubNode(BinaryExpression node, Expression subNode)
+            {
+                if (TryGetBoolValue(subNode, out var value) == false)
+                {
+                    return false;
+                }
+
+                // xxx && true
+                return (node.NodeType == ExpressionType.And || node.NodeType == ExpressionType.AndAlso) && !value;
+            }
+
+            private static bool IsOrTrueSubNode(BinaryExpression node, Expression subNode)
+            {
+                if (TryGetBoolValue(subNode, out var value) == false)
+                {
+                    return false;
+                }
+
+                // xxx || false
+                return (node.NodeType == ExpressionType.Or || node.NodeType == ExpressionType.OrElse) && value;
+            }
+
+            private static bool IsOrFlaseSubNode(BinaryExpression node, Expression subNode)
+            {
+                if (TryGetBoolValue(subNode, out var value) == false)
+                {
+                    return false;
+                }
+
+                // xxx || false
+                return (node.NodeType == ExpressionType.Or || node.NodeType == ExpressionType.OrElse) && !value;
+            }
+
+
+
+
+
+            private static bool TryGetBoolValue(Expression node, out bool value)
+            {
+                if (node.NodeType == ExpressionType.Constant &&
+                    node is ConstantExpression constantExpression &&
+                    constantExpression.Value is bool boolValue)
+                {
+                    value = boolValue;
+                    return true;
+                }
+
+                value = false;
                 return false;
             }
         }
