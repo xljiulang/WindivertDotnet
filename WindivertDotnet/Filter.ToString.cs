@@ -18,10 +18,21 @@ namespace WindivertDotnet
             return translator.ToString();
         }
 
+        /// <summary>
+        /// Filter简化访问者
+        /// </summary>
         private class FilterVisitor : ExpressionVisitor
         {
+            /// <summary>
+            /// 是否简化有效
+            /// </summary>
             private bool changed = false;
 
+            /// <summary>
+            /// 访问filter
+            /// </summary>
+            /// <param name="filter"></param>
+            /// <returns></returns>
             public Expression Visit(Expression<Func<IFilter, bool>> filter)
             {
                 var expression = (Expression)filter;
@@ -33,6 +44,11 @@ namespace WindivertDotnet
                 return expression;
             }
 
+            /// <summary>
+            /// call调用转为常量
+            /// </summary>
+            /// <param name="node"></param>
+            /// <returns></returns>
             protected override Expression VisitMethodCall(MethodCallExpression node)
             {
                 this.changed = true;
@@ -40,6 +56,11 @@ namespace WindivertDotnet
                 return Expression.Constant(value);
             }
 
+            /// <summary>
+            /// 非filter成员访问转换为常量
+            /// </summary>
+            /// <param name="node"></param>
+            /// <returns></returns>
             protected override Expression VisitMember(MemberExpression node)
             {
                 if (node.Member.IsDefined(typeof(IFilter.FilterMemberAttribute)))
@@ -52,9 +73,10 @@ namespace WindivertDotnet
                 return Expression.Constant(value);
             }
 
-            /// <summary>
-            ///  not true => false
-            ///  not false => true
+            /// <summary>     
+            /// not转换
+            ///  <para> not true 转换为 false</para>
+            ///  <para> not false 转换为 true</para>
             /// </summary>
             /// <param name="node"></param>
             /// <returns></returns>
@@ -71,37 +93,39 @@ namespace WindivertDotnet
                 return base.VisitUnary(node);
             }
 
+            /// <summary>
+            /// 二元表达式转换
+            /// </summary>
+            /// <param name="node"></param>
+            /// <returns></returns>
             protected override Expression VisitBinary(BinaryExpression node)
             {
-                if (IsAndTrueSubNode(node, node.Left))
-                {
-                    this.changed = true;
-                    return node.Right;
-                }
-                if (IsAndTrueSubNode(node, node.Right))
+                // 简化 xxx && true
+                // 简化 xxx == true
+                if (IsAndTrueSubNode(node, node.Left) ||
+                    IsEqualTrueSubNode(node, node.Left))
                 {
                     this.changed = true;
                     return node.Right;
                 }
 
-
-                if (IsEqualTrueSubNode(node, node.Left))
-                {
-                    this.changed = true;
-                    return node.Right;
-                }
-                if (IsEqualTrueSubNode(node, node.Right))
+                // 简化 xxx && true
+                // 简化 xxx == true
+                if (IsAndTrueSubNode(node, node.Right) ||
+                    IsEqualTrueSubNode(node, node.Right))
                 {
                     this.changed = true;
                     return node.Left;
                 }
 
-
+                // xxx == fasle 转换为 !xxx
                 if (IsEqualFasleSubNode(node, node.Left))
                 {
                     this.changed = true;
                     return Expression.MakeUnary(ExpressionType.Not, node.Right, null);
                 }
+
+                // xxx == fasle 转换为 !xxx
                 if (IsEqualFasleSubNode(node, node.Right))
                 {
                     this.changed = true;
@@ -179,7 +203,7 @@ namespace WindivertDotnet
             {
                 if (node.NodeType == ExpressionType.Not)
                 {
-                    builder.Append(" !");
+                    builder.Append("!");
                 }
                 else
                 {
@@ -190,7 +214,7 @@ namespace WindivertDotnet
 
 
             private void TranslateBinary(BinaryExpression node)
-            {        
+            {
                 builder.Append("(");
                 this.Translate(node.Left);
 
@@ -237,7 +261,7 @@ namespace WindivertDotnet
                 this.Translate(node.Right);
                 builder.Append(")");
             }
-             
+
 
             private void TranslateConstant(ConstantExpression node)
             {
@@ -259,10 +283,15 @@ namespace WindivertDotnet
                 builder.Append(filterName);
 
                 static void VisitMemberName(MemberExpression node, Stack<string> memberNames)
-                {
-                    var memberName = node.Member.Name;
+                {                    
                     var attribute = node.Member.GetCustomAttribute<IFilter.FilterMemberAttribute>();
-                    if (attribute != null && string.IsNullOrEmpty(attribute.Name) == false)
+                    if (attribute == null)
+                    {
+                        return;
+                    }
+
+                    var memberName = node.Member.Name;
+                    if (string.IsNullOrEmpty(attribute.Name) == false)
                     {
                         memberName = attribute.Name;
                     }

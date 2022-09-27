@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 
 namespace WindivertDotnet
 {
@@ -18,13 +17,13 @@ namespace WindivertDotnet
         IIP Ip { get; }
 
         [FilterMember("tcp")]
-        bool TcpProtocol { get; }
+        bool IsTcp { get; }
 
         [FilterMember("tcp")]
         ITcp Tcp { get; }
 
         [FilterMember("udp")]
-        bool UdpProtocol { get; }
+        bool IsUdp { get; }
 
         [FilterMember("udp")]
         IUdp Udp { get; }
