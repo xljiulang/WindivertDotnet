@@ -1,4 +1,5 @@
-﻿using WindivertDotnet;
+﻿using System.Linq.Expressions;
+using WindivertDotnet;
 
 namespace App
 {
@@ -10,11 +11,13 @@ namespace App
             using var packet = new WinDivertPacket();
             var addr = new WinDivertAddress();
 
-            divert.Recv(packet, ref addr);
-            var result = packet.GetParseResult();
+            var filter = Filter.True().And(f => f.IsUdp == true).And(item => item.Tcp.Rst).ToFilter();
 
-            packet.CalcChecksums(ref addr);
-            divert.Send(packet, ref addr);
+            //divert.Recv(packet, ref addr);
+            //var result = packet.GetParseResult();
+
+            //packet.CalcChecksums(ref addr);
+            //divert.Send(packet, ref addr);
 
             Console.WriteLine("Hello, World!");
         }
