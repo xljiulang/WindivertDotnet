@@ -17,6 +17,11 @@ namespace WindivertDotnet
         private static readonly string paramterName = "filter";
 
         /// <summary>
+        /// 值
+        /// </summary>
+        private string? value;
+
+        /// <summary>
         /// 表达式
         /// </summary>
         private readonly Expression<Func<IFilter, bool>> expression;
@@ -112,12 +117,16 @@ namespace WindivertDotnet
         /// <returns></returns>
         public override string ToString()
         {
-            var visitor = new FilterVisitor();
-            var expression = visitor.Visit(this.expression);
+            if (this.value == null)
+            {
+                var visitor = new FilterVisitor();
+                var expression = visitor.Visit(this.expression);
 
-            var translator = new FilterTranslator();
-            translator.Translate(expression);
-            return translator.ToString();
+                var translator = new FilterTranslator();
+                translator.Translate(expression);
+                this.value = translator.ToString();
+            }
+            return this.value;
         }
 
 

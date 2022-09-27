@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Net.Sockets;
 using WindivertDotnet;
 
 namespace App
@@ -8,7 +7,7 @@ namespace App
     {
         unsafe static void Main(string[] args)
         {
-            var filter = Filter.True
+            var filter = Filter.False
                 .And(f => f.Ip.SrcAddr == IPAddress.Loopback.ToString())
                 .And(f => f.Tcp.DstPort == 443)
                 .And(f => f.Tcp.Ack == true);
