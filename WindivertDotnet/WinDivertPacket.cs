@@ -27,7 +27,7 @@ namespace WindivertDotnet
         /// <summary>
         /// 获取有效数据视图
         /// </summary>
-        public Span<byte> Span => this.buffer.GetSpan(this.Length);
+        public Span<byte> Span => this.buffer.GetSpan(this.length);
 
         /// <summary>
         /// 获取或设置有效数据的长度
@@ -50,9 +50,10 @@ namespace WindivertDotnet
         /// WinDivert的数据包
         /// </summary>
         /// <param name="capacity">最大容量</param>
-        public WinDivertPacket(int capacity = ushort.MaxValue)
+        /// <param name="zeroed">是否数据清0</param>
+        public WinDivertPacket(int capacity = ushort.MaxValue, bool zeroed = true)
         {
-            this.buffer = new WinDivertPacketBuffer(capacity);
+            this.buffer = new WinDivertPacketBuffer(capacity, zeroed);
         }
 
         /// <summary>
@@ -63,7 +64,7 @@ namespace WindivertDotnet
         /// <returns></returns>
         public bool CalcChecksums(ref WinDivertAddress addr, ChecksumsFlag flag = ChecksumsFlag.All)
         {
-            return WinDivertNative.WinDivertHelperCalcChecksums(this, this.Length, ref addr, flag);
+            return WinDivertNative.WinDivertHelperCalcChecksums(this, this.length, ref addr, flag);
         }
 
         /// <summary>
@@ -72,7 +73,7 @@ namespace WindivertDotnet
         /// <returns></returns>
         public bool DecrementTTL()
         {
-            return WinDivertNative.WinDivertHelperDecrementTTL(this, this.Length);
+            return WinDivertNative.WinDivertHelperDecrementTTL(this, this.length);
         }
 
         /// <summary>
@@ -82,7 +83,7 @@ namespace WindivertDotnet
         /// <returns></returns>
         public int GetHash(long seed = 0L)
         {
-            return WinDivertNative.WinDivertHelperHashPacket(this, this.Length, seed);
+            return WinDivertNative.WinDivertHelperHashPacket(this, this.length, seed);
         }
 
         /// <summary>
@@ -106,7 +107,7 @@ namespace WindivertDotnet
 
             var flag = WinDivertNative.WinDivertHelperParsePacket(
                 this,
-                this.Length,
+                this.length,
                 &pIPV4Header,
                 &pIPV6Header,
                 &protocol,
@@ -160,22 +161,25 @@ namespace WindivertDotnet
         /// <summary>
         /// WinDivertPacket的缓存区
         /// </summary>
-        private class WinDivertPacketBuffer : SafeHandleZeroOrMinusOneIsInvalid
+        private unsafe class WinDivertPacketBuffer : SafeHandleZeroOrMinusOneIsInvalid
         {
             public int Capacity { get; }
 
-            public WinDivertPacketBuffer(int capacity)
+            public WinDivertPacketBuffer(int capacity, bool zeroed)
                 : base(true)
             {
                 this.Capacity = capacity;
                 this.SetHandle(Marshal.AllocHGlobal(capacity));
+                if (zeroed == true)
+                {
+                    var buffer = new Span<byte>(this.handle.ToPointer(), capacity);
+                    buffer.Clear();
+                }
             }
 
             public unsafe Span<byte> GetSpan(int length)
             {
-                return length > this.Capacity
-                    ? throw new ArgumentOutOfRangeException(nameof(length))
-                    : new Span<byte>(this.handle.ToPointer(), length);
+                return new Span<byte>(this.handle.ToPointer(), length);
             }
 
             protected override bool ReleaseHandle()
