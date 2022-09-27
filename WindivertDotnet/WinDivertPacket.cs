@@ -19,10 +19,6 @@ namespace WindivertDotnet
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly WinDivertPacketBuffer buffer;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal SafeHandle Buffer => this.buffer;
-
-
         /// <summary>
         /// 获取缓冲区容量
         /// </summary>
@@ -67,7 +63,7 @@ namespace WindivertDotnet
         /// <returns></returns>
         public bool CalcChecksums(ref WinDivertAddress addr, ChecksumsFlag flag = ChecksumsFlag.All)
         {
-            return WinDivertNative.WinDivertHelperCalcChecksums(this.buffer, this.Length, ref addr, flag);
+            return WinDivertNative.WinDivertHelperCalcChecksums(this, this.Length, ref addr, flag);
         }
 
         /// <summary>
@@ -76,7 +72,7 @@ namespace WindivertDotnet
         /// <returns></returns>
         public bool DecrementTTL()
         {
-            return WinDivertNative.WinDivertHelperDecrementTTL(this.buffer, this.Length);
+            return WinDivertNative.WinDivertHelperDecrementTTL(this, this.Length);
         }
 
         /// <summary>
@@ -86,7 +82,7 @@ namespace WindivertDotnet
         /// <returns></returns>
         public int GetHash(long seed = 0L)
         {
-            return WinDivertNative.WinDivertHelperHashPacket(this.buffer, this.Length, seed);
+            return WinDivertNative.WinDivertHelperHashPacket(this, this.Length, seed);
         }
 
         /// <summary>
@@ -109,7 +105,7 @@ namespace WindivertDotnet
             int nextLength;
 
             var flag = WinDivertNative.WinDivertHelperParsePacket(
-                this.buffer,
+                this,
                 this.Length,
                 &pIPV4Header,
                 &pIPV6Header,
@@ -152,6 +148,14 @@ namespace WindivertDotnet
             this.buffer.Dispose();
         }
 
+        /// <summary>
+        /// 隐式转换为SafeHandle
+        /// </summary>
+        /// <param name="packet"></param>
+        public static implicit operator SafeHandle(WinDivertPacket packet)
+        {
+            return packet.buffer;
+        }
 
         /// <summary>
         /// WinDivertPacket的缓存区

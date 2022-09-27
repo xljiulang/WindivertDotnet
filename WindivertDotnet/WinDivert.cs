@@ -95,7 +95,7 @@ namespace WindivertDotnet
         public int Recv(WinDivertPacket packet, ref WinDivertAddress addr)
         {
             var length = 0;
-            var result = WinDivertNative.WinDivertRecv(this.handle, packet.Buffer, packet.Capacity, ref length, ref addr);
+            var result = WinDivertNative.WinDivertRecv(this.handle, packet, packet.Capacity, ref length, ref addr);
             if (result == false)
             {
                 throw new Win32Exception();
@@ -114,7 +114,7 @@ namespace WindivertDotnet
         public int Send(WinDivertPacket packet, ref WinDivertAddress addr)
         {
             var length = 0;
-            var result = WinDivertNative.WinDivertSend(this.handle, packet.Buffer, packet.Length, ref length, ref addr);
+            var result = WinDivertNative.WinDivertSend(this.handle, packet, packet.Length, ref length, ref addr);
             if (result == false)
             {
                 throw new Win32Exception();
