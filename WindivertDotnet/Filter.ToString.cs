@@ -21,29 +21,45 @@ namespace WindivertDotnet
 
             public void Visit(Expression node)
             {
-                if (node.NodeType == ExpressionType.Constant
-                    && node is ConstantExpression constantExpression)
+                if (node is LambdaExpression lambdaExpression)
+                {
+                    this.Visit(lambdaExpression.Body);
+                }
+                else if (node is ConstantExpression constantExpression)
                 {
                     this.VisitConstant(constantExpression);
                 }
-                else if (node.NodeType == ExpressionType.MemberAccess
-                    && node is MemberExpression memberExpression)
+                else if (node is MemberExpression memberExpression)
                 {
                     this.VisitMember(memberExpression);
                 }
-                else if (node.NodeType == ExpressionType.Lambda
-                    && node is LambdaExpression lambdaExpression)
+                else if (node is UnaryExpression unaryExpression)
                 {
-                    this.Visit(lambdaExpression.Body);
+                    this.VisitUnary(unaryExpression);
                 }
                 else if (node is BinaryExpression binaryExpression)
                 {
                     this.VisitBinary(binaryExpression);
                 }
+                else
+                {
+                    throw new NotSupportedException(node.ToString());
+                }
             }
+
+            private void VisitUnary(UnaryExpression node)
+            {
+                if (node.NodeType == ExpressionType.Not)
+                {
+                    builder.Append(" !");
+                }
+                this.Visit(node.Operand);
+            }
+
 
             private void VisitBinary(BinaryExpression node)
             {
+                builder.Append("(");
                 if (node.Left is BinaryExpression leftBinaryExpression)
                 {
                     builder.Append("(");
@@ -54,7 +70,6 @@ namespace WindivertDotnet
                 {
                     this.Visit(node.Left);
                 }
-
 
                 switch (node.NodeType)
                 {
@@ -103,6 +118,7 @@ namespace WindivertDotnet
                 {
                     this.Visit(node.Right);
                 }
+                builder.Append(")");
             }
 
             private void VisitConstant(ConstantExpression node)
@@ -120,24 +136,24 @@ namespace WindivertDotnet
             private void VisitMember(MemberExpression node)
             {
                 var names = new Stack<string>();
-                VisitMember(node, names);
+                VisitMemberName(node, names);
                 var name = string.Join('.', names);
                 builder.Append(name);
-            }
 
-            private static void VisitMember(MemberExpression node, Stack<string> names)
-            {
-                var name = node.Member.Name;
-                var filterName = node.Member.GetCustomAttribute<IFilter.FilterNameAttribute>();
-                if (filterName != null)
+                static void VisitMemberName(MemberExpression node, Stack<string> filterNames)
                 {
-                    name = filterName.Name;
-                }
+                    var filterName = node.Member.Name;
+                    var attribute = node.Member.GetCustomAttribute<IFilter.FilterNameAttribute>();
+                    if (attribute != null)
+                    {
+                        filterName = attribute.Name;
+                    }
 
-                names.Push(name);
-                if (node.Expression is MemberExpression expression)
-                {
-                    VisitMember(expression, names);
+                    filterNames.Push(filterName);
+                    if (node.Expression is MemberExpression expression)
+                    {
+                        VisitMemberName(expression, filterNames);
+                    }
                 }
             }
 

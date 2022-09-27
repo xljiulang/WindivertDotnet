@@ -13,9 +13,9 @@ namespace App
 
             var filter = Filter
                 .True()
-                .And(f => !f.TcpProtocol)
-                .And(f => f.Ip.SrcAddr == System.Net.IPAddress.Loopback)
-                .And(item => item.Tcp.Rst)
+               // .And(f => !(f.TcpProtocol))
+                  .And(f => f.Ip.SrcAddr == System.Net.IPAddress.Loopback)
+                // .And(item => item.Tcp.Rst)
                 .ToFilter();
 
             //divert.Recv(packet, ref addr);
