@@ -8,78 +8,122 @@ namespace WindivertDotnet
     /// </summary>
     public interface IFilter
     {
-        [FilterName("outbound")]
+        [FilterMember("outbound")]
         bool Outbound { get; }
 
-        [FilterName("inbound")]
+        [FilterMember("inbound")]
         bool Inbound { get; }
 
-        [FilterName("ip")]
+        [FilterMember("ip")]
         IIP Ip { get; }
 
-        [FilterName("tcp")]
+        [FilterMember("tcp")]
         bool TcpProtocol { get; }
 
-        [FilterName("tcp")]
+        [FilterMember("tcp")]
         ITcp Tcp { get; }
 
-        [FilterName("udp")]
+        [FilterMember("udp")]
         bool UdpProtocol { get; }
 
-        [FilterName("udp")]
+        [FilterMember("udp")]
         IUdp Udp { get; }
 
-        [FilterName("ifIdx")]
+        [FilterMember("ifIdx")]
         int IfIdx { get; }
 
-        [FilterName("subIfIdx")]
+        [FilterMember("subIfIdx")]
         int SubIfIdx { get; }
 
         public interface IIP
         {
+
+            [FilterMember]
             int Checksum { get; }
+
+            [FilterMember]
             int DF { get; }
-            IPAddress DstAddr { get; }
+
+            [FilterMember]
+            string DstAddr { get; }
+
+            [FilterMember]
             int FragOff { get; }
+
+            [FilterMember]
             int HdrLength { get; }
+
+            [FilterMember]
             int Id { get; }
+
+            [FilterMember]
             int Length { get; }
+
+            [FilterMember]
             int MF { get; }
+
+            [FilterMember]
             int Protocol { get; }
-            IPAddress SrcAddr { get; }
+
+            [FilterMember]
+            string SrcAddr { get; }
+
+            [FilterMember]
             int TOS { get; }
+
+            [FilterMember]
             int TTL { get; }
         }
 
 
         public interface ITransfer
         {
+
+            [FilterMember]
             int Checksum { get; }
+
+            [FilterMember]
             int PayloadLength { get; }
+
+            [FilterMember]
             int SrcPort { get; }
+
+            [FilterMember]
             int DstPort { get; }
         }
 
         public interface ITcp : ITransfer
         {
+            [FilterMember]
             int SeqNum { get; }
+
+            [FilterMember]
             bool Syn { get; }
+
+            [FilterMember]
             bool Rst { get; }
+
+            [FilterMember]
             bool Ack { get; }
         }
 
         public interface IUdp : ITransfer
         {
+            [FilterMember]
             int Length { get; }
         }
 
 
         [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-        public sealed class FilterNameAttribute : Attribute
+        public sealed class FilterMemberAttribute : Attribute
         {
-            public string Name { get; }
+            public string? Name { get; }
 
-            public FilterNameAttribute(string name)
+            public FilterMemberAttribute()
+            {
+            }
+
+            public FilterMemberAttribute(string name)
             {
                 this.Name = name;
             }

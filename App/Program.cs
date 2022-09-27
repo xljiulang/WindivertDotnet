@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Net;
 using WindivertDotnet;
 
 namespace App
@@ -7,15 +8,15 @@ namespace App
     {
         unsafe static void Main(string[] args)
         {
-            //using var divert = new WinDivert("((true) and (tcp)) and (tcp.Rst)", WinDivertLayer.Network);
+            using var divert = new WinDivert("(((((true and (( tcp )))) or ((ip.SrcAddr == 127.0.0.1)))) and tcp.Rst)", WinDivertLayer.Network);
             // using var packet = new WinDivertPacket();
             // var addr = new WinDivertAddress();
 
             var filter = Filter
                 .True()
-               // .And(f => !(f.TcpProtocol))
-                  .And(f => f.Ip.SrcAddr == System.Net.IPAddress.Loopback)
-                // .And(item => item.Tcp.Rst)
+                .And(f => (!f.TcpProtocol == false))
+                .Or(f => f.Ip.SrcAddr == IPAddress.Loopback.ToString())
+                .And(item => item.Tcp.Rst)
                 .ToFilter();
 
             //divert.Recv(packet, ref addr);

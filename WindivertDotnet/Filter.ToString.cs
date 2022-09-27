@@ -41,10 +41,20 @@ namespace WindivertDotnet
                 {
                     this.VisitBinary(binaryExpression);
                 }
+                else if (node is MethodCallExpression callExpression)
+                {
+                    this.VisitCall(callExpression);
+                }
                 else
                 {
                     throw new NotSupportedException(node.ToString());
                 }
+            }
+
+            private void VisitCall(MethodCallExpression node)
+            {
+                var value = Expression.Lambda<Func<object>>(node).Compile().Invoke()?.ToString();
+                builder.Append(value);
             }
 
             private void VisitUnary(UnaryExpression node)
@@ -52,6 +62,10 @@ namespace WindivertDotnet
                 if (node.NodeType == ExpressionType.Not)
                 {
                     builder.Append(" !");
+                }
+                else
+                {
+                    throw new NotSupportedException(node.ToString());
                 }
                 this.Visit(node.Operand);
             }
@@ -106,6 +120,9 @@ namespace WindivertDotnet
                     case ExpressionType.LessThanOrEqual:
                         builder.Append(" <= ");
                         break;
+
+                    default:
+                        throw new NotSupportedException(node.ToString());
                 }
 
                 if (node.Right is BinaryExpression rightBinaryExpression)
@@ -135,24 +152,33 @@ namespace WindivertDotnet
 
             private void VisitMember(MemberExpression node)
             {
-                var names = new Stack<string>();
-                VisitMemberName(node, names);
-                var name = string.Join('.', names);
-                builder.Append(name);
-
-                static void VisitMemberName(MemberExpression node, Stack<string> filterNames)
+                if (node.Member.IsDefined(typeof(IFilter.FilterMemberAttribute)))
                 {
-                    var filterName = node.Member.Name;
-                    var attribute = node.Member.GetCustomAttribute<IFilter.FilterNameAttribute>();
-                    if (attribute != null)
+                    var names = new Stack<string>();
+                    VisitMemberName(node, names);
+                    var filterName = string.Join('.', names);
+                    builder.Append(filterName);
+                }
+                else
+                {
+                    var value = Expression.Lambda<Func<object>>(node).Compile().Invoke()?.ToString();
+                    builder.Append(value);
+                }
+
+
+                static void VisitMemberName(MemberExpression node, Stack<string> memberNames)
+                {
+                    var memberName = node.Member.Name;
+                    var attribute = node.Member.GetCustomAttribute<IFilter.FilterMemberAttribute>();
+                    if (attribute != null && string.IsNullOrEmpty(attribute.Name) == false)
                     {
-                        filterName = attribute.Name;
+                        memberName = attribute.Name;
                     }
 
-                    filterNames.Push(filterName);
+                    memberNames.Push(memberName);
                     if (node.Expression is MemberExpression expression)
                     {
-                        VisitMemberName(expression, filterNames);
+                        VisitMemberName(expression, memberNames);
                     }
                 }
             }
