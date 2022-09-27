@@ -10,7 +10,7 @@ namespace WindivertDotnet
     [DebuggerDisplay("Filter = {Filter}, Layer = {Layer}")]
     public partial class WinDivert : IDisposable
     {
-        private readonly WinDivertHandle handle; 
+        private readonly WinDivertHandle handle;
 
         /// <summary>
         /// 获取过滤器
@@ -64,6 +64,19 @@ namespace WindivertDotnet
         {
             get => this.GetParam(WinDivertParam.QueueSize);
             set => this.SetParam(WinDivertParam.QueueSize, value);
+        }
+
+        /// <summary>
+        /// 创建一个WinDivert实例
+        /// </summary>
+        /// <param name="filter">过滤器</param>
+        /// <param name="layer">工作层</param>
+        /// <param name="priority">优先级</param>
+        /// <param name="flags">标记</param>
+        /// <exception cref="Win32Exception"></exception>
+        public WinDivert(Filter filter, WinDivertLayer layer, short priority = 0, WinDivertFlag flags = WinDivertFlag.None)
+            : this(filter.ToString(), layer, priority, flags)
+        {
         }
 
         /// <summary>

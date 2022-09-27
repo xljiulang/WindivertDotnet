@@ -1,5 +1,5 @@
-﻿using System.Linq.Expressions;
-using System.Net;
+﻿using System.Net;
+using System.Net.Sockets;
 using WindivertDotnet;
 
 namespace App
@@ -8,24 +8,20 @@ namespace App
     {
         unsafe static void Main(string[] args)
         {
-            Expression<Func<bool, bool>> e1 = item => item == true;
-            var e2 = e1.Reduce();
+            var filter = Filter.True
+                .And(f => f.Ip.SrcAddr == IPAddress.Loopback.ToString())
+                .And(f => f.Tcp.DstPort == 443)
+                .And(f => f.Tcp.Ack == true);
 
-            // using var divert = new WinDivert("(((true and (tcp )) or (ip.SrcAddr == 127.0.0.1)) and tcp.Rst)", WinDivertLayer.Network);
-            // using var packet = new WinDivertPacket();
-            // var addr = new WinDivertAddress();
+            using var divert = new WinDivert(filter, WinDivertLayer.Network);
+            using var packet = new WinDivertPacket();
+            var addr = new WinDivertAddress();
 
-            var filter = Filter
-                .True()
-                .And(f => f.IsUdp == false && f.Ip.SrcAddr == IPAddress.Loopback.ToString())
-                .And(item => item.Tcp.Rst == true)
-                .ToFilter();
+            divert.Recv(packet, ref addr);
+            var result = packet.GetParseResult();
 
-            //divert.Recv(packet, ref addr);
-            //var result = packet.GetParseResult();
-
-            //packet.CalcChecksums(ref addr);
-            //divert.Send(packet, ref addr);
+            packet.CalcChecksums(ref addr);
+            divert.Send(packet, ref addr);
 
             Console.WriteLine("Hello, World!");
         }

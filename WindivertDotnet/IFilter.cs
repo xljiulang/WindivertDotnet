@@ -3,40 +3,70 @@
 namespace WindivertDotnet
 {
     /// <summary>
-    /// Filter
+    /// 定义filter的属性
     /// </summary>
     public interface IFilter
     {
+        /// <summary>
+        /// 是否为出口
+        /// </summary>
         [FilterMember("outbound")]
         bool Outbound { get; }
 
+        /// <summary>
+        /// 是否为入口
+        /// </summary>
         [FilterMember("inbound")]
         bool Inbound { get; }
 
+        /// <summary>
+        /// 获取ip对象
+        /// </summary>
         [FilterMember("ip")]
         IIP Ip { get; }
 
+        /// <summary>
+        /// 是否为tcp协议
+        /// </summary>
         [FilterMember("tcp")]
         bool IsTcp { get; }
 
+        /// <summary>
+        /// 获取udp对象
+        /// </summary>
         [FilterMember("tcp")]
         ITcp Tcp { get; }
 
+        /// <summary>
+        /// 是否udp协议
+        /// </summary>
         [FilterMember("udp")]
         bool IsUdp { get; }
 
+        /// <summary>
+        /// udp对象
+        /// </summary>
         [FilterMember("udp")]
         IUdp Udp { get; }
 
+        /// <summary>
+        /// 网卡索引
+        /// </summary>
         [FilterMember("ifIdx")]
         int IfIdx { get; }
 
+        /// <summary>
+        /// 子网卡索引
+        /// </summary>
         [FilterMember("subIfIdx")]
         int SubIfIdx { get; }
 
+
+        /// <summary>
+        /// IP对象
+        /// </summary>
         public interface IIP
         {
-
             [FilterMember]
             int Checksum { get; }
 
