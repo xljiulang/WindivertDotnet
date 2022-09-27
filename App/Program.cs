@@ -7,11 +7,16 @@ namespace App
     {
         unsafe static void Main(string[] args)
         {
-            using var divert = new WinDivert("true", WinDivertLayer.Network);
-            using var packet = new WinDivertPacket();
-            var addr = new WinDivertAddress();
+            //using var divert = new WinDivert("((true) and (tcp)) and (tcp.Rst)", WinDivertLayer.Network);
+            // using var packet = new WinDivertPacket();
+            // var addr = new WinDivertAddress();
 
-            var filter = Filter.True().And(f => f.IsUdp == true).And(item => item.Tcp.Rst).ToFilter();
+            var filter = Filter
+                .True()
+                .And(f => !f.TcpProtocol)
+                .And(f => f.Ip.SrcAddr == System.Net.IPAddress.Loopback)
+                .And(item => item.Tcp.Rst)
+                .ToFilter();
 
             //divert.Recv(packet, ref addr);
             //var result = packet.GetParseResult();

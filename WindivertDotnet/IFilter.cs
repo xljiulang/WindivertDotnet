@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 
 namespace WindivertDotnet
 {
@@ -7,24 +8,33 @@ namespace WindivertDotnet
     /// </summary>
     public interface IFilter
     {
+        [FilterName("outbound")]
         bool Outbound { get; }
 
+        [FilterName("inbound")]
         bool Inbound { get; }
 
+        [FilterName("ip")]
         IIP Ip { get; }
 
-        bool IsTcp { get; }
+        [FilterName("tcp")]
+        bool TcpProtocol { get; }
 
+        [FilterName("tcp")]
         ITcp Tcp { get; }
 
-        bool IsUdp { get; }
+        [FilterName("udp")]
+        bool UdpProtocol { get; }
 
+        [FilterName("udp")]
         IUdp Udp { get; }
 
+        [FilterName("ifIdx")]
         int IfIdx { get; }
 
+        [FilterName("subIfIdx")]
         int SubIfIdx { get; }
- 
+
         public interface IIP
         {
             int Checksum { get; }
@@ -49,7 +59,7 @@ namespace WindivertDotnet
             int SrcPort { get; }
             int DstPort { get; }
         }
-         
+
         public interface ITcp : ITransfer
         {
             int SeqNum { get; }
@@ -61,6 +71,18 @@ namespace WindivertDotnet
         public interface IUdp : ITransfer
         {
             int Length { get; }
+        }
+
+
+        [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+        public sealed class FilterNameAttribute : Attribute
+        {
+            public string Name { get; }
+
+            public FilterNameAttribute(string name)
+            {
+                this.Name = name;
+            }
         }
     }
 }
