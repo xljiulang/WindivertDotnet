@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace WindivertDotnet
@@ -39,5 +40,15 @@ namespace WindivertDotnet
 
         [FieldOffset(16)]
         public fixed byte Reserved3[64];
+
+
+        public void Clear()
+        {
+            fixed (void* pointer = &this)
+            {
+                var span = new Span<byte>(pointer, sizeof(WinDivertAddress));
+                span.Clear();
+            }
+        }
     }
 }
