@@ -205,7 +205,8 @@ namespace WindivertDotnet
             protected override Expression VisitMethodCall(MethodCallExpression node)
             {
                 this.changed = true;
-                var value = Expression.Lambda<Func<object>>(node).Compile().Invoke()?.ToString();
+                var objectBody = Expression.Convert(node, typeof(object));
+                var value = Expression.Lambda<Func<object>>(objectBody).Compile().Invoke();
                 return Expression.Constant(value);
             }
 
@@ -222,7 +223,8 @@ namespace WindivertDotnet
                 }
 
                 this.changed = true;
-                var value = Expression.Lambda<Func<object>>(node).Compile().Invoke()?.ToString();
+                var objectBody = Expression.Convert(node, typeof(object));
+                var value = Expression.Lambda<Func<object>>(objectBody).Compile().Invoke();
                 return Expression.Constant(value);
             }
 
