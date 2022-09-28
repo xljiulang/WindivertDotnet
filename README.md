@@ -1,6 +1,8 @@
 # WindivertDotnet
 面向对象的Windivert的dotnet封装
 
+### nuget
+[WindivertDotnet](https://www.nuget.org/packages/WindivertDotnet)
 
 ### 如何使用
 ```
