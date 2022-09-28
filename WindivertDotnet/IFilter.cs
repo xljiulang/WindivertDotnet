@@ -7,46 +7,73 @@ namespace WindivertDotnet
     /// </summary>
     public interface IFilter
     {
+        /// <summary>
+        /// 时间戳
+        /// </summary>
         [FilterMember("timestamp")]
         long Timestamp { get; }
 
+        /// <summary>
+        /// 事件类型
+        /// </summary>
         [FilterMember("event")]
         string Event { get; set; }
 
+        /// <summary>
+        /// Network层
+        /// </summary>
         INetwork Network { get; }
 
+        /// <summary>
+        /// Forward层
+        /// </summary>
         IForward Forward { get; }
 
+        /// <summary>
+        /// Socket层
+        /// </summary>
         ISocket Socket { get; }
 
+        /// <summary>
+        /// Reflect层
+        /// </summary>
         IReflect Reflect { get; }
 
         /// <summary>
-        /// 获取ip对象
+        /// 是否为IPv4
         /// </summary>
-        [FilterMember("ip")]
-        IIP Ip { get; }
-
         [FilterMember("ip")]
         bool IsIP { get; }
 
-        [FilterMember("ipv6")]
-        IIPV6 IPV6 { get; }
+        /// <summary>
+        /// IPv4的属性集
+        /// </summary>
+        [FilterMember("ip")]
+        IIP IP { get; }
 
+        /// <summary>
+        /// 是否IPv6
+        /// </summary>
         [FilterMember("ipv6")]
         bool IsIPV6 { get; }
 
         /// <summary>
-        /// 获取udp对象
+        /// IPv6属性集
         /// </summary>
-        [FilterMember("tcp")]
-        ITcp Tcp { get; }
+        [FilterMember("ipv6")]
+        IIPV6 IPV6 { get; }
 
         /// <summary>
         /// 是否为tcp协议
         /// </summary>
         [FilterMember("tcp")]
         bool IsTcp { get; }
+
+        /// <summary>
+        /// tcp属性集
+        /// </summary>
+        [FilterMember("tcp")]
+        ITcp Tcp { get; } 
 
 
         /// <summary>
@@ -56,22 +83,37 @@ namespace WindivertDotnet
         bool IsUdp { get; }
 
         /// <summary>
-        /// udp对象
+        /// udp属性集
         /// </summary>
         [FilterMember("udp")]
         IUdp Udp { get; }
 
+
+        /// <summary>
+        /// 是否为icmpV4协议
+        /// </summary>
         [FilterMember("icmp")]
         bool IsIcmp { get; }
 
+        /// <summary>
+        /// icmpV4属性集
+        /// </summary>
         [FilterMember("icmp")]
         public IICmp ICmp { get; }
 
+        /// <summary>
+        /// 是否为icmpV6协议
+        /// </summary>
         [FilterMember("icmpv6")]
         bool IsIcmpV6 { get; }
 
+        /// <summary>
+        /// icmpV6属性集
+        /// </summary>
         [FilterMember("icmpv6")]
         public IICmp IcmpV6 { get; }
+
+
 
         public interface INetwork
         {
@@ -246,7 +288,7 @@ namespace WindivertDotnet
         }
 
         /// <summary>
-        /// IP对象
+        /// IPV4对象
         /// </summary>
         public interface IIP
         {

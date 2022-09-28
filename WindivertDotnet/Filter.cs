@@ -204,10 +204,17 @@ namespace WindivertDotnet
             /// <returns></returns>
             protected override Expression VisitMethodCall(MethodCallExpression node)
             {
-                this.changed = true;
-                var objectBody = Expression.Convert(node, typeof(object));
-                var value = Expression.Lambda<Func<object>>(objectBody).Compile().Invoke();
-                return Expression.Constant(value);
+                try
+                {
+                    this.changed = true;
+                    var objectBody = Expression.Convert(node, typeof(object));
+                    var value = Expression.Lambda<Func<object>>(objectBody).Compile().Invoke();
+                    return Expression.Constant(value);
+                }
+                catch (Exception ex)
+                {
+                    throw new NotSupportedException(node.ToString(), ex);
+                }
             }
 
             /// <summary>
@@ -227,10 +234,17 @@ namespace WindivertDotnet
                     type = type.DeclaringType;
                 }
 
-                this.changed = true;
-                var objectBody = Expression.Convert(node, typeof(object));
-                var value = Expression.Lambda<Func<object>>(objectBody).Compile().Invoke();
-                return Expression.Constant(value);
+                try
+                {
+                    this.changed = true;
+                    var objectBody = Expression.Convert(node, typeof(object));
+                    var value = Expression.Lambda<Func<object>>(objectBody).Compile().Invoke();
+                    return Expression.Constant(value);
+                }
+                catch (Exception ex)
+                {
+                    throw new NotSupportedException(node.ToString(), ex);
+                }
             }
 
             /// <summary>     
