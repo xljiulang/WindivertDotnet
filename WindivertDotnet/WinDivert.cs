@@ -69,7 +69,7 @@ namespace WindivertDotnet
         /// <summary>
         /// 创建一个WinDivert实例
         /// </summary>
-        /// <param name="filter">过滤器</param>
+        /// <param name="filter">过滤器 https://reqrypt.org/windivert-doc.html#filter_language</param>
         /// <param name="layer">工作层</param>
         /// <param name="priority">优先级</param>
         /// <param name="flags">标记</param>
@@ -82,7 +82,7 @@ namespace WindivertDotnet
         /// <summary>
         /// 创建一个WinDivert实例
         /// </summary>
-        /// <param name="filter">过滤器</param>
+        /// <param name="filter">过滤器 https://reqrypt.org/windivert-doc.html#filter_language</param>
         /// <param name="layer">工作层</param>
         /// <param name="priority">优先级</param>
         /// <param name="flags">标记</param>
