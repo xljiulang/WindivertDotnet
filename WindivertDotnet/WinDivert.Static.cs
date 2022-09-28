@@ -7,7 +7,7 @@ namespace WindivertDotnet
     {
         static WinDivert()
         {
-            if (IntPtr.Size == 8)
+            if (Environment.Is64BitProcess)
             {
                 WirteToAppData("WinDivert22/x64/WinDivert64.sys");
                 WirteToAppData("WinDivert22/x64/WinDivert.dll", loadLibray: true);
