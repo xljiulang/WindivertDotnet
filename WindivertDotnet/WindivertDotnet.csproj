@@ -7,11 +7,32 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<NoWarn>CS1591</NoWarn>
 		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Title>WindivertDotnet</Title>
+		<Description>面向对象的Windivert的dotnet封装</Description>
+		<PackageProjectUrl>https://github.com/xljiulang/WindivertDotnet</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/xljiulang/WindivertDotnet</RepositoryUrl>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageIcon>icon.png</PackageIcon>
 	</PropertyGroup>
  
 	<ItemGroup>
 		<None Remove="WinDivert22\*\*" />
 		<EmbeddedResource Include="WinDivert22\*\*" />
+	</ItemGroup>
+ 
+	<ItemGroup>
+	  <None Include="..\..\FastGithub.WinDiverts\LICENSE">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	</ItemGroup>
+ 
+	<ItemGroup>
+	  <None Update="icon.png">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	</ItemGroup>
   
 </Project>
