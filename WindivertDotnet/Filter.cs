@@ -209,7 +209,7 @@ namespace WindivertDotnet
                     this.changed = true;
                     var objectBody = Expression.Convert(node, typeof(object));
                     var value = Expression.Lambda<Func<object>>(objectBody).Compile().Invoke();
-                    return Expression.Constant(value);
+                    return Expression.Constant(value, node.Type);
                 }
                 catch (Exception ex)
                 {
@@ -239,7 +239,7 @@ namespace WindivertDotnet
                     this.changed = true;
                     var objectBody = Expression.Convert(node, typeof(object));
                     var value = Expression.Lambda<Func<object>>(objectBody).Compile().Invoke();
-                    return Expression.Constant(value);
+                    return Expression.Constant(value, node.Type);
                 }
                 catch (Exception ex)
                 {
@@ -258,10 +258,10 @@ namespace WindivertDotnet
             {
                 if (node.NodeType == ExpressionType.Not)
                 {
-                    if (node.Operand is ConstantExpression constantExpression && constantExpression.Value is bool value)
+                    if (TryGetBoolValue(node, out var value))
                     {
                         this.changed = true;
-                        return Expression.Constant(!value);
+                        return Expression.Constant(!value, typeof(bool));
                     }
                 }
                 return base.VisitUnary(node);
@@ -277,9 +277,9 @@ namespace WindivertDotnet
                 // 简化 xxx && true
                 // 简化 xxx || false
                 // 简化 xxx == true
-                if (IsAndTrueSubNode(node, node.Left) ||
-                    IsOrFlaseSubNode(node, node.Left) ||
-                    IsEqualTrueSubNode(node, node.Left))
+                if (IsAndTrueSubNode(node.NodeType, node.Left) ||
+                    IsOrFlaseSubNode(node.NodeType, node.Left) ||
+                    IsEqualTrueSubNode(node.NodeType, node.Left))
                 {
                     this.changed = true;
                     return node.Right;
@@ -288,116 +288,122 @@ namespace WindivertDotnet
                 // 简化 xxx && true
                 // 简化 xxx || false
                 // 简化 xxx == true
-                if (IsAndTrueSubNode(node, node.Right) ||
-                    IsOrFlaseSubNode(node, node.Right) ||
-                    IsEqualTrueSubNode(node, node.Right))
+                if (IsAndTrueSubNode(node.NodeType, node.Right) ||
+                    IsOrFlaseSubNode(node.NodeType, node.Right) ||
+                    IsEqualTrueSubNode(node.NodeType, node.Right))
                 {
                     this.changed = true;
                     return node.Left;
                 }
 
                 // xxx || true 简化为 true
-                if (IsOrTrueSubNode(node, node.Left) ||
-                   IsOrTrueSubNode(node, node.Right))
+                if (IsOrTrueSubNode(node.NodeType, node.Left) ||
+                   IsOrTrueSubNode(node.NodeType, node.Right))
                 {
                     this.changed = true;
-                    return Expression.Constant(true);
+                    return Expression.Constant(true, typeof(bool));
                 }
 
                 // xxx && false 简化为 false
-                if (IsAndFalseSubNode(node, node.Left) ||
-                   IsAndFalseSubNode(node, node.Right))
+                if (IsAndFalseSubNode(node.NodeType, node.Left) ||
+                   IsAndFalseSubNode(node.NodeType, node.Right))
                 {
                     this.changed = true;
-                    return Expression.Constant(false);
+                    return Expression.Constant(false, typeof(bool));
                 }
 
                 // xxx == fasle 转换为 !xxx
-                if (IsEqualFasleSubNode(node, node.Left))
+                if (IsEqualFasleSubNode(node.NodeType, node.Left))
                 {
                     this.changed = true;
-                    return Expression.MakeUnary(ExpressionType.Not, node.Right, null);
+                    return Expression.MakeUnary(ExpressionType.Not, node.Right, node.Right.Type);
                 }
                 // xxx == fasle 转换为 !xxx
-                if (IsEqualFasleSubNode(node, node.Right))
+                if (IsEqualFasleSubNode(node.NodeType, node.Right))
                 {
                     this.changed = true;
-                    return Expression.MakeUnary(ExpressionType.Not, node.Left, null);
+                    return Expression.MakeUnary(ExpressionType.Not, node.Left, node.Left.Type);
                 }
 
                 return base.VisitBinary(node);
             }
 
 
-            private static bool IsEqualTrueSubNode(BinaryExpression node, Expression subNode)
+            /// <summary>
+            /// <para>xxx == true  </para>
+            /// <para>xxx != false</para>
+            /// </summary>
+            /// <param name="nodeType"></param>
+            /// <param name="subNode"></param>
+            /// <returns></returns>
+            private static bool IsEqualTrueSubNode(ExpressionType nodeType, Expression subNode)
             {
-                if (TryGetBoolValue(subNode, out var value) == false)
-                {
-                    return false;
-                }
-
-                return node.NodeType == ExpressionType.Equal && value ||    // xxx == true
-                    node.NodeType == ExpressionType.NotEqual && !value;      // xxx != false               
+                return TryGetBoolValue(subNode, out var value) &&
+                    (nodeType == ExpressionType.Equal && value ||
+                    nodeType == ExpressionType.NotEqual && !value);
             }
 
-            private static bool IsEqualFasleSubNode(BinaryExpression node, Expression subNode)
+            /// <summary>
+            ///  <para>xxx == false</para>
+            ///  <para>xxx != true</para>
+            /// </summary>
+            /// <param name="nodeType"></param>
+            /// <param name="subNode"></param>
+            /// <returns></returns>
+            private static bool IsEqualFasleSubNode(ExpressionType nodeType, Expression subNode)
             {
-                if (TryGetBoolValue(subNode, out var value) == false)
-                {
-                    return false;
-                }
-
-                return node.NodeType == ExpressionType.Equal && !value ||    // xxx == false
-                    node.NodeType == ExpressionType.NotEqual && value;       // xxx != true 
+                return TryGetBoolValue(subNode, out var value) &&
+                    (nodeType == ExpressionType.Equal && !value ||
+                    nodeType == ExpressionType.NotEqual && value);
             }
 
-            private static bool IsAndTrueSubNode(BinaryExpression node, Expression subNode)
+            /// <summary>
+            /// xxx and true
+            /// </summary>
+            /// <param name="nodeType"></param>
+            /// <param name="subNode"></param>
+            /// <returns></returns>
+            private static bool IsAndTrueSubNode(ExpressionType nodeType, Expression subNode)
             {
-                if (TryGetBoolValue(subNode, out var value) == false)
-                {
-                    return false;
-                }
-
-                // xxx && true
-                return (node.NodeType == ExpressionType.And || node.NodeType == ExpressionType.AndAlso) && value;
+                return (nodeType == ExpressionType.And || nodeType == ExpressionType.AndAlso) &&
+                   TryGetBoolValue(subNode, out var value) && value;
             }
 
-            private static bool IsAndFalseSubNode(BinaryExpression node, Expression subNode)
+            /// <summary>
+            /// xxx and false
+            /// </summary>
+            /// <param name="nodeType"></param>
+            /// <param name="subNode"></param>
+            /// <returns></returns>
+            private static bool IsAndFalseSubNode(ExpressionType nodeType, Expression subNode)
             {
-                if (TryGetBoolValue(subNode, out var value) == false)
-                {
-                    return false;
-                }
-
-                // xxx && true
-                return (node.NodeType == ExpressionType.And || node.NodeType == ExpressionType.AndAlso) && !value;
+                return (nodeType == ExpressionType.And || nodeType == ExpressionType.AndAlso) &&
+                    TryGetBoolValue(subNode, out var value) && !value;
             }
 
-            private static bool IsOrTrueSubNode(BinaryExpression node, Expression subNode)
+            /// <summary>
+            ///  xxx || true
+            /// </summary>
+            /// <param name="nodeType"></param>
+            /// <param name="subNode"></param>
+            /// <returns></returns>
+            private static bool IsOrTrueSubNode(ExpressionType nodeType, Expression subNode)
             {
-                if (TryGetBoolValue(subNode, out var value) == false)
-                {
-                    return false;
-                }
-
-                // xxx || false
-                return (node.NodeType == ExpressionType.Or || node.NodeType == ExpressionType.OrElse) && value;
+                return (nodeType == ExpressionType.Or || nodeType == ExpressionType.OrElse) &&
+                    TryGetBoolValue(subNode, out var value) && value;
             }
 
-            private static bool IsOrFlaseSubNode(BinaryExpression node, Expression subNode)
+            /// <summary>
+            ///  xxx || false
+            /// </summary>
+            /// <param name="nodeType"></param>
+            /// <param name="subNode"></param>
+            /// <returns></returns>
+            private static bool IsOrFlaseSubNode(ExpressionType nodeType, Expression subNode)
             {
-                if (TryGetBoolValue(subNode, out var value) == false)
-                {
-                    return false;
-                }
-
-                // xxx || false
-                return (node.NodeType == ExpressionType.Or || node.NodeType == ExpressionType.OrElse) && !value;
+                return (nodeType == ExpressionType.Or || nodeType == ExpressionType.OrElse) &&
+                    TryGetBoolValue(subNode, out var value) && !value;
             }
-
-
-
-
 
             private static bool TryGetBoolValue(Expression node, out bool value)
             {
