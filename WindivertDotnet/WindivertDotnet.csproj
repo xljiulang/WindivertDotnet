@@ -13,7 +13,7 @@
 		<Description>面向对象的Windivert的dotnet封装</Description>
 		<PackageProjectUrl>https://github.com/xljiulang/WindivertDotnet</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/xljiulang/WindivertDotnet</RepositoryUrl>
-		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageLicenseFile>license</PackageLicenseFile>
 		<PackageIcon>icon.png</PackageIcon>
 	</PropertyGroup>
 
@@ -23,10 +23,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="..\..\FastGithub.WinDiverts\LICENSE">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
+	  <None Include="..\license">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	</ItemGroup>
 
 	<ItemGroup>
