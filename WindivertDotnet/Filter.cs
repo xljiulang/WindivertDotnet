@@ -217,9 +217,14 @@ namespace WindivertDotnet
             /// <returns></returns>
             protected override Expression VisitMember(MemberExpression node)
             {
-                if (node.Member.IsDefined(typeof(IFilter.FilterMemberAttribute)))
+                var type = node.Member.DeclaringType;
+                while (type != null)
                 {
-                    return base.VisitMember(node);
+                    if (type == typeof(IFilter))
+                    {
+                        return base.VisitMember(node);
+                    }
+                    type = type.DeclaringType;
                 }
 
                 this.changed = true;

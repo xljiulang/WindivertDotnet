@@ -7,17 +7,19 @@ namespace WindivertDotnet
     /// </summary>
     public interface IFilter
     {
-        /// <summary>
-        /// 是否为出口
-        /// </summary>
-        [FilterMember("outbound")]
-        bool Outbound { get; }
+        [FilterMember("timestamp")]
+        long Timestamp { get; }
 
-        /// <summary>
-        /// 是否为入口
-        /// </summary>
-        [FilterMember("inbound")]
-        bool Inbound { get; }
+        [FilterMember("event")]
+        string Event { get; set; }
+
+        INetwork Network { get; }
+
+        IForward Forward { get; }
+
+        ISocket Socket { get; }
+
+        IReflect Reflect { get; }
 
         /// <summary>
         /// 获取ip对象
@@ -25,17 +27,25 @@ namespace WindivertDotnet
         [FilterMember("ip")]
         IIP Ip { get; }
 
-        /// <summary>
-        /// 是否为tcp协议
-        /// </summary>
-        [FilterMember("tcp")]
-        bool IsTcp { get; }
+        [FilterMember("ip")]
+        bool IsIP { get; }
+
+        [FilterMember("ipv6")]
+        bool IsIPV6 { get; }
+
 
         /// <summary>
         /// 获取udp对象
         /// </summary>
         [FilterMember("tcp")]
         ITcp Tcp { get; }
+
+        /// <summary>
+        /// 是否为tcp协议
+        /// </summary>
+        [FilterMember("tcp")]
+        bool IsTcp { get; }
+
 
         /// <summary>
         /// 是否udp协议
@@ -49,18 +59,178 @@ namespace WindivertDotnet
         [FilterMember("udp")]
         IUdp Udp { get; }
 
-        /// <summary>
-        /// 网卡索引
-        /// </summary>
-        [FilterMember("ifIdx")]
-        int IfIdx { get; }
 
-        /// <summary>
-        /// 子网卡索引
-        /// </summary>
-        [FilterMember("subIfIdx")]
-        int SubIfIdx { get; }
+        public interface INetwork
+        {
+            /// <summary>
+            /// 是否为出口
+            /// </summary>
+            [FilterMember("outbound")]
+            bool Outbound { get; }
 
+            /// <summary>
+            /// 是否为入口
+            /// </summary>
+            [FilterMember("inbound")]
+            bool Inbound { get; }
+
+            [FilterMember("loopback")]
+            bool Loopback { get; }
+
+
+            [FilterMember("impostor")]
+            bool Impostor { get; }
+
+
+            [FilterMember("fragment")]
+            bool Fragment { get; }
+
+            /// <summary>
+            /// 网卡索引
+            /// </summary>
+            [FilterMember("ifIdx")]
+            int IfIdx { get; }
+
+            /// <summary>
+            /// 子网卡索引
+            /// </summary>
+            [FilterMember("subIfIdx")]
+            int SubIfIdx { get; }
+
+            [FilterMember("protocol")]
+            int Protocol { get; }
+
+            [FilterMember("localAddr")]
+            string LocalAddr { get; }
+
+            [FilterMember("localPort")]
+            int LocalPort { get; }
+
+            [FilterMember("remoteAddr")]
+            string RemoteAddr { get; }
+
+            [FilterMember("remotePort")]
+            int RemotePort { get; }
+
+            /// <summary>
+            /// The packet length
+            /// </summary>
+            [FilterMember("length")]
+            int Length { get; }
+        }
+
+        public interface IForward
+        {
+            /// <summary>
+            /// 网卡索引
+            /// </summary>
+            [FilterMember("ifIdx")]
+            int IfIdx { get; }
+
+            /// <summary>
+            /// 子网卡索引
+            /// </summary>
+            [FilterMember("subIfIdx")]
+            int SubIfIdx { get; }
+
+
+            [FilterMember("impostor")]
+            bool Impostor { get; }
+
+
+            [FilterMember("fragment")]
+            bool Fragment { get; }
+
+            /// <summary>
+            /// The packet length
+            /// </summary>
+            [FilterMember("length")]
+            int Length { get; }
+        }
+
+        public interface IFlow
+        {
+            /// <summary>
+            /// 是否为出口
+            /// </summary>
+            [FilterMember("outbound")]
+            bool Outbound { get; }
+
+            /// <summary>
+            /// 是否为入口
+            /// </summary>
+            [FilterMember("inbound")]
+            bool Inbound { get; }
+
+            [FilterMember("loopback")]
+            bool Loopback { get; }
+
+            [FilterMember("endpointId")]
+            int EndpointId { get; }
+
+            [FilterMember("parentEndpointId")]
+            int ParentEndpointId { get; }
+
+            [FilterMember("processId")]
+            int ProcessId { get; }
+
+            [FilterMember("localAddr")]
+            string LocalAddr { get; }
+
+            [FilterMember("localPort")]
+            int LocalPort { get; }
+
+            [FilterMember("remoteAddr")]
+            string RemoteAddr { get; }
+
+            [FilterMember("remotePort")]
+            int RemotePort { get; }
+
+            [FilterMember("protocol")]
+            int Protocol { get; }
+        }
+
+        public interface ISocket
+        {
+            [FilterMember("loopback")]
+            bool Loopback { get; }
+
+            [FilterMember("endpointId")]
+            int EndpointId { get; }
+
+            [FilterMember("parentEndpointId")]
+            int ParentEndpointId { get; }
+
+            [FilterMember("processId")]
+            int ProcessId { get; }
+
+            [FilterMember("localAddr")]
+            string LocalAddr { get; }
+
+            [FilterMember("localPort")]
+            int LocalPort { get; }
+
+            [FilterMember("remoteAddr")]
+            string RemoteAddr { get; }
+
+            [FilterMember("remotePort")]
+            int RemotePort { get; }
+
+            [FilterMember("protocol")]
+            int Protocol { get; }
+        }
+
+        public interface IReflect
+        {
+            [FilterMember("processId")]
+            int ProcessId { get; }
+
+            [FilterMember("layer")]
+            string Layer { get; }
+
+            [FilterMember("priority")]
+            int Priority { get; }
+        }
 
         /// <summary>
         /// IP对象
