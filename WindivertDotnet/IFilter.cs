@@ -31,8 +31,10 @@ namespace WindivertDotnet
         bool IsIP { get; }
 
         [FilterMember("ipv6")]
-        bool IsIPV6 { get; }
+        IIPV6 IPV6 { get; }
 
+        [FilterMember("ipv6")]
+        bool IsIPV6 { get; }
 
         /// <summary>
         /// 获取udp对象
@@ -59,6 +61,17 @@ namespace WindivertDotnet
         [FilterMember("udp")]
         IUdp Udp { get; }
 
+        [FilterMember("icmp")]
+        bool IsIcmp { get; }
+
+        [FilterMember("icmp")]
+        public IICmp ICmp { get; }
+
+        [FilterMember("icmpv6")]
+        bool IsIcmpV6 { get; }
+
+        [FilterMember("icmpv6")]
+        public IICmp IcmpV6 { get; }
 
         public interface INetwork
         {
@@ -238,46 +251,60 @@ namespace WindivertDotnet
         public interface IIP
         {
             [FilterMember]
-            int Checksum { get; }
-
-            [FilterMember]
-            int DF { get; }
-
-            [FilterMember]
-            string DstAddr { get; }
-
-            [FilterMember]
-            int FragOff { get; }
-
-            [FilterMember]
             int HdrLength { get; }
 
             [FilterMember]
-            int Id { get; }
-
-            [FilterMember]
-            int Length { get; }
-
-            [FilterMember]
-            int MF { get; }
-
-            [FilterMember]
-            int Protocol { get; }
-
-            [FilterMember]
-            string SrcAddr { get; }
+            int Version { get; }
 
             [FilterMember]
             int TOS { get; }
 
             [FilterMember]
+            int Length { get; }
+
+            [FilterMember]
+            int Id { get; }
+
+            [FilterMember]
             int TTL { get; }
+
+            [FilterMember]
+            int Protocol { get; }
+
+            [FilterMember]
+            int Checksum { get; }
+
+            [FilterMember]
+            string SrcAddr { get; }
+
+            [FilterMember]
+            string DstAddr { get; }
+        }
+
+        public interface IIPV6
+        {
+            [FilterMember]
+            int Version { get; }
+
+            [FilterMember]
+            int Length { get; }
+
+            [FilterMember]
+            int NextHdr { get; }
+
+            [FilterMember]
+            int HopLimit { get; }
+
+            [FilterMember]
+            string SrcAddr { get; }
+
+            [FilterMember]
+            string DstAddr { get; }
         }
 
 
         public interface ITransfer
         {
-
             [FilterMember]
             int Checksum { get; }
 
@@ -297,6 +324,12 @@ namespace WindivertDotnet
             int SeqNum { get; }
 
             [FilterMember]
+            int AckNum { get; }
+
+            [FilterMember]
+            bool Fin { get; }
+
+            [FilterMember]
             bool Syn { get; }
 
             [FilterMember]
@@ -304,12 +337,39 @@ namespace WindivertDotnet
 
             [FilterMember]
             bool Ack { get; }
+
+            [FilterMember]
+            bool Psh { get; }
+
+            [FilterMember]
+            bool Urg { get; }
+
+            [FilterMember]
+            int Window { get; }
+
+            [FilterMember]
+            int UrgPtr { get; }
         }
 
         public interface IUdp : ITransfer
         {
             [FilterMember]
             int Length { get; }
+        }
+
+        public interface IICmp
+        {
+            [FilterMember]
+            int Type { get; }
+
+            [FilterMember]
+            int Code { get; }
+
+            [FilterMember]
+            int Checksum { get; }
+
+            [FilterMember]
+            int Body { get; }
         }
 
 
