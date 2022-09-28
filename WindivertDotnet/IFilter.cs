@@ -17,7 +17,7 @@ namespace WindivertDotnet
         /// 事件类型
         /// </summary>
         [FilterMember("event")]
-        string Event { get; set; }
+        string Event { get; }
 
         /// <summary>
         /// Network层
