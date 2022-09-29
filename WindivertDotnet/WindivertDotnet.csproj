@@ -18,8 +18,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Remove="WinDivert22\*\*" />
-		<EmbeddedResource Include="WinDivert22\*\*" />
+		<None Remove="v222\*\*" />
+		<EmbeddedResource Include="v222\*\*" />
 	</ItemGroup>
 
 	<ItemGroup>

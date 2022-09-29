@@ -9,26 +9,27 @@ namespace WindivertDotnet
         {
             if (Environment.Is64BitProcess)
             {
-                WirteToAppData("WinDivert22/x64/WinDivert64.sys");
-                WirteToAppData("WinDivert22/x64/WinDivert.dll", loadLibray: true);
+                LoadResource("WindivertDotnet.v222.x64.WinDivert64.sys");
+                LoadResource("WindivertDotnet.v222.x64.WinDivert.dll", true);
             }
             else
             {
-                WirteToAppData("WinDivert22/x86/WinDivert32.sys");
-                WirteToAppData("WinDivert22/x86/WinDivert64.sys");
-                WirteToAppData("WinDivert22/x86/WinDivert.dll", loadLibray: true);
+                LoadResource("WindivertDotnet.v222.x86.WinDivert32.sys");
+                LoadResource("WindivertDotnet.v222.x86.WinDivert64.sys");
+                LoadResource("WindivertDotnet.v222.x86.WinDivert.dll", true);
             }
         }
 
         /// <summary>
-        /// 将资源文件写入appData
+        /// 加载资源
         /// </summary>
-        /// <param name="filePath"></param>
+        /// <param name="name"></param>
         /// <param name="loadLibray"></param>
-        private static void WirteToAppData(string filePath, bool loadLibray = false)
+        private static void LoadResource(string name, bool loadLibray = false)
         {
-            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var destFilePath = Path.Combine(appData, filePath);
+            var fileName = Path.GetFileNameWithoutExtension(name).Replace('.', Path.DirectorySeparatorChar) + Path.GetExtension(name);
+            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var destFilePath = Path.Combine(appDataPath, fileName);
 
             if (File.Exists(destFilePath) == false)
             {
@@ -38,15 +39,9 @@ namespace WindivertDotnet
                     Directory.CreateDirectory(dir);
                 }
 
-                var resoureName = $"{typeof(WinDivertNative).Namespace}.{filePath.Replace('/', '.')}";
-                using var stream = typeof(WinDivert).Assembly.GetManifestResourceStream(resoureName);
-                if (stream == null)
-                {
-                    throw new FileLoadException("Load resource file failure.", filePath);
-                }
-
+                using var rsStream = typeof(WinDivert).Assembly.GetManifestResourceStream(name);
                 using var fileStream = File.OpenWrite(destFilePath);
-                stream.CopyTo(fileStream);
+                rsStream.CopyTo(fileStream);
             }
 
             if (loadLibray == true)
