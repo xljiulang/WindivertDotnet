@@ -14,12 +14,6 @@ namespace WindivertDotnet
         long Timestamp { get; }
 
         /// <summary>
-        /// 事件类型
-        /// </summary>
-        [FilterMember("event")]
-        string Event { get; }
-
-        /// <summary>
         /// Network层
         /// </summary>
         INetwork Network { get; }

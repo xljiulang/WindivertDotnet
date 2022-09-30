@@ -8,6 +8,7 @@ namespace WindivertDotnet
 {
     /// <summary>
     /// 表示过滤器
+    /// https://reqrypt.org/windivert-doc.html#filter_language
     /// </summary>
     public class Filter
     {
