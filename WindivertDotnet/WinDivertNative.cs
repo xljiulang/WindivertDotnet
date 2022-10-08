@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace WindivertDotnet
 {
@@ -21,6 +22,19 @@ namespace WindivertDotnet
             int packetLen,
             ref int pRecvLen,
             ref WinDivertAddress pAddr);
+
+
+        [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern bool WinDivertRecvEx(
+            SafeHandle handle,
+            SafeHandle pPacket,
+            int packetLen,
+            ref int pRecvLen,
+            ulong flags,
+            ref WinDivertAddress pAddr,
+            int* pAddrLen,
+            NativeOverlapped* lpOverlapped);
+
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertSend(

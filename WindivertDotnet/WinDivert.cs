@@ -1,6 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace WindivertDotnet
 {
@@ -11,6 +14,7 @@ namespace WindivertDotnet
     public partial class WinDivert : IDisposable
     {
         private readonly WinDivertHandle handle;
+        private unsafe readonly static IOCompletionCallback completionCallback = new(IOCompletionCallback);
 
         /// <summary>
         /// 获取过滤器
@@ -94,6 +98,7 @@ namespace WindivertDotnet
             {
                 throw new Win32Exception();
             }
+
             this.Filter = filter;
             this.Layer = layer;
         }
@@ -115,6 +120,30 @@ namespace WindivertDotnet
             }
             packet.Length = length;
             return length;
+        }
+
+
+        public Task<int> RecvAsync(WinDivertPacket packet, ref WinDivertAddress addr)
+        {
+            var operation = new RecvOperation(this.handle, packet, completionCallback);
+            operation.RecvEx(ref addr);
+            return operation.Task;
+        }
+
+
+        private unsafe static void IOCompletionCallback(uint errorCode, uint numBytes, NativeOverlapped* pOVERLAP)
+        {
+            var operation = (RecvOperation)ThreadPoolBoundHandle.GetNativeOverlappedState(pOVERLAP);
+            operation.Dispose();
+
+            if (errorCode > 0)
+            {
+                operation.SetException(errorCode);
+            }
+            else
+            {
+                operation.SetResult(numBytes);
+            }
         }
 
         /// <summary>
@@ -180,6 +209,92 @@ namespace WindivertDotnet
         {
             this.Shutdown(WinDivertShutdown.Both);
             this.handle.Dispose();
+        }
+
+        private class RecvOperation : IDisposable
+        {
+            private readonly WinDivertHandle handle;
+            private readonly WinDivertPacket packet;
+
+            private readonly ThreadPoolBoundHandle threadPoolBoundHandle;
+            private readonly PreAllocatedOverlapped preAllocatedOverlapped;
+            private unsafe readonly NativeOverlapped* nativeOverlapped;
+
+            private readonly TaskCompletionSource<int> taskCompletionSource = new();
+
+            public Task<int> Task => this.taskCompletionSource.Task;
+
+            public unsafe RecvOperation(
+                WinDivertHandle handle,
+                WinDivertPacket packet,
+                IOCompletionCallback completionCallback)
+            {
+                this.handle = handle;
+                this.packet = packet;
+
+                this.threadPoolBoundHandle = ThreadPoolBoundHandle.BindHandle(handle);
+                this.preAllocatedOverlapped = new PreAllocatedOverlapped(completionCallback, this, null);
+                this.nativeOverlapped = this.threadPoolBoundHandle.AllocateNativeOverlapped(this.preAllocatedOverlapped);
+            }
+
+            public unsafe void RecvEx(ref WinDivertAddress addr)
+            {
+                var length = 0;
+                var addrLength = sizeof(WinDivertAddress);
+                var flag = WinDivertNative.WinDivertRecvEx(this.threadPoolBoundHandle.Handle, this.packet, this.packet.Capacity, ref length, 0, ref addr, &addrLength, nativeOverlapped);
+
+                if (flag == true)
+                {
+                    this.SetResult(length);
+                    this.Dispose();
+                    return;
+                }
+
+                var errorCode = Marshal.GetLastWin32Error();
+                if (errorCode == 997)
+                {
+                    return;
+                }
+
+                this.SetException(errorCode);
+                this.Dispose();
+            }
+
+
+            public void SetResult(uint numBytes)
+            {
+                this.SetResult(length: (int)numBytes);
+            }
+
+            public void SetResult(int length)
+            {
+                Console.WriteLine(length);
+                this.packet.Length = length;
+                this.taskCompletionSource.SetResult(length);
+            }
+
+            public void SetException(uint errorCode)
+            {
+                this.SetException((int)errorCode);
+            }
+
+            public void SetException(int errorCode)
+            {
+                var exception = new Win32Exception(errorCode);
+                this.taskCompletionSource.SetException(exception);
+            }
+
+            public unsafe void FreeNativeOverlapped(NativeOverlapped* pOVERLAP)
+            {
+                this.threadPoolBoundHandle.FreeNativeOverlapped(pOVERLAP);
+            }
+
+            public unsafe void Dispose()
+            {
+                this.threadPoolBoundHandle.FreeNativeOverlapped(this.nativeOverlapped);
+                this.threadPoolBoundHandle.Dispose();
+                this.preAllocatedOverlapped.Dispose();
+            }
         }
     }
 }
