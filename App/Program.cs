@@ -1,28 +1,26 @@
-﻿using System.Net;
-using WindivertDotnet;
+﻿using WindivertDotnet;
 
 namespace App
 {
     internal class Program
     {
-        unsafe static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            var filter = Filter.True
-                .And(f => f.Network.Loopback)
-                .And(f => f.Tcp.DstPort == 443)
-                .And(f => f.Tcp.Ack == true);
-
+            var filter = Filter.True.And(f => f.IsTcp);
             using var divert = new WinDivert(filter, WinDivertLayer.Network);
             using var packet = new WinDivertPacket();
             var addr = new WinDivertAddress();
+                         
+            while (true)
+            {
+                var recvLength = await divert.RecvAsync(packet, ref addr);
+                var result = packet.GetParseResult();
 
-            divert.Recv(packet, ref addr);
-            var result = packet.GetParseResult();
+                var checkState = packet.CalcChecksums(ref addr);
+                var sendLength = await divert.SendAsync(packet, ref addr);
 
-            packet.CalcChecksums(ref addr);
-            divert.Send(packet, ref addr);
-
-            Console.WriteLine("Hello, World!");
+                Console.WriteLine(result.Protocol);
+            }
         }
     }
 }

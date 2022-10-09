@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace WindivertDotnet
 {
@@ -10,7 +12,13 @@ namespace WindivertDotnet
     [DebuggerDisplay("Filter = {Filter}, Layer = {Layer}")]
     public partial class WinDivert : IDisposable
     {
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly WinDivertHandle handle;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private readonly Lazy<ThreadPoolBoundHandle> boundHandle;
+
+        private unsafe readonly static IOCompletionCallback ioCompletionCallback = new(IOCompletionCallback);
 
         /// <summary>
         /// 获取过滤器
@@ -25,21 +33,14 @@ namespace WindivertDotnet
         /// <summary>
         /// 获取软件版本
         /// </summary>
-        /// <exception cref="Win32Exception"></exception>
-        public Version Version
-        {
-            get
-            {
-                var major = (int)this.GetParam(WinDivertParam.VersionMajor);
-                var minor = (int)this.GetParam(WinDivertParam.VersionMinor);
-                return new Version(major, minor);
-            }
-        }
+        public Version Version { get; }
+
 
         /// <summary>
         /// 获取或设置列队的容量大小
         /// </summary>
         /// <exception cref="Win32Exception"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         public long QueueLength
         {
             get => this.GetParam(WinDivertParam.QueueLength);
@@ -50,6 +51,7 @@ namespace WindivertDotnet
         /// 获取或设自动丢弃数据包之前可以排队的最短时长
         /// </summary>
         /// <exception cref="Win32Exception"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         public TimeSpan QueueTime
         {
             get => TimeSpan.FromMilliseconds(this.GetParam(WinDivertParam.QueueTime));
@@ -60,6 +62,7 @@ namespace WindivertDotnet
         /// 获取或设置存储在数据包队列中的最大字节数
         /// </summary>
         /// <exception cref="Win32Exception"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         public long QueueSize
         {
             get => this.GetParam(WinDivertParam.QueueSize);
@@ -94,8 +97,14 @@ namespace WindivertDotnet
             {
                 throw new Win32Exception();
             }
+            this.boundHandle = new Lazy<ThreadPoolBoundHandle>(() => ThreadPoolBoundHandle.BindHandle(this.handle));
+
             this.Filter = filter;
             this.Layer = layer;
+
+            var major = this.GetParam(WinDivertParam.VersionMajor);
+            var minor = this.GetParam(WinDivertParam.VersionMinor);
+            this.Version = new Version((int)major, (int)minor);
         }
 
         /// <summary>
@@ -107,14 +116,21 @@ namespace WindivertDotnet
         /// <exception cref="Win32Exception"></exception>
         public int Recv(WinDivertPacket packet, ref WinDivertAddress addr)
         {
-            var length = 0;
-            var result = WinDivertNative.WinDivertRecv(this.handle, packet, packet.Capacity, ref length, ref addr);
-            if (result == false)
-            {
-                throw new Win32Exception();
-            }
-            packet.Length = length;
-            return length;
+            return this.RecvAsync(packet, ref addr).Result;
+        }
+
+        /// <summary>
+        /// 读取数据包
+        /// </summary>
+        /// <param name="packet">数据包</param>
+        /// <param name="addr">地址信息</param>
+        /// <returns></returns>
+        /// <exception cref="Win32Exception"></exception>
+        public Task<int> RecvAsync(WinDivertPacket packet, ref WinDivertAddress addr)
+        {
+            var controller = new WindivertRecvController(this.handle, packet, this.boundHandle.Value, ioCompletionCallback);
+            controller.IoControl(ref addr);
+            return controller.Task;
         }
 
         /// <summary>
@@ -126,15 +142,42 @@ namespace WindivertDotnet
         /// <exception cref="Win32Exception"></exception>
         public int Send(WinDivertPacket packet, ref WinDivertAddress addr)
         {
-            var length = 0;
-            var result = WinDivertNative.WinDivertSend(this.handle, packet, packet.Length, ref length, ref addr);
-            if (result == false)
-            {
-                throw new Win32Exception();
-            }
-            packet.Length = length;
-            return length;
+            return this.SendAsync(packet, ref addr).Result;
         }
+
+        /// <summary>
+        /// 发送数据包
+        /// </summary>
+        /// <param name="packet">数据包</param>
+        /// <param name="addr">地址信息</param>
+        /// <returns></returns>
+        /// <exception cref="Win32Exception"></exception>
+        public Task<int> SendAsync(WinDivertPacket packet, ref WinDivertAddress addr)
+        {
+            var controller = new WindivertSendController(this.handle, packet, this.boundHandle.Value, ioCompletionCallback);
+            controller.IoControl(ref addr);
+            return controller.Task;
+        }
+
+        /// <summary>
+        /// io完成回调
+        /// </summary>
+        /// <param name="errorCode"></param>
+        /// <param name="numBytes"></param>
+        /// <param name="pOVERLAP"></param>
+        private unsafe static void IOCompletionCallback(uint errorCode, uint numBytes, NativeOverlapped* pOVERLAP)
+        {
+            var controller = (WindivertController)ThreadPoolBoundHandle.GetNativeOverlappedState(pOVERLAP);
+            if (errorCode > 0)
+            {
+                controller.SetException((int)errorCode);
+            }
+            else
+            {
+                controller.SetResult((int)numBytes);
+            }
+        }
+
 
         /// <summary>
         /// 获取指定的参数值
@@ -142,8 +185,14 @@ namespace WindivertDotnet
         /// <param name="param"></param>
         /// <returns></returns>
         /// <exception cref="Win32Exception"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         private long GetParam(WinDivertParam param)
         {
+            if (this.boundHandle.IsValueCreated)
+            {
+                throw new InvalidOperationException();
+            }
+
             var value = 0L;
             var result = WinDivertNative.WinDivertGetParam(this.handle, param, ref value);
             return result ? value : throw new Win32Exception();
@@ -155,8 +204,14 @@ namespace WindivertDotnet
         /// <param name="param"></param>
         /// <param name="value"></param>
         /// <exception cref="Win32Exception"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         private void SetParam(WinDivertParam param, long value)
         {
+            if (this.boundHandle.IsValueCreated)
+            {
+                throw new InvalidOperationException();
+            }
+
             if (WinDivertNative.WinDivertSetParam(this.handle, param, value) == false)
             {
                 throw new Win32Exception();
@@ -178,7 +233,7 @@ namespace WindivertDotnet
         /// </summary>
         public void Dispose()
         {
-            this.Shutdown(WinDivertShutdown.Both);
+            this.Shutdown(WinDivertShutdown.Both); 
             this.handle.Dispose();
         }
     }

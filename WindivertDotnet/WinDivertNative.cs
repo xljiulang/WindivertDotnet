@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace WindivertDotnet
 {
@@ -12,23 +13,32 @@ namespace WindivertDotnet
             [MarshalAs(UnmanagedType.LPStr)] string filter,
             WinDivertLayer layer,
             short priority,
-            WinDivertFlag flags);
+            WinDivertFlag flags); 
+
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        public static extern bool WinDivertRecv(
+        public static extern bool WinDivertRecvEx(
             WinDivertHandle handle,
             SafeHandle pPacket,
             int packetLen,
             ref int pRecvLen,
-            ref WinDivertAddress pAddr);
+            ulong flags,
+            ref WinDivertAddress pAddr,
+            int* pAddrLen,
+            NativeOverlapped* lpOverlapped); 
+         
+
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        public static extern bool WinDivertSend(
+        public static extern bool WinDivertSendEx(
             WinDivertHandle handle,
             SafeHandle pPacket,
             int packetLen,
             ref int pSendLen,
-            ref WinDivertAddress pAddr);
+            ulong flags,
+            ref WinDivertAddress pAddr,
+            int addrLen,
+            NativeOverlapped* lpOverlapped);
 
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
