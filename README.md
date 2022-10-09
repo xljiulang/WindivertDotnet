@@ -9,6 +9,7 @@
 * WinDivert对象自动维护Windivert句柄，提供接收包与发送包方法；
 * WinDivertPacket提供获取包有效数据长度、解包、重构chucksums等；
 * WinDivertParseResult提供对解包的数据进行精细修改，修改后对Packet直接生效；
+* 基于IOCP的Task异步发送与接收；
 
 ### 3 如何使用
 ```
@@ -24,7 +25,7 @@ var addr = new WinDivertAddress();
 while(true)
 {
     // 读包
-    divert.Recv(packet, ref addr);
+    await divert.RecvAsync(packet, ref addr);
 
     // 解包
     var result = packet.GetParseResult();
@@ -36,5 +37,5 @@ while(true)
     packet.CalcChecksums(ref addr);
 
     // 修改后发出
-    divert.Send(packet, ref addr);
+    await divert.SendAsync(packet, ref addr);
 }
