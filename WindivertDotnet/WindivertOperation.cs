@@ -33,7 +33,7 @@ namespace WindivertDotnet
             ThreadPoolBoundHandle boundHandle,
             IOCompletionCallback completionCallback)
         {
-            this.boundHandle = boundHandle;
+            this.boundHandle = boundHandle;          
             this.NativeOverlapped = this.boundHandle.AllocateNativeOverlapped(completionCallback, this, null);
         }
 
