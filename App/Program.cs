@@ -18,8 +18,8 @@ namespace App
 
                 var checkState = packet.CalcChecksums(ref addr);
                 var sendLength = await divert.SendAsync(packet, ref addr);
-
-                Console.WriteLine(result.Protocol);
+           
+                Console.WriteLine($"{result.Protocol} {recvLength} {sendLength}");
             }
         }
     }

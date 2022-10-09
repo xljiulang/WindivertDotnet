@@ -22,7 +22,7 @@ namespace WindivertDotnet
         {
             var length = 0;
             var addrLength = sizeof(WinDivertAddress);
-            var flag = WinDivertNative.WinDivertSendEx(this.handle, this.packet, this.packet.Capacity, ref length, 0, ref addr, addrLength, this.NativeOverlapped);
+            var flag = WinDivertNative.WinDivertSendEx(this.handle, this.packet, this.packet.Length, ref length, 0, ref addr, addrLength, this.NativeOverlapped);
 
             if (flag == false)
             {
