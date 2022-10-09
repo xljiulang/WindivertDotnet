@@ -7,10 +7,9 @@ namespace WindivertDotnet
     /// <summary>
     /// Windivert控制器
     /// </summary>
-    abstract class WindivertController
+    abstract class WindivertOperation
     {
         private readonly ThreadPoolBoundHandle boundHandle;
-        private readonly PreAllocatedOverlapped preAllocatedOverlapped;
         private readonly TaskCompletionSource<int> taskCompletionSource = new();
 
         protected const int ERROR_IO_PENDING = 997;
@@ -30,20 +29,19 @@ namespace WindivertDotnet
         /// </summary>
         /// <param name="boundHandle"></param>
         /// <param name="completionCallback"></param>
-        public unsafe WindivertController(
+        public unsafe WindivertOperation(
             ThreadPoolBoundHandle boundHandle,
             IOCompletionCallback completionCallback)
         {
             this.boundHandle = boundHandle;
-            this.preAllocatedOverlapped = new PreAllocatedOverlapped(completionCallback, this, null);
-            this.NativeOverlapped = this.boundHandle.AllocateNativeOverlapped(this.preAllocatedOverlapped);
+            this.NativeOverlapped = this.boundHandle.AllocateNativeOverlapped(completionCallback, this, null);
         }
 
         /// <summary>
         /// io控制
         /// </summary>
         /// <param name="addr"></param>
-        public abstract void IoControl(ref WinDivertAddress addr);
+        public abstract void IOControl(ref WinDivertAddress addr);
 
         /// <summary>
         /// 设置结果
@@ -51,7 +49,7 @@ namespace WindivertDotnet
         /// <param name="length"></param>
         public virtual void SetResult(int length)
         {
-            this.FreeNative();
+            this.FreeOverlapped();
             this.taskCompletionSource.SetResult(length);
         }
 
@@ -61,18 +59,17 @@ namespace WindivertDotnet
         /// <param name="errorCode"></param>
         public virtual void SetException(int errorCode)
         {
-            this.FreeNative();
+            this.FreeOverlapped();
             var exception = new Win32Exception(errorCode);
             this.taskCompletionSource.SetException(exception);
         }
 
         /// <summary>
-        /// 释放非托管资源
+        /// 释放Overlapped
         /// </summary>
-        private unsafe void FreeNative()
+        private unsafe void FreeOverlapped()
         {
             this.boundHandle.FreeNativeOverlapped(this.NativeOverlapped);
-            this.preAllocatedOverlapped.Dispose();
         }
     }
 }

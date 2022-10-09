@@ -128,9 +128,9 @@ namespace WindivertDotnet
         /// <exception cref="Win32Exception"></exception>
         public Task<int> RecvAsync(WinDivertPacket packet, ref WinDivertAddress addr)
         {
-            var controller = new WindivertRecvController(this.handle, packet, this.boundHandle.Value, ioCompletionCallback);
-            controller.IoControl(ref addr);
-            return controller.Task;
+            var operation = new WindivertRecvOperation(this.handle, packet, this.boundHandle.Value, ioCompletionCallback);
+            operation.IOControl(ref addr);
+            return operation.Task;
         }
 
         /// <summary>
@@ -154,9 +154,9 @@ namespace WindivertDotnet
         /// <exception cref="Win32Exception"></exception>
         public Task<int> SendAsync(WinDivertPacket packet, ref WinDivertAddress addr)
         {
-            var controller = new WindivertSendController(this.handle, packet, this.boundHandle.Value, ioCompletionCallback);
-            controller.IoControl(ref addr);
-            return controller.Task;
+            var operation = new WindivertSendOperation(this.handle, packet, this.boundHandle.Value, ioCompletionCallback);
+            operation.IOControl(ref addr);
+            return operation.Task;
         }
 
         /// <summary>
@@ -167,14 +167,14 @@ namespace WindivertDotnet
         /// <param name="pOVERLAP"></param>
         private unsafe static void IOCompletionCallback(uint errorCode, uint numBytes, NativeOverlapped* pOVERLAP)
         {
-            var controller = (WindivertController)ThreadPoolBoundHandle.GetNativeOverlappedState(pOVERLAP);
+            var operation = (WindivertOperation)ThreadPoolBoundHandle.GetNativeOverlappedState(pOVERLAP);
             if (errorCode > 0)
             {
-                controller.SetException((int)errorCode);
+                operation.SetException((int)errorCode);
             }
             else
             {
-                controller.SetResult((int)numBytes);
+                operation.SetResult((int)numBytes);
             }
         }
 
@@ -233,8 +233,12 @@ namespace WindivertDotnet
         /// </summary>
         public void Dispose()
         {
-            this.Shutdown(WinDivertShutdown.Both); 
+            this.Shutdown(WinDivertShutdown.Both);
             this.handle.Dispose();
+            if (this.boundHandle.IsValueCreated)
+            {
+                this.boundHandle.Value.Dispose();
+            }
         }
     }
 }

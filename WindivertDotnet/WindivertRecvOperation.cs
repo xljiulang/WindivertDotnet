@@ -3,12 +3,12 @@ using System.Threading;
 
 namespace WindivertDotnet
 {
-    sealed class WindivertRecvController : WindivertController
+    sealed class WindivertRecvOperation : WindivertOperation
     {
         private readonly WinDivertHandle handle;
         private readonly WinDivertPacket packet;
 
-        public unsafe WindivertRecvController(
+        public unsafe WindivertRecvOperation(
             WinDivertHandle handle,
             WinDivertPacket packet,
             ThreadPoolBoundHandle boundHandle,
@@ -18,7 +18,7 @@ namespace WindivertDotnet
             this.packet = packet;
         }
 
-        public unsafe override void IoControl(ref WinDivertAddress addr)
+        public unsafe override void IOControl(ref WinDivertAddress addr)
         {
             var length = 0;
             var addrLength = sizeof(WinDivertAddress);
