@@ -13,6 +13,7 @@ namespace WindivertDotnet
     {
         private readonly ThreadPoolBoundHandle boundHandle;
         private readonly ValueTaskCompletionSource<int> taskCompletionSource = new();
+        private static readonly unsafe IOCompletionCallback completionCallback = new(IOCompletionCallback);
 
         /// <summary>
         /// 获取io重叠对象
@@ -27,11 +28,8 @@ namespace WindivertDotnet
         /// <summary>
         /// Windivert控制器
         /// </summary>
-        /// <param name="boundHandle"></param>
-        /// <param name="completionCallback"></param>
-        public unsafe WindivertOperation(
-            ThreadPoolBoundHandle boundHandle,
-            IOCompletionCallback completionCallback)
+        /// <param name="boundHandle"></param> 
+        public unsafe WindivertOperation(ThreadPoolBoundHandle boundHandle)
         {
             this.boundHandle = boundHandle;
             this.NativeOverlapped = this.boundHandle.AllocateNativeOverlapped(completionCallback, this, null);
@@ -44,10 +42,29 @@ namespace WindivertDotnet
         public abstract void IOControl(ref WinDivertAddress addr);
 
         /// <summary>
+        /// io完成回调
+        /// </summary>
+        /// <param name="errorCode"></param>
+        /// <param name="numBytes"></param>
+        /// <param name="pOVERLAP"></param>
+        private unsafe static void IOCompletionCallback(uint errorCode, uint numBytes, NativeOverlapped* pOVERLAP)
+        {
+            var operation = (WindivertOperation)ThreadPoolBoundHandle.GetNativeOverlappedState(pOVERLAP);
+            if (errorCode > 0)
+            {
+                operation.SetException((int)errorCode);
+            }
+            else
+            {
+                operation.SetResult((int)numBytes);
+            }
+        }
+
+        /// <summary>
         /// 设置结果
         /// </summary>
         /// <param name="length"></param>
-        public virtual void SetResult(int length)
+        protected virtual void SetResult(int length)
         {
             this.FreeOverlapped();
             this.taskCompletionSource.SetResult(length);
@@ -57,7 +74,7 @@ namespace WindivertDotnet
         /// 设置异常
         /// </summary>
         /// <param name="errorCode"></param>
-        public virtual void SetException(int errorCode)
+        protected virtual void SetException(int errorCode)
         {
             this.FreeOverlapped();
             var exception = new Win32Exception(errorCode);

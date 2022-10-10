@@ -18,8 +18,6 @@ namespace WindivertDotnet
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Lazy<ThreadPoolBoundHandle> boundHandle;
 
-        private unsafe readonly static IOCompletionCallback ioCompletionCallback = new(IOCompletionCallback);
-
         /// <summary>
         /// 获取过滤器
         /// </summary>
@@ -128,7 +126,7 @@ namespace WindivertDotnet
         /// <exception cref="Win32Exception"></exception>
         public ValueTask<int> RecvAsync(WinDivertPacket packet, ref WinDivertAddress addr)
         {
-            var operation = new WindivertRecvOperation(this.handle, packet, this.boundHandle.Value, ioCompletionCallback);
+            var operation = new WindivertRecvOperation(this.handle, packet, this.boundHandle.Value);
             operation.IOControl(ref addr);
             return operation.Task;
         }
@@ -154,30 +152,10 @@ namespace WindivertDotnet
         /// <exception cref="Win32Exception"></exception>
         public ValueTask<int> SendAsync(WinDivertPacket packet, ref WinDivertAddress addr)
         {
-            var operation = new WindivertSendOperation(this.handle, packet, this.boundHandle.Value, ioCompletionCallback);
+            var operation = new WindivertSendOperation(this.handle, packet, this.boundHandle.Value);
             operation.IOControl(ref addr);
             return operation.Task;
-        }
-
-        /// <summary>
-        /// io完成回调
-        /// </summary>
-        /// <param name="errorCode"></param>
-        /// <param name="numBytes"></param>
-        /// <param name="pOVERLAP"></param>
-        private unsafe static void IOCompletionCallback(uint errorCode, uint numBytes, NativeOverlapped* pOVERLAP)
-        {
-            var operation = (WindivertOperation)ThreadPoolBoundHandle.GetNativeOverlappedState(pOVERLAP);
-            if (errorCode > 0)
-            {
-                operation.SetException((int)errorCode);
-            }
-            else
-            {
-                operation.SetResult((int)numBytes);
-            }
-        }
-
+        } 
 
         /// <summary>
         /// 获取指定的参数值

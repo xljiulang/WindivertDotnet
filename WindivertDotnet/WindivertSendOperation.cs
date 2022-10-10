@@ -10,8 +10,7 @@ namespace WindivertDotnet
         public unsafe WindivertSendOperation(
             WinDivertHandle handle,
             WinDivertPacket packet,
-            ThreadPoolBoundHandle boundHandle,
-            IOCompletionCallback completionCallback) : base(boundHandle, completionCallback)
+            ThreadPoolBoundHandle boundHandle) : base(boundHandle)
         {
             this.handle = handle;
             this.packet = packet;

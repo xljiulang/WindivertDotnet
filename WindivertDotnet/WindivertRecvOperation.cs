@@ -10,8 +10,7 @@ namespace WindivertDotnet
         public unsafe WindivertRecvOperation(
             WinDivertHandle handle,
             WinDivertPacket packet,
-            ThreadPoolBoundHandle boundHandle,
-            IOCompletionCallback completionCallback) : base(boundHandle, completionCallback)
+            ThreadPoolBoundHandle boundHandle) : base(boundHandle)
         {
             this.handle = handle;
             this.packet = packet;
@@ -29,13 +28,13 @@ namespace WindivertDotnet
             }
         }
 
-        public override void SetResult(int length)
+        protected override void SetResult(int length)
         {
             this.packet.Length = length;
             base.SetResult(length);
         }
 
-        public override void SetException(int errorCode)
+        protected override void SetException(int errorCode)
         {
             this.packet.Length = 0;
             base.SetException(errorCode);
