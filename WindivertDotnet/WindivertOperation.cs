@@ -13,7 +13,6 @@ namespace WindivertDotnet
     {
         private readonly ThreadPoolBoundHandle boundHandle;
         private readonly ValueTaskCompletionSource<int> taskCompletionSource = new();
-        protected const int ERROR_IO_PENDING = 997;
 
         /// <summary>
         /// 获取io重叠对象

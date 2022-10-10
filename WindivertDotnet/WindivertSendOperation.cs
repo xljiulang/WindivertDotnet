@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using System.Threading;
+﻿using System.Threading;
 
 namespace WindivertDotnet
 {
@@ -24,15 +23,7 @@ namespace WindivertDotnet
             var addrLength = sizeof(WinDivertAddress);
             var flag = WinDivertNative.WinDivertSendEx(this.handle, this.packet, this.packet.Length, ref length, 0, ref addr, addrLength, this.NativeOverlapped);
 
-            if (flag == false)
-            {
-                var errorCode = Marshal.GetLastWin32Error();
-                if (errorCode != ERROR_IO_PENDING)
-                {
-                    this.SetException(errorCode);
-                }
-            }
-            else
+            if (flag == true)
             {
                 this.SetResult(length);
             }
