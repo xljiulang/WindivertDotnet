@@ -12,7 +12,7 @@ namespace App
             using var divert = new WinDivert(filter, WinDivertLayer.Network);
             using var packet = new WinDivertPacket();
             var addr = new WinDivertAddress();
-                         
+
             while (true)
             {
                 var recvLength = await divert.RecvAsync(packet, ref addr);
@@ -20,7 +20,7 @@ namespace App
 
                 var checkState = packet.CalcChecksums(ref addr);
                 var sendLength = await divert.SendAsync(packet, ref addr);
-           
+
                 Console.WriteLine($"{result.Protocol} {recvLength} {sendLength}");
             }
         }

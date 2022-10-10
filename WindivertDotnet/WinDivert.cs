@@ -116,7 +116,7 @@ namespace WindivertDotnet
         /// <exception cref="Win32Exception"></exception>
         public int Recv(WinDivertPacket packet, ref WinDivertAddress addr)
         {
-            return this.RecvAsync(packet, ref addr).GetAwaiter().GetResult();
+            return this.RecvAsync(packet, ref addr).AsTask().Result;
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace WindivertDotnet
         /// <exception cref="Win32Exception"></exception>
         public int Send(WinDivertPacket packet, ref WinDivertAddress addr)
         {
-            return this.SendAsync(packet, ref addr).GetAwaiter().GetResult();
+            return this.SendAsync(packet, ref addr).AsTask().Result;
         }
 
         /// <summary>
