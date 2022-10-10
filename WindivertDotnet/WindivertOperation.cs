@@ -1,6 +1,8 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Sources;
 
 namespace WindivertDotnet
 {
@@ -10,8 +12,7 @@ namespace WindivertDotnet
     abstract class WindivertOperation
     {
         private readonly ThreadPoolBoundHandle boundHandle;
-        private readonly TaskCompletionSource<int> taskCompletionSource = new();
-
+        private readonly ValueTaskCompletionSource<int> taskCompletionSource = new();
         protected const int ERROR_IO_PENDING = 997;
 
         /// <summary>
@@ -22,7 +23,7 @@ namespace WindivertDotnet
         /// <summary>
         /// 获取操作任务
         /// </summary>
-        public Task<int> Task => this.taskCompletionSource.Task;
+        public ValueTask<int> Task => this.taskCompletionSource.Task;
 
         /// <summary>
         /// Windivert控制器
@@ -33,7 +34,7 @@ namespace WindivertDotnet
             ThreadPoolBoundHandle boundHandle,
             IOCompletionCallback completionCallback)
         {
-            this.boundHandle = boundHandle;          
+            this.boundHandle = boundHandle;
             this.NativeOverlapped = this.boundHandle.AllocateNativeOverlapped(completionCallback, this, null);
         }
 
@@ -70,6 +71,39 @@ namespace WindivertDotnet
         private unsafe void FreeOverlapped()
         {
             this.boundHandle.FreeNativeOverlapped(this.NativeOverlapped);
+        }
+
+
+        private class ValueTaskCompletionSource<T> : IValueTaskSource<T>
+        {
+            private ManualResetValueTaskSourceCore<T> core;
+
+            public ValueTask<T> Task => new(this, this.core.Version);
+
+            public void SetResult(T result)
+            {
+                this.core.SetResult(result);
+            }
+
+            public void SetException(Exception error)
+            {
+                this.core.SetException(error);
+            }
+
+            T IValueTaskSource<T>.GetResult(short token)
+            {
+                return this.core.GetResult(token);
+            }
+
+            ValueTaskSourceStatus IValueTaskSource<T>.GetStatus(short token)
+            {
+                return this.core.GetStatus(token);
+            }
+
+            void IValueTaskSource<T>.OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            {
+                this.core.OnCompleted(continuation, state, token, flags);
+            }
         }
     }
 }

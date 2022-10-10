@@ -116,7 +116,7 @@ namespace WindivertDotnet
         /// <exception cref="Win32Exception"></exception>
         public int Recv(WinDivertPacket packet, ref WinDivertAddress addr)
         {
-            return this.RecvAsync(packet, ref addr).Result;
+            return this.RecvAsync(packet, ref addr).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace WindivertDotnet
         /// <param name="addr">地址信息</param>
         /// <returns></returns>
         /// <exception cref="Win32Exception"></exception>
-        public Task<int> RecvAsync(WinDivertPacket packet, ref WinDivertAddress addr)
+        public ValueTask<int> RecvAsync(WinDivertPacket packet, ref WinDivertAddress addr)
         {
             var operation = new WindivertRecvOperation(this.handle, packet, this.boundHandle.Value, ioCompletionCallback);
             operation.IOControl(ref addr);
@@ -142,7 +142,7 @@ namespace WindivertDotnet
         /// <exception cref="Win32Exception"></exception>
         public int Send(WinDivertPacket packet, ref WinDivertAddress addr)
         {
-            return this.SendAsync(packet, ref addr).Result;
+            return this.SendAsync(packet, ref addr).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace WindivertDotnet
         /// <param name="addr">地址信息</param>
         /// <returns></returns>
         /// <exception cref="Win32Exception"></exception>
-        public Task<int> SendAsync(WinDivertPacket packet, ref WinDivertAddress addr)
+        public ValueTask<int> SendAsync(WinDivertPacket packet, ref WinDivertAddress addr)
         {
             var operation = new WindivertSendOperation(this.handle, packet, this.boundHandle.Value, ioCompletionCallback);
             operation.IOControl(ref addr);
