@@ -49,11 +49,10 @@ namespace WindivertDotnet
         /// <summary>
         /// WinDivert的数据包
         /// </summary>
-        /// <param name="capacity">最大容量</param>
-        /// <param name="zeroed">是否数据清0</param>
-        public WinDivertPacket(int capacity = ushort.MaxValue, bool zeroed = true)
+        /// <param name="capacity">最大容量</param> 
+        public WinDivertPacket(int capacity = ushort.MaxValue)
         {
-            this.buffer = new WinDivertPacketBuffer(capacity, zeroed);
+            this.buffer = new WinDivertPacketBuffer(capacity);
         }
 
         /// <summary>
@@ -165,16 +164,12 @@ namespace WindivertDotnet
         {
             public int Capacity { get; }
 
-            public WinDivertPacketBuffer(int capacity, bool zeroed)
+            public WinDivertPacketBuffer(int capacity)
                 : base(true)
             {
                 this.Capacity = capacity;
                 this.SetHandle(Marshal.AllocHGlobal(capacity));
-                if (zeroed == true)
-                {
-                    var buffer = new Span<byte>(this.handle.ToPointer(), capacity);
-                    buffer.Clear();
-                }
+                this.GetSpan(capacity).Clear();
             }
 
             public unsafe Span<byte> GetSpan(int length)

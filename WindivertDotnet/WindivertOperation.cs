@@ -12,13 +12,9 @@ namespace WindivertDotnet
     abstract class WindivertOperation
     {
         private readonly ThreadPoolBoundHandle boundHandle;
+        private unsafe NativeOverlapped* nativeOverlapped;
         private readonly ValueTaskCompletionSource<int> taskCompletionSource = new();
         private static readonly unsafe IOCompletionCallback completionCallback = new(IOCompletionCallback);
-
-        /// <summary>
-        /// 获取io重叠对象
-        /// </summary>
-        protected unsafe NativeOverlapped* NativeOverlapped { get; }
 
         /// <summary>
         /// 获取操作任务
@@ -32,14 +28,30 @@ namespace WindivertDotnet
         public unsafe WindivertOperation(ThreadPoolBoundHandle boundHandle)
         {
             this.boundHandle = boundHandle;
-            this.NativeOverlapped = this.boundHandle.AllocateNativeOverlapped(completionCallback, this, null);
+            this.nativeOverlapped = this.boundHandle.AllocateNativeOverlapped(completionCallback, this, null);
         }
 
         /// <summary>
         /// io控制
         /// </summary>
         /// <param name="addr"></param>
-        public abstract void IOControl(ref WinDivertAddress addr);
+        public unsafe void IOControl(ref WinDivertAddress addr)
+        {
+            var length = 0;
+            if (this.IOControl(ref length, ref addr, this.nativeOverlapped))
+            {
+                this.SetResult(length);
+            }
+        }
+
+        /// <summary>
+        /// io控制
+        /// </summary>
+        /// <param name="length"></param>
+        /// <param name="addr"></param>
+        /// <param name="nativeOverlapped"></param>
+        /// <returns></returns>
+        protected unsafe abstract bool IOControl(ref int length, ref WinDivertAddress addr, NativeOverlapped* nativeOverlapped);
 
         /// <summary>
         /// io完成回调
@@ -86,7 +98,11 @@ namespace WindivertDotnet
         /// </summary>
         private unsafe void FreeOverlapped()
         {
-            this.boundHandle.FreeNativeOverlapped(this.NativeOverlapped);
+            if (this.nativeOverlapped != null)
+            {
+                this.boundHandle.FreeNativeOverlapped(this.nativeOverlapped);
+                this.nativeOverlapped = null;
+            }
         }
 
 
