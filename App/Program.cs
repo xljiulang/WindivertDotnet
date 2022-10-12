@@ -8,7 +8,7 @@ namespace App
     {
         static async Task Main(string[] args)
         {
-            var filter = Filter.True;
+            var filter = Filter.True.And(f => f.IsIP && f.IsTcp);
             using var divert = new WinDivert(filter, WinDivertLayer.Network);
             using var packet = new WinDivertPacket();
             var addr = new WinDivertAddress();
