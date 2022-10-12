@@ -72,7 +72,7 @@ namespace WindivertDotnet
         /// </summary>
         /// <param name="filter">过滤器 https://reqrypt.org/windivert-doc.html#filter_language</param>
         /// <param name="layer">工作层</param>
-        /// <param name="priority">优先级</param>
+        /// <param name="priority">优先级，越小越高</param>
         /// <param name="flags">标记</param>
         /// <exception cref="Win32Exception"></exception>
         public WinDivert(Filter filter, WinDivertLayer layer, short priority = 0, WinDivertFlag flags = WinDivertFlag.None)
@@ -155,7 +155,7 @@ namespace WindivertDotnet
             var operation = new WindivertSendOperation(this.handle, packet, this.boundHandle.Value);
             operation.IOControl(ref addr);
             return operation.Task;
-        } 
+        }
 
         /// <summary>
         /// 获取指定的参数值

@@ -16,10 +16,10 @@ namespace WindivertDotnet
             this.packet = packet;
         }
 
-        protected override unsafe bool IOControl(ref int length, ref WinDivertAddress addr, NativeOverlapped* nativeOverlapped)
+        protected override unsafe bool IOControl(int* pLength, ref WinDivertAddress addr, NativeOverlapped* nativeOverlapped)
         {
             var addrLength = sizeof(WinDivertAddress);
-            return WinDivertNative.WinDivertSendEx(this.handle, this.packet, this.packet.Length, ref length, 0, ref addr, addrLength, nativeOverlapped);
+            return WinDivertNative.WinDivertSendEx(this.handle, this.packet, this.packet.Length, pLength, 0, ref addr, addrLength, nativeOverlapped);
         }
     }
 }

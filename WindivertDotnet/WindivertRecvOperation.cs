@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace WindivertDotnet
@@ -7,7 +8,7 @@ namespace WindivertDotnet
     {
         private readonly WinDivertHandle handle;
         private readonly WinDivertPacket packet;
-        private readonly GCHandle addrLenHandle;
+        private readonly unsafe int* pAddrLen = (int*)Marshal.AllocHGlobal(sizeof(int));
 
         public unsafe WindivertRecvOperation(
             WinDivertHandle handle,
@@ -16,27 +17,30 @@ namespace WindivertDotnet
         {
             this.handle = handle;
             this.packet = packet;
-            this.addrLenHandle = GCHandle.Alloc(sizeof(WinDivertAddress), GCHandleType.Pinned);
         }
 
-        protected override unsafe bool IOControl(ref int length, ref WinDivertAddress addr, NativeOverlapped* nativeOverlapped)
+        protected override unsafe bool IOControl(int* pLength, ref WinDivertAddress addr, NativeOverlapped* nativeOverlapped)
         {
-            var pAddrLen = (int*)this.addrLenHandle.AddrOfPinnedObject().ToPointer();
-            return WinDivertNative.WinDivertRecvEx(this.handle, this.packet, this.packet.Capacity, ref length, 0, ref addr, pAddrLen, nativeOverlapped);
+            *this.pAddrLen = sizeof(WinDivertAddress);
+            return WinDivertNative.WinDivertRecvEx(this.handle, this.packet, this.packet.Capacity, this.pAddrLen, 0, ref addr, pAddrLen, nativeOverlapped);
         }
 
         protected override void SetResult(int length)
         {
             this.packet.Length = length;
-            this.addrLenHandle.Free();
             base.SetResult(length);
         }
 
         protected override void SetException(int errorCode)
         {
             this.packet.Length = 0;
-            this.addrLenHandle.Free();
             base.SetException(errorCode);
+        }
+
+        protected unsafe override void FreeNative()
+        {
+            Marshal.FreeHGlobal(new IntPtr(pAddrLen));
+            base.FreeNative();
         }
     }
 }

@@ -13,7 +13,7 @@ namespace WindivertDotnet
             [MarshalAs(UnmanagedType.LPStr)] string filter,
             WinDivertLayer layer,
             short priority,
-            WinDivertFlag flags); 
+            WinDivertFlag flags);
 
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
@@ -21,12 +21,12 @@ namespace WindivertDotnet
             WinDivertHandle handle,
             SafeHandle pPacket,
             int packetLen,
-            ref int pRecvLen,
+            int* pRecvLen,
             ulong flags,
             ref WinDivertAddress pAddr,
             int* pAddrLen,
-            NativeOverlapped* lpOverlapped); 
-         
+            NativeOverlapped* lpOverlapped);
+
 
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
@@ -34,7 +34,7 @@ namespace WindivertDotnet
             WinDivertHandle handle,
             SafeHandle pPacket,
             int packetLen,
-            ref int pSendLen,
+            int* pSendLen,
             ulong flags,
             ref WinDivertAddress pAddr,
             int addrLen,
