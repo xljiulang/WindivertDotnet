@@ -64,6 +64,17 @@ namespace WindivertDotnet
         }
 
         /// <summary>
+        /// 将指定的数据复制到packet缓冲区
+        /// </summary>
+        /// <param name="span">数据</param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public void SetBuffer(Span<byte> span)
+        {
+            this.Length = span.Length;
+            span.CopyTo(this.Span);
+        }
+
+        /// <summary>
         /// 释放本机句柄
         /// </summary>
         /// <returns></returns>
