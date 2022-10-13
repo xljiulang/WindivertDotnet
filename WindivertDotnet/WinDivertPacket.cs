@@ -106,9 +106,18 @@ namespace WindivertDotnet
         /// <summary>
         /// 获取包的哈希
         /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            return this.GetHashCode(seed: 0L);
+        }
+
+        /// <summary>
+        /// 获取包的哈希
+        /// </summary>
         /// <param name="seed"></param>
         /// <returns></returns>
-        public int GetHash(long seed = 0L)
+        public int GetHashCode(long seed)
         {
             return WinDivertNative.WinDivertHelperHashPacket(this, this.length, seed);
         }

@@ -68,7 +68,7 @@ namespace WindivertDotnet
         public static extern int WinDivertHelperHashPacket(
             WinDivertPacket packet,
             int packetLen,
-            long seed = 0);
+            long seed);
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertHelperParsePacket(
