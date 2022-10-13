@@ -2,13 +2,13 @@
 
 namespace WindivertDotnet
 {
-    sealed unsafe class WindivertSendOperation : WindivertOperation
+    sealed unsafe class WinDivertSendOperation : WinDivertOperation
     {
         private readonly WinDivert divert;
         private readonly WinDivertPacket packet;
         private readonly WinDivertAddress addr;
 
-        public WindivertSendOperation(
+        public WinDivertSendOperation(
             WinDivert divert,
             WinDivertPacket packet,
             WinDivertAddress addr) : base(divert)

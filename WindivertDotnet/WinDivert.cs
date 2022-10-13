@@ -135,7 +135,7 @@ namespace WindivertDotnet
         /// <exception cref="Win32Exception"></exception>
         public async ValueTask<int> RecvAsync(WinDivertPacket packet, WinDivertAddress addr)
         {
-            using var operation = new WindivertRecvOperation(this, packet, addr);
+            using var operation = new WinDivertRecvOperation(this, packet, addr);
             return await operation.IOControlAsync();
         }
 
@@ -160,7 +160,7 @@ namespace WindivertDotnet
         /// <exception cref="Win32Exception"></exception>
         public async ValueTask<int> SendAsync(WinDivertPacket packet, WinDivertAddress addr)
         {
-            using var operation = new WindivertSendOperation(this, packet, addr);
+            using var operation = new WinDivertSendOperation(this, packet, addr);
             return await operation.IOControlAsync();
         }
 

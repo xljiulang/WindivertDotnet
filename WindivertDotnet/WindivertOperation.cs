@@ -9,7 +9,7 @@ namespace WindivertDotnet
     /// <summary>
     /// Windivert控制器
     /// </summary>
-    abstract unsafe class WindivertOperation : IDisposable
+    abstract unsafe class WinDivertOperation : IDisposable
     {
         private readonly ThreadPoolBoundHandle boundHandle;
         private readonly NativeOverlapped* nativeOverlapped;
@@ -21,7 +21,7 @@ namespace WindivertDotnet
         /// Windivert控制器
         /// </summary>
         /// <param name="divert"></param> 
-        public WindivertOperation(WinDivert divert)
+        public WinDivertOperation(WinDivert divert)
         {
             this.boundHandle = divert.GetThreadPoolBoundHandle();
             this.nativeOverlapped = this.boundHandle.AllocateNativeOverlapped(completionCallback, this, null);
@@ -59,7 +59,7 @@ namespace WindivertDotnet
         /// <param name="pOVERLAP"></param>
         private static void IOCompletionCallback(uint errorCode, uint numBytes, NativeOverlapped* pOVERLAP)
         {
-            var operation = (WindivertOperation)ThreadPoolBoundHandle.GetNativeOverlappedState(pOVERLAP);
+            var operation = (WinDivertOperation)ThreadPoolBoundHandle.GetNativeOverlappedState(pOVERLAP);
             if (errorCode > 0)
             {
                 operation.SetException((int)errorCode);

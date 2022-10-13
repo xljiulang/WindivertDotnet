@@ -4,14 +4,14 @@ using System.Threading;
 
 namespace WindivertDotnet
 {
-    sealed unsafe class WindivertRecvOperation : WindivertOperation
+    sealed unsafe class WinDivertRecvOperation : WinDivertOperation
     {
         private readonly WinDivert divert;
         private readonly WinDivertPacket packet;
         private readonly WinDivertAddress addr;
         private readonly IntPtr addrLenHandle = Marshal.AllocHGlobal(sizeof(int));
 
-        public WindivertRecvOperation(
+        public WinDivertRecvOperation(
             WinDivert divert,
             WinDivertPacket packet,
             WinDivertAddress addr) : base(divert)
