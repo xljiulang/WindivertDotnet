@@ -9,19 +9,19 @@ namespace WindivertDotnet
     /// <summary>
     /// Windivert控制器
     /// </summary>
-    abstract class WindivertOperation
+    abstract unsafe class WindivertOperation : IDisposable
     {
         private readonly ThreadPoolBoundHandle boundHandle;
-        private readonly unsafe NativeOverlapped* nativeOverlapped;
+        private readonly NativeOverlapped* nativeOverlapped;
 
         private readonly ValueTaskCompletionSource<int> taskCompletionSource = new();
-        private static readonly unsafe IOCompletionCallback completionCallback = new(IOCompletionCallback);
+        private static readonly IOCompletionCallback completionCallback = new(IOCompletionCallback);
 
         /// <summary>
         /// Windivert控制器
         /// </summary>
         /// <param name="boundHandle"></param> 
-        public unsafe WindivertOperation(ThreadPoolBoundHandle boundHandle)
+        public WindivertOperation(ThreadPoolBoundHandle boundHandle)
         {
             this.boundHandle = boundHandle;
             this.nativeOverlapped = this.boundHandle.AllocateNativeOverlapped(completionCallback, this, null);
@@ -30,13 +30,16 @@ namespace WindivertDotnet
         /// <summary>
         /// io控制
         /// </summary> 
-        public unsafe ValueTask<int> IOControl()
+        /// <exception cref="Win32Exception"></exception>
+        public ValueTask<int> IOControlAsync()
         {
             var length = 0;
+            // 如果触发异步回调，回调里不会反写pLength，所以这里可以指向栈内存的length
             if (this.IOControl(&length, this.nativeOverlapped))
             {
                 this.SetResult(length);
             }
+
             return this.taskCompletionSource.Task;
         }
 
@@ -46,7 +49,7 @@ namespace WindivertDotnet
         /// <param name="pLength"></param> 
         /// <param name="nativeOverlapped"></param>
         /// <returns></returns>
-        protected unsafe abstract bool IOControl(int* pLength, NativeOverlapped* nativeOverlapped);
+        protected abstract bool IOControl(int* pLength, NativeOverlapped* nativeOverlapped);
 
         /// <summary>
         /// io完成回调
@@ -54,7 +57,7 @@ namespace WindivertDotnet
         /// <param name="errorCode"></param>
         /// <param name="numBytes"></param>
         /// <param name="pOVERLAP"></param>
-        private unsafe static void IOCompletionCallback(uint errorCode, uint numBytes, NativeOverlapped* pOVERLAP)
+        private static void IOCompletionCallback(uint errorCode, uint numBytes, NativeOverlapped* pOVERLAP)
         {
             var operation = (WindivertOperation)ThreadPoolBoundHandle.GetNativeOverlappedState(pOVERLAP);
             if (errorCode > 0)
@@ -73,7 +76,6 @@ namespace WindivertDotnet
         /// <param name="length"></param>
         protected virtual void SetResult(int length)
         {
-            this.FreeNative();
             this.taskCompletionSource.SetResult(length);
         }
 
@@ -83,18 +85,18 @@ namespace WindivertDotnet
         /// <param name="errorCode"></param>
         protected virtual void SetException(int errorCode)
         {
-            this.FreeNative();
             var exception = new Win32Exception(errorCode);
             this.taskCompletionSource.SetException(exception);
         }
 
         /// <summary>
-        /// 释放本机资源
+        /// 释放资源
         /// </summary>
-        protected virtual unsafe void FreeNative()
+        public virtual void Dispose()
         {
             this.boundHandle.FreeNativeOverlapped(this.nativeOverlapped);
         }
+
 
 
         private class ValueTaskCompletionSource<T> : IValueTaskSource<T>

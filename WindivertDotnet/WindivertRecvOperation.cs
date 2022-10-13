@@ -4,14 +4,14 @@ using System.Threading;
 
 namespace WindivertDotnet
 {
-    sealed class WindivertRecvOperation : WindivertOperation
+    sealed unsafe class WindivertRecvOperation : WindivertOperation
     {
         private readonly WinDivert divert;
         private readonly WinDivertPacket packet;
         private readonly WinDivertAddress addr;
-        private readonly unsafe int* pAddrLen = (int*)Marshal.AllocHGlobal(sizeof(int));
+        private readonly int* pAddrLength = (int*)Marshal.AllocHGlobal(sizeof(int));
 
-        public unsafe WindivertRecvOperation(
+        public WindivertRecvOperation(
             WinDivert divert,
             WinDivertPacket packet,
             WinDivertAddress addr,
@@ -22,10 +22,10 @@ namespace WindivertDotnet
             this.addr = addr;
         }
 
-        protected override unsafe bool IOControl(int* pLength, NativeOverlapped* nativeOverlapped)
+        protected override bool IOControl(int* pLength, NativeOverlapped* nativeOverlapped)
         {
-            *this.pAddrLen = WinDivertAddress.Size;
-            return WinDivertNative.WinDivertRecvEx(this.divert, this.packet, this.packet.Capacity, this.pAddrLen, 0, this.addr, pAddrLen, nativeOverlapped);
+            *this.pAddrLength = WinDivertAddress.Size;
+            return WinDivertNative.WinDivertRecvEx(this.divert, this.packet, this.packet.Capacity, this.pAddrLength, 0, this.addr, pAddrLength, nativeOverlapped);
         }
 
         protected override void SetResult(int length)
@@ -40,10 +40,10 @@ namespace WindivertDotnet
             base.SetException(errorCode);
         }
 
-        protected unsafe override void FreeNative()
+        public override void Dispose()
         {
-            Marshal.FreeHGlobal(new IntPtr(pAddrLen));
-            base.FreeNative();
+            Marshal.FreeHGlobal(new IntPtr(this.pAddrLength));
+            base.Dispose();
         }
     }
 }

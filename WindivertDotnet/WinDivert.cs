@@ -114,7 +114,7 @@ namespace WindivertDotnet
         /// <exception cref="Win32Exception"></exception>
         public int Recv(WinDivertPacket packet, WinDivertAddress addr)
         {
-            return this.RecvAsync(packet, addr).AsTask().Result;
+            return this.RecvAsync(packet, addr).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -124,10 +124,10 @@ namespace WindivertDotnet
         /// <param name="addr">地址信息</param>
         /// <returns></returns>
         /// <exception cref="Win32Exception"></exception>
-        public ValueTask<int> RecvAsync(WinDivertPacket packet, WinDivertAddress addr)
+        public async ValueTask<int> RecvAsync(WinDivertPacket packet, WinDivertAddress addr)
         {
-            var operation = new WindivertRecvOperation(this, packet, addr, this.boundHandle.Value);
-            return operation.IOControl();
+            using var operation = new WindivertRecvOperation(this, packet, addr, this.boundHandle.Value);
+            return await operation.IOControlAsync();
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace WindivertDotnet
         /// <exception cref="Win32Exception"></exception>
         public int Send(WinDivertPacket packet, WinDivertAddress addr)
         {
-            return this.SendAsync(packet, addr).AsTask().Result;
+            return this.SendAsync(packet, addr).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -149,10 +149,10 @@ namespace WindivertDotnet
         /// <param name="addr">地址信息</param>
         /// <returns></returns>
         /// <exception cref="Win32Exception"></exception>
-        public ValueTask<int> SendAsync(WinDivertPacket packet, WinDivertAddress addr)
+        public async ValueTask<int> SendAsync(WinDivertPacket packet, WinDivertAddress addr)
         {
-            var operation = new WindivertSendOperation(this, packet, addr, this.boundHandle.Value);
-            return operation.IOControl();
+            using var operation = new WindivertSendOperation(this, packet, addr, this.boundHandle.Value);
+            return await operation.IOControlAsync();
         }
 
         /// <summary>

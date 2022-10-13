@@ -2,13 +2,13 @@
 
 namespace WindivertDotnet
 {
-    sealed class WindivertSendOperation : WindivertOperation
+    sealed unsafe class WindivertSendOperation : WindivertOperation
     {
         private readonly WinDivert divert;
         private readonly WinDivertPacket packet;
         private readonly WinDivertAddress addr;
 
-        public unsafe WindivertSendOperation(
+        public WindivertSendOperation(
             WinDivert divert,
             WinDivertPacket packet,
             WinDivertAddress addr,
@@ -19,7 +19,7 @@ namespace WindivertDotnet
             this.addr = addr;
         }
 
-        protected override unsafe bool IOControl(int* pLength, NativeOverlapped* nativeOverlapped)
+        protected override bool IOControl(int* pLength, NativeOverlapped* nativeOverlapped)
         {
             var addrLength = WinDivertAddress.Size;
             return WinDivertNative.WinDivertSendEx(this.divert, this.packet, this.packet.Length, pLength, 0, this.addr, addrLength, nativeOverlapped);
