@@ -12,15 +12,15 @@ namespace WindivertDotnet
     public unsafe class WinDivertAddress : SafeHandleZeroOrMinusOneIsInvalid
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private WinDivertAddressStruct* Pointer => (WinDivertAddressStruct*)this.handle.ToPointer();
+        private AddressStruct* Pointer => (AddressStruct*)this.handle.ToPointer();
 
         /// <summary>
         /// 获取结构大小
         /// </summary>
-        public static int Size { get; } = sizeof(WinDivertAddressStruct);
+        public static int Size { get; } = sizeof(AddressStruct);
 
         /// <summary>
-        /// 发生的时间戳
+        /// 获取或设置发生的时间戳
         /// </summary>
         public long Timestamp
         {
@@ -29,7 +29,7 @@ namespace WindivertDotnet
         }
 
         /// <summary>
-        /// 所在层
+        /// 获取或设置所在层
         /// </summary>
         public WinDivertLayer Layer
         {
@@ -38,7 +38,7 @@ namespace WindivertDotnet
         }
 
         /// <summary>
-        /// 事件类型
+        /// 获取或设置事件类型
         /// </summary>
         public WinDivertEvent Event
         {
@@ -47,7 +47,7 @@ namespace WindivertDotnet
         }
 
         /// <summary>
-        /// 标记
+        /// 获取或设置标记
         /// </summary>
         public WinDivertAddressFlag Flags
         {
@@ -56,7 +56,7 @@ namespace WindivertDotnet
         }
 
         /// <summary>
-        /// 保留
+        /// 获取或设置保留
         /// </summary>
         public byte Reserved
         {
@@ -65,7 +65,7 @@ namespace WindivertDotnet
         }
 
         /// <summary>
-        /// 保留
+        /// 获取或设置保留
         /// </summary>
         public uint Reserved2
         {
@@ -74,40 +74,24 @@ namespace WindivertDotnet
         }
 
         /// <summary>
-        /// Network信息
+        /// 获取Network的指针
         /// </summary>
-        public WinDivertDataNetwork Network
-        {
-            get => this.Pointer->Network;
-            set => this.Pointer->Network = value;
-        }
+        public WinDivertDataNetwork* Network => &this.Pointer->Network;
 
         /// <summary>
-        /// Flow信息
+        /// 获取Flow的指针
         /// </summary>
-        public WinDivertDataFlow Flow
-        {
-            get => this.Pointer->Flow;
-            set => this.Pointer->Flow = value;
-        }
+        public WinDivertDataFlow* Flow => &this.Pointer->Flow;
 
         /// <summary>
-        /// Socket信息
+        /// 获取Socket的指针
         /// </summary>
-        public WinDivertDataSocket Socket
-        {
-            get => this.Pointer->Socket;
-            set => this.Pointer->Socket = value;
-        }
+        public WinDivertDataSocket* Socket => &this.Pointer->Socket;
 
         /// <summary>
-        /// Reflect信息
+        /// 获取Reflect的指针
         /// </summary>
-        public WinDivertDataReflect Reflect
-        {
-            get => this.Pointer->Reflect;
-            set => this.Pointer->Reflect = value;
-        }
+        public WinDivertDataReflect* Reflect => &this.Pointer->Reflect;
 
         /// <summary>
         /// WinDivert地址信息
@@ -140,7 +124,7 @@ namespace WindivertDotnet
 
 
         [StructLayout(LayoutKind.Explicit)]
-        private struct WinDivertAddressStruct
+        private struct AddressStruct
         {
             [FieldOffset(0)]
             public long Timestamp;

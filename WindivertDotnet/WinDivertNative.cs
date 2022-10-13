@@ -17,6 +17,11 @@ namespace WindivertDotnet
 
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern bool WinDivertClose(
+            IntPtr handle);
+
+
+        [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertRecvEx(
             WinDivert divert,
             WinDivertPacket packet,
@@ -46,9 +51,6 @@ namespace WindivertDotnet
             WinDivert divert,
             WinDivertShutdown how);
 
-        [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        public static extern bool WinDivertClose(
-            IntPtr handle);
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertSetParam(
@@ -86,10 +88,10 @@ namespace WindivertDotnet
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertHelperCalcChecksums(
-          WinDivertPacket packet,
-          int packetLen,
-          WinDivertAddress addr,
-          ChecksumsFlag flags);
+            WinDivertPacket packet,
+            int packetLen,
+            WinDivertAddress addr,
+            ChecksumsFlag flags);
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertHelperDecrementTTL(
