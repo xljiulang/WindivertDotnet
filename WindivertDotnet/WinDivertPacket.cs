@@ -52,7 +52,15 @@ namespace WindivertDotnet
         {
             this.Capacity = capacity;
             this.handle = Marshal.AllocHGlobal(capacity);
-            this.GetSpan(capacity).Clear();
+            this.Clear();
+        }
+
+        /// <summary>
+        /// 清除数据
+        /// </summary>
+        public void Clear()
+        {
+            this.GetSpan(this.Capacity).Clear();
         }
 
         /// <summary>
