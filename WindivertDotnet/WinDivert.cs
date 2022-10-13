@@ -12,7 +12,6 @@ namespace WindivertDotnet
     [DebuggerDisplay("Filter = {Filter}, Layer = {Layer}")]
     public partial class WinDivert : IDisposable
     {
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly WinDivertHandle handle;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -106,55 +105,53 @@ namespace WindivertDotnet
         }
 
         /// <summary>
-        /// 读取数据包
+        /// 同步阻塞读取数据包
         /// </summary>
         /// <param name="packet">数据包</param>
         /// <param name="addr">地址信息</param>
         /// <returns></returns>
         /// <exception cref="Win32Exception"></exception>
-        public int Recv(WinDivertPacket packet, ref WinDivertAddress addr)
+        public int Recv(WinDivertPacket packet, WinDivertAddress addr)
         {
-            return this.RecvAsync(packet, ref addr).AsTask().Result;
+            return this.RecvAsync(packet, addr).AsTask().Result;
         }
 
         /// <summary>
-        /// 读取数据包
+        /// 异步IO读取数据包
         /// </summary>
         /// <param name="packet">数据包</param>
         /// <param name="addr">地址信息</param>
         /// <returns></returns>
         /// <exception cref="Win32Exception"></exception>
-        public ValueTask<int> RecvAsync(WinDivertPacket packet, ref WinDivertAddress addr)
+        public ValueTask<int> RecvAsync(WinDivertPacket packet, WinDivertAddress addr)
         {
-            var operation = new WindivertRecvOperation(this.handle, packet, this.boundHandle.Value);
-            operation.IOControl(ref addr);
-            return operation.Task;
+            var operation = new WindivertRecvOperation(this.handle, packet, addr, this.boundHandle.Value);
+            return operation.IOControl();
         }
 
         /// <summary>
-        /// 发送数据包
+        /// 同步阻塞发送数据包
         /// </summary>
         /// <param name="packet">数据包</param>
         /// <param name="addr">地址信息</param>
         /// <returns></returns>
         /// <exception cref="Win32Exception"></exception>
-        public int Send(WinDivertPacket packet, ref WinDivertAddress addr)
+        public int Send(WinDivertPacket packet, WinDivertAddress addr)
         {
-            return this.SendAsync(packet, ref addr).AsTask().Result;
+            return this.SendAsync(packet, addr).AsTask().Result;
         }
 
         /// <summary>
-        /// 发送数据包
+        /// 异步IO发送数据包
         /// </summary>
         /// <param name="packet">数据包</param>
         /// <param name="addr">地址信息</param>
         /// <returns></returns>
         /// <exception cref="Win32Exception"></exception>
-        public ValueTask<int> SendAsync(WinDivertPacket packet, ref WinDivertAddress addr)
+        public ValueTask<int> SendAsync(WinDivertPacket packet, WinDivertAddress addr)
         {
-            var operation = new WindivertSendOperation(this.handle, packet, this.boundHandle.Value);
-            operation.IOControl(ref addr);
-            return operation.Task;
+            var operation = new WindivertSendOperation(this.handle, packet, addr, this.boundHandle.Value);
+            return operation.IOControl();
         }
 
         /// <summary>

@@ -6,20 +6,23 @@ namespace WindivertDotnet
     {
         private readonly WinDivertHandle handle;
         private readonly WinDivertPacket packet;
+        private readonly WinDivertAddress addr;
 
         public unsafe WindivertSendOperation(
             WinDivertHandle handle,
             WinDivertPacket packet,
+            WinDivertAddress addr,
             ThreadPoolBoundHandle boundHandle) : base(boundHandle)
         {
             this.handle = handle;
             this.packet = packet;
+            this.addr = addr;
         }
 
-        protected override unsafe bool IOControl(int* pLength, ref WinDivertAddress addr, NativeOverlapped* nativeOverlapped)
+        protected override unsafe bool IOControl(int* pLength, NativeOverlapped* nativeOverlapped)
         {
-            var addrLength = sizeof(WinDivertAddress);
-            return WinDivertNative.WinDivertSendEx(this.handle, this.packet, this.packet.Length, pLength, 0, ref addr, addrLength, nativeOverlapped);
+            var addrLength = WinDivertAddress.Size;
+            return WinDivertNative.WinDivertSendEx(this.handle, this.packet, this.packet.Length, pLength, 0, this.addr, addrLength, nativeOverlapped);
         }
     }
 }

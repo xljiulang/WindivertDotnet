@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Sources;
@@ -14,15 +13,9 @@ namespace WindivertDotnet
     {
         private readonly ThreadPoolBoundHandle boundHandle;
         private readonly unsafe NativeOverlapped* nativeOverlapped;
-        private readonly unsafe int* pLength;
 
         private readonly ValueTaskCompletionSource<int> taskCompletionSource = new();
         private static readonly unsafe IOCompletionCallback completionCallback = new(IOCompletionCallback);
-
-        /// <summary>
-        /// 获取操作任务
-        /// </summary>
-        public ValueTask<int> Task => this.taskCompletionSource.Task;
 
         /// <summary>
         /// Windivert控制器
@@ -32,29 +25,28 @@ namespace WindivertDotnet
         {
             this.boundHandle = boundHandle;
             this.nativeOverlapped = this.boundHandle.AllocateNativeOverlapped(completionCallback, this, null);
-            this.pLength = (int*)Marshal.AllocHGlobal(sizeof(int));
         }
 
         /// <summary>
         /// io控制
-        /// </summary>
-        /// <param name="addr"></param>
-        public unsafe void IOControl(ref WinDivertAddress addr)
+        /// </summary> 
+        public unsafe ValueTask<int> IOControl()
         {
-            if (this.IOControl(this.pLength, ref addr, this.nativeOverlapped))
+            var length = 0;
+            if (this.IOControl(&length, this.nativeOverlapped))
             {
-                this.SetResult(*this.pLength);
+                this.SetResult(length);
             }
+            return this.taskCompletionSource.Task;
         }
 
         /// <summary>
         /// io控制
         /// </summary>
-        /// <param name="pLength"></param>
-        /// <param name="addr"></param>
+        /// <param name="pLength"></param> 
         /// <param name="nativeOverlapped"></param>
         /// <returns></returns>
-        protected unsafe abstract bool IOControl(int* pLength, ref WinDivertAddress addr, NativeOverlapped* nativeOverlapped);
+        protected unsafe abstract bool IOControl(int* pLength, NativeOverlapped* nativeOverlapped);
 
         /// <summary>
         /// io完成回调
@@ -101,7 +93,6 @@ namespace WindivertDotnet
         /// </summary>
         protected virtual unsafe void FreeNative()
         {
-            Marshal.FreeHGlobal(new IntPtr(this.pLength));
             this.boundHandle.FreeNativeOverlapped(this.nativeOverlapped);
         }
 

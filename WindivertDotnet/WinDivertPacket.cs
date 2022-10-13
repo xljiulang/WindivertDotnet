@@ -16,7 +16,6 @@ namespace WindivertDotnet
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private int length;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly WinDivertPacketBuffer buffer;
 
         /// <summary>
@@ -50,7 +49,7 @@ namespace WindivertDotnet
         /// WinDivert的数据包
         /// </summary>
         /// <param name="capacity">最大容量</param> 
-        public WinDivertPacket(int capacity = ushort.MaxValue)
+        public WinDivertPacket(int capacity = 0xFFFF + 40)
         {
             this.buffer = new WinDivertPacketBuffer(capacity);
         }
@@ -61,9 +60,9 @@ namespace WindivertDotnet
         /// <param name="addr">地址信息</param>
         /// <param name="flag"></param>
         /// <returns></returns>
-        public bool CalcChecksums(ref WinDivertAddress addr, ChecksumsFlag flag = ChecksumsFlag.All)
+        public bool CalcChecksums(WinDivertAddress addr, ChecksumsFlag flag = ChecksumsFlag.All)
         {
-            return WinDivertNative.WinDivertHelperCalcChecksums(this, this.length, ref addr, flag);
+            return WinDivertNative.WinDivertHelperCalcChecksums(this, this.length, addr, flag);
         }
 
         /// <summary>

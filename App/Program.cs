@@ -11,15 +11,15 @@ namespace App
             var filter = Filter.True.And(f => f.IsIP && f.IsTcp);
             using var divert = new WinDivert(filter, WinDivertLayer.Network);
             using var packet = new WinDivertPacket();
-            var addr = new WinDivertAddress();
+            using var addr = new WinDivertAddress();
 
             while (true)
             {
-                var recvLength = await divert.RecvAsync(packet, ref addr);
+                var recvLength = await divert.RecvAsync(packet, addr);
                 var result = packet.GetParseResult();
 
-                var checkState = packet.CalcChecksums(ref addr);
-                var sendLength = await divert.SendAsync(packet, ref addr);
+                var checkState = packet.CalcChecksums(addr);
+                var sendLength = await divert.SendAsync(packet, addr);
 
                 Console.WriteLine($"{result.Protocol} {recvLength} {sendLength}");
             }

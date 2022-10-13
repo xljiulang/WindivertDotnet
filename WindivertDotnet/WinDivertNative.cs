@@ -23,7 +23,7 @@ namespace WindivertDotnet
             int packetLen,
             int* pRecvLen,
             ulong flags,
-            ref WinDivertAddress pAddr,
+            SafeHandle pAddr,
             int* pAddrLen,
             NativeOverlapped* lpOverlapped);
 
@@ -36,7 +36,7 @@ namespace WindivertDotnet
             int packetLen,
             int* pSendLen,
             ulong flags,
-            ref WinDivertAddress pAddr,
+            SafeHandle pAddr,
             int addrLen,
             NativeOverlapped* lpOverlapped);
 
@@ -88,7 +88,7 @@ namespace WindivertDotnet
         public static extern bool WinDivertHelperCalcChecksums(
           SafeHandle pPacket,
           int packetLen,
-          ref WinDivertAddress pAddr,
+          SafeHandle pAddr,
           ChecksumsFlag flags);
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
