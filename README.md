@@ -5,7 +5,7 @@
 [WindivertDotnet](https://www.nuget.org/packages/WindivertDotnet)
 
 ### 2 功能介绍
-* Filter对象支持Labda构建filter language，脱离字符串的苦海；
+* Filter对象支持Lambda构建filter language，脱离字符串的苦海；
 * 内存安全的WinDivert对象，基于IOCP的ValueTask异步发送与接收方法；
 * 内存安全的WinDivertPacket对象，提供获取包有效数据长度、解包、重构chucksums等；
 * WinDivertParseResult提供对解包的数据进行精细修改，修改后对WinDivertPacket直接生效；
