@@ -219,7 +219,7 @@ namespace WindivertDotnet
         /// <returns></returns>
         protected override bool ReleaseHandle()
         {
-            return WinDivertNative.WinDivertClose(this);
+            return WinDivertNative.WinDivertClose(this.handle);
         }
 
         /// <summary>

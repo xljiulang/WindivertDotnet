@@ -48,7 +48,7 @@ namespace WindivertDotnet
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertClose(
-            WinDivert divert);
+            IntPtr handle);
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertSetParam(
