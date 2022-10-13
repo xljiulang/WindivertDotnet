@@ -9,7 +9,7 @@ namespace WindivertDotnet
         private readonly WinDivert divert;
         private readonly WinDivertPacket packet;
         private readonly WinDivertAddress addr;
-        private readonly int* pAddrLength = (int*)Marshal.AllocHGlobal(sizeof(int));
+        private readonly IntPtr addrLenHandle = Marshal.AllocHGlobal(sizeof(int));
 
         public WindivertRecvOperation(
             WinDivert divert,
@@ -23,8 +23,18 @@ namespace WindivertDotnet
 
         protected override bool IOControl(int* pLength, NativeOverlapped* nativeOverlapped)
         {
-            *this.pAddrLength = WinDivertAddress.Size;
-            return WinDivertNative.WinDivertRecvEx(this.divert, this.packet, this.packet.Capacity, this.pAddrLength, 0, this.addr, pAddrLength, nativeOverlapped);
+            var pAddrLen = (int*)addrLenHandle.ToPointer();
+            *pAddrLen = WinDivertAddress.Size;
+
+            return WinDivertNative.WinDivertRecvEx(
+                this.divert,
+                this.packet,
+                this.packet.Capacity,
+                pLength,
+                0UL,
+                this.addr,
+                pAddrLen,
+                nativeOverlapped);
         }
 
         protected override void SetResult(int length)
@@ -41,7 +51,7 @@ namespace WindivertDotnet
 
         public override void Dispose()
         {
-            Marshal.FreeHGlobal(new IntPtr(this.pAddrLength));
+            Marshal.FreeHGlobal(this.addrLenHandle);
             base.Dispose();
         }
     }
