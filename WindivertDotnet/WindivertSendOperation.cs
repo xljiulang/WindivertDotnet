@@ -20,7 +20,6 @@ namespace WindivertDotnet
 
         protected override bool IOControl(int* pLength, NativeOverlapped* nativeOverlapped)
         {
-            var addrLength = WinDivertAddress.Size;
             return WinDivertNative.WinDivertSendEx(
                 this.divert,
                 this.packet,
@@ -28,7 +27,7 @@ namespace WindivertDotnet
                 pLength,
                 0UL,
                 this.addr,
-                addrLength,
+                WinDivertAddress.Size,
                 nativeOverlapped);
         }
     }
