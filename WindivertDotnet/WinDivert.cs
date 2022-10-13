@@ -90,6 +90,8 @@ namespace WindivertDotnet
             : base(ownsHandle: true)
         {
             this.handle = WinDivertNative.WinDivertOpen(filter, layer, priority, flags);
+            this.boundHandle = new Lazy<ThreadPoolBoundHandle>(() => ThreadPoolBoundHandle.BindHandle(this));
+
             if (this.IsInvalid)
             {
                 throw new Win32Exception();
@@ -101,8 +103,6 @@ namespace WindivertDotnet
             var major = this.GetParam(WinDivertParam.VersionMajor);
             var minor = this.GetParam(WinDivertParam.VersionMinor);
             this.Version = new Version((int)major, (int)minor);
-
-            this.boundHandle = new Lazy<ThreadPoolBoundHandle>(() => ThreadPoolBoundHandle.BindHandle(this));
         }
 
         /// <summary>

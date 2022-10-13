@@ -11,22 +11,20 @@ namespace WindivertDotnet
     /// 表示WinDivert的数据包
     /// </summary>
     [DebuggerDisplay("Length = {Length}, Capacity = {Capacity}")]
-    public sealed class WinDivertPacket : IDisposable
+    public sealed class WinDivertPacket : SafeHandleZeroOrMinusOneIsInvalid
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private int length;
 
-        private readonly WinDivertPacketBuffer buffer;
-
         /// <summary>
         /// 获取缓冲区容量
         /// </summary>
-        public int Capacity => this.buffer.Capacity;
+        public int Capacity { get; }
 
         /// <summary>
         /// 获取有效数据视图
         /// </summary>
-        public Span<byte> Span => this.buffer.GetSpan(this.length);
+        public Span<byte> Span => this.GetSpan(this.length);
 
         /// <summary>
         /// 获取或设置有效数据的长度
@@ -50,8 +48,31 @@ namespace WindivertDotnet
         /// </summary>
         /// <param name="capacity">最大容量</param> 
         public WinDivertPacket(int capacity = 0xFFFF + 40)
+            : base(true)
         {
-            this.buffer = new WinDivertPacketBuffer(capacity);
+            this.Capacity = capacity;
+            this.SetHandle(Marshal.AllocHGlobal(capacity));
+            this.GetSpan(capacity).Clear();
+        }
+
+        /// <summary>
+        /// 获取span
+        /// </summary>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        private unsafe Span<byte> GetSpan(int length)
+        {
+            return new Span<byte>(this.handle.ToPointer(), length);
+        }
+
+        /// <summary>
+        /// 释放本机句柄
+        /// </summary>
+        /// <returns></returns>
+        protected override bool ReleaseHandle()
+        {
+            Marshal.FreeHGlobal(this.handle);
+            return true;
         }
 
         /// <summary>
@@ -137,51 +158,6 @@ namespace WindivertDotnet
                 Next = pNext,
                 NextLength = nextLength
             };
-        }
-
-        /// <summary>
-        /// 释放相关资源
-        /// </summary>
-        public void Dispose()
-        {
-            this.buffer.Dispose();
-        }
-
-        /// <summary>
-        /// 隐式转换为SafeHandle
-        /// </summary>
-        /// <param name="packet"></param>
-        public static implicit operator SafeHandle(WinDivertPacket packet)
-        {
-            return packet.buffer;
-        }
-
-        /// <summary>
-        /// WinDivertPacket的缓存区
-        /// </summary>
-        private unsafe class WinDivertPacketBuffer : SafeHandleZeroOrMinusOneIsInvalid
-        {
-            public int Capacity { get; }
-
-            public WinDivertPacketBuffer(int capacity)
-                : base(true)
-            {
-                this.Capacity = capacity;
-                this.SetHandle(Marshal.AllocHGlobal(capacity));
-                this.GetSpan(capacity).Clear();
-            }
-
-            public unsafe Span<byte> GetSpan(int length)
-            {
-                return new Span<byte>(this.handle.ToPointer(), length);
-            }
-
-            protected override bool ReleaseHandle()
-            {
-                Marshal.FreeHGlobal(this.handle);
-                this.SetHandle(IntPtr.Zero);
-                return true;
-            }
         }
     }
 }
