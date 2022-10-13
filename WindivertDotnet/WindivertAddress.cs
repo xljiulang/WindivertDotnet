@@ -11,6 +11,7 @@ namespace WindivertDotnet
     [DebuggerDisplay("Flags = {Flags}")]
     public unsafe class WinDivertAddress : SafeHandleZeroOrMinusOneIsInvalid
     {
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private WinDivertAddressStruct* Pointer => (WinDivertAddressStruct*)this.handle.ToPointer();
 
         /// <summary>

@@ -11,8 +11,7 @@ namespace WindivertDotnet
         public WindivertSendOperation(
             WinDivert divert,
             WinDivertPacket packet,
-            WinDivertAddress addr,
-            ThreadPoolBoundHandle boundHandle) : base(boundHandle)
+            WinDivertAddress addr) : base(divert)
         {
             this.divert = divert;
             this.packet = packet;

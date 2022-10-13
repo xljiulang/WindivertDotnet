@@ -14,7 +14,7 @@ namespace WindivertDotnet
     public partial class WinDivert : SafeHandleZeroOrMinusOneIsInvalid
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly Lazy<ThreadPoolBoundHandle> boundHandle;
+        private readonly Lazy<ThreadPoolBoundHandle> boundHandleLazy;
 
         /// <summary>
         /// 获取过滤器
@@ -90,7 +90,7 @@ namespace WindivertDotnet
             : base(ownsHandle: true)
         {
             this.handle = WinDivertNative.WinDivertOpen(filter, layer, priority, flags);
-            this.boundHandle = new Lazy<ThreadPoolBoundHandle>(() => ThreadPoolBoundHandle.BindHandle(this));
+            this.boundHandleLazy = new Lazy<ThreadPoolBoundHandle>(() => ThreadPoolBoundHandle.BindHandle(this));
 
             if (this.IsInvalid)
             {
@@ -103,6 +103,15 @@ namespace WindivertDotnet
             var major = this.GetParam(WinDivertParam.VersionMajor);
             var minor = this.GetParam(WinDivertParam.VersionMinor);
             this.Version = new Version((int)major, (int)minor);
+        }
+
+        /// <summary>
+        /// 获取线程池绑定句柄
+        /// </summary>
+        /// <returns></returns>
+        internal ThreadPoolBoundHandle GetThreadPoolBoundHandle()
+        {
+            return this.boundHandleLazy.Value;
         }
 
         /// <summary>
@@ -126,7 +135,7 @@ namespace WindivertDotnet
         /// <exception cref="Win32Exception"></exception>
         public async ValueTask<int> RecvAsync(WinDivertPacket packet, WinDivertAddress addr)
         {
-            using var operation = new WindivertRecvOperation(this, packet, addr, this.boundHandle.Value);
+            using var operation = new WindivertRecvOperation(this, packet, addr);
             return await operation.IOControlAsync();
         }
 
@@ -151,7 +160,7 @@ namespace WindivertDotnet
         /// <exception cref="Win32Exception"></exception>
         public async ValueTask<int> SendAsync(WinDivertPacket packet, WinDivertAddress addr)
         {
-            using var operation = new WindivertSendOperation(this, packet, addr, this.boundHandle.Value);
+            using var operation = new WindivertSendOperation(this, packet, addr);
             return await operation.IOControlAsync();
         }
 
@@ -164,7 +173,7 @@ namespace WindivertDotnet
         /// <exception cref="InvalidOperationException"></exception>
         private long GetParam(WinDivertParam param)
         {
-            if (this.boundHandle.IsValueCreated)
+            if (this.boundHandleLazy.IsValueCreated)
             {
                 throw new InvalidOperationException();
             }
@@ -183,7 +192,7 @@ namespace WindivertDotnet
         /// <exception cref="InvalidOperationException"></exception>
         private void SetParam(WinDivertParam param, long value)
         {
-            if (this.boundHandle.IsValueCreated)
+            if (this.boundHandleLazy.IsValueCreated)
             {
                 throw new InvalidOperationException();
             }
@@ -219,9 +228,9 @@ namespace WindivertDotnet
         /// <param name="disposing"></param>
         protected override void Dispose(bool disposing)
         {
-            if (this.boundHandle.IsValueCreated)
+            if (this.boundHandleLazy.IsValueCreated)
             {
-                this.boundHandle.Value.Dispose();
+                this.boundHandleLazy.Value.Dispose();
             }
             base.Dispose(disposing);
         }

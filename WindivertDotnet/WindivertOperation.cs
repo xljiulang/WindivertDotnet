@@ -20,10 +20,10 @@ namespace WindivertDotnet
         /// <summary>
         /// Windivert控制器
         /// </summary>
-        /// <param name="boundHandle"></param> 
-        public WindivertOperation(ThreadPoolBoundHandle boundHandle)
+        /// <param name="divert"></param> 
+        public WindivertOperation(WinDivert divert)
         {
-            this.boundHandle = boundHandle;
+            this.boundHandle = divert.GetThreadPoolBoundHandle();
             this.nativeOverlapped = this.boundHandle.AllocateNativeOverlapped(completionCallback, this, null);
         }
 
@@ -96,7 +96,6 @@ namespace WindivertDotnet
         {
             this.boundHandle.FreeNativeOverlapped(this.nativeOverlapped);
         }
-
 
 
         private class ValueTaskCompletionSource<T> : IValueTaskSource<T>
