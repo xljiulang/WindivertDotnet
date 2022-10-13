@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32.SafeHandles;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading;
@@ -10,10 +11,8 @@ namespace WindivertDotnet
     /// 表示WinDivert的操作对象
     /// </summary>
     [DebuggerDisplay("Filter = {Filter}, Layer = {Layer}")]
-    public partial class WinDivert : IDisposable
+    public partial class WinDivert : SafeHandleZeroOrMinusOneIsInvalid
     {
-        private readonly WinDivertHandle handle;
-
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Lazy<ThreadPoolBoundHandle> boundHandle;
 
@@ -88,13 +87,13 @@ namespace WindivertDotnet
         /// <param name="flags">标记</param>
         /// <exception cref="Win32Exception"></exception>
         public WinDivert(string filter, WinDivertLayer layer, short priority = 0, WinDivertFlag flags = WinDivertFlag.None)
+            : base(ownsHandle: true)
         {
             this.handle = WinDivertNative.WinDivertOpen(filter, layer, priority, flags);
-            if (this.handle.IsInvalid)
+            if (this.IsInvalid)
             {
                 throw new Win32Exception();
             }
-            this.boundHandle = new Lazy<ThreadPoolBoundHandle>(() => ThreadPoolBoundHandle.BindHandle(this.handle));
 
             this.Filter = filter;
             this.Layer = layer;
@@ -102,6 +101,8 @@ namespace WindivertDotnet
             var major = this.GetParam(WinDivertParam.VersionMajor);
             var minor = this.GetParam(WinDivertParam.VersionMinor);
             this.Version = new Version((int)major, (int)minor);
+
+            this.boundHandle = new Lazy<ThreadPoolBoundHandle>(() => ThreadPoolBoundHandle.BindHandle(this));
         }
 
         /// <summary>
@@ -125,7 +126,7 @@ namespace WindivertDotnet
         /// <exception cref="Win32Exception"></exception>
         public ValueTask<int> RecvAsync(WinDivertPacket packet, WinDivertAddress addr)
         {
-            var operation = new WindivertRecvOperation(this.handle, packet, addr, this.boundHandle.Value);
+            var operation = new WindivertRecvOperation(this, packet, addr, this.boundHandle.Value);
             return operation.IOControl();
         }
 
@@ -150,7 +151,7 @@ namespace WindivertDotnet
         /// <exception cref="Win32Exception"></exception>
         public ValueTask<int> SendAsync(WinDivertPacket packet, WinDivertAddress addr)
         {
-            var operation = new WindivertSendOperation(this.handle, packet, addr, this.boundHandle.Value);
+            var operation = new WindivertSendOperation(this, packet, addr, this.boundHandle.Value);
             return operation.IOControl();
         }
 
@@ -169,7 +170,7 @@ namespace WindivertDotnet
             }
 
             var value = 0L;
-            var result = WinDivertNative.WinDivertGetParam(this.handle, param, ref value);
+            var result = WinDivertNative.WinDivertGetParam(this, param, ref value);
             return result ? value : throw new Win32Exception();
         }
 
@@ -187,7 +188,7 @@ namespace WindivertDotnet
                 throw new InvalidOperationException();
             }
 
-            if (WinDivertNative.WinDivertSetParam(this.handle, param, value) == false)
+            if (WinDivertNative.WinDivertSetParam(this, param, value) == false)
             {
                 throw new Win32Exception();
             }
@@ -200,20 +201,21 @@ namespace WindivertDotnet
         /// <returns></returns>
         public bool Shutdown(WinDivertShutdown how)
         {
-            return WinDivertNative.WinDivertShutdown(this.handle, how);
+            return WinDivertNative.WinDivertShutdown(this, how);
         }
 
-        /// <summary>
-        /// 关闭并释放资源
-        /// </summary>
-        public void Dispose()
+        protected override bool ReleaseHandle()
         {
-            this.Shutdown(WinDivertShutdown.Both);
-            this.handle.Dispose();
+            return WinDivertNative.WinDivertClose(this);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
             if (this.boundHandle.IsValueCreated)
             {
                 this.boundHandle.Value.Dispose();
             }
+            base.Dispose(disposing);
         }
     }
 }

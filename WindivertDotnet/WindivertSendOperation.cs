@@ -4,17 +4,17 @@ namespace WindivertDotnet
 {
     sealed class WindivertSendOperation : WindivertOperation
     {
-        private readonly WinDivertHandle handle;
+        private readonly WinDivert divert;
         private readonly WinDivertPacket packet;
         private readonly WinDivertAddress addr;
 
         public unsafe WindivertSendOperation(
-            WinDivertHandle handle,
+            WinDivert divert,
             WinDivertPacket packet,
             WinDivertAddress addr,
             ThreadPoolBoundHandle boundHandle) : base(boundHandle)
         {
-            this.handle = handle;
+            this.divert = divert;
             this.packet = packet;
             this.addr = addr;
         }
@@ -22,7 +22,7 @@ namespace WindivertDotnet
         protected override unsafe bool IOControl(int* pLength, NativeOverlapped* nativeOverlapped)
         {
             var addrLength = WinDivertAddress.Size;
-            return WinDivertNative.WinDivertSendEx(this.handle, this.packet, this.packet.Length, pLength, 0, this.addr, addrLength, nativeOverlapped);
+            return WinDivertNative.WinDivertSendEx(this.divert, this.packet, this.packet.Length, pLength, 0, this.addr, addrLength, nativeOverlapped);
         }
     }
 }

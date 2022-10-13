@@ -6,18 +6,18 @@ namespace WindivertDotnet
 {
     sealed class WindivertRecvOperation : WindivertOperation
     {
-        private readonly WinDivertHandle handle;
+        private readonly WinDivert divert;
         private readonly WinDivertPacket packet;
         private readonly WinDivertAddress addr;
         private readonly unsafe int* pAddrLen = (int*)Marshal.AllocHGlobal(sizeof(int));
 
         public unsafe WindivertRecvOperation(
-            WinDivertHandle handle,
+            WinDivert divert,
             WinDivertPacket packet,
             WinDivertAddress addr,
             ThreadPoolBoundHandle boundHandle) : base(boundHandle)
         {
-            this.handle = handle;
+            this.divert = divert;
             this.packet = packet;
             this.addr = addr;
         }
@@ -25,7 +25,7 @@ namespace WindivertDotnet
         protected override unsafe bool IOControl(int* pLength, NativeOverlapped* nativeOverlapped)
         {
             *this.pAddrLen = WinDivertAddress.Size;
-            return WinDivertNative.WinDivertRecvEx(this.handle, this.packet, this.packet.Capacity, this.pAddrLen, 0, this.addr, pAddrLen, nativeOverlapped);
+            return WinDivertNative.WinDivertRecvEx(this.divert, this.packet, this.packet.Capacity, this.pAddrLen, 0, this.addr, pAddrLen, nativeOverlapped);
         }
 
         protected override void SetResult(int length)

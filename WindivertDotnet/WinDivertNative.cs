@@ -9,7 +9,7 @@ namespace WindivertDotnet
         private const string library = "WinDivert.dll";
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        public static extern WinDivertHandle WinDivertOpen(
+        public static extern IntPtr WinDivertOpen(
             [MarshalAs(UnmanagedType.LPStr)] string filter,
             WinDivertLayer layer,
             short priority,
@@ -18,7 +18,7 @@ namespace WindivertDotnet
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertRecvEx(
-            WinDivertHandle handle,
+            WinDivert handle,
             SafeHandle pPacket,
             int packetLen,
             int* pRecvLen,
@@ -31,7 +31,7 @@ namespace WindivertDotnet
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertSendEx(
-            WinDivertHandle handle,
+            WinDivert handle,
             SafeHandle pPacket,
             int packetLen,
             int* pSendLen,
@@ -43,22 +43,22 @@ namespace WindivertDotnet
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertShutdown(
-            WinDivertHandle handle,
+            WinDivert handle,
             WinDivertShutdown how);
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertClose(
-            IntPtr handle);
+            WinDivert handle);
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertSetParam(
-            WinDivertHandle handle,
+            WinDivert handle,
             WinDivertParam param1,
             long value);
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertGetParam(
-            WinDivertHandle handle,
+            WinDivert handle,
             WinDivertParam param1,
             ref long pValue);
 
