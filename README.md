@@ -1,5 +1,5 @@
 # WindivertDotnet
-面向对象的[Windivertv2.2](https://reqrypt.org/windivert-doc.html)的dotnet封装，轻松实现网络数据拦截与修改。
+面向对象的[Windivertv2.2](https://reqrypt.org/windivert-doc.html)的dotnet异步封装，轻松实现网络数据拦截与修改。
 
 ### 1 nuget
 [WindivertDotnet](https://www.nuget.org/packages/WindivertDotnet)
