@@ -16,7 +16,7 @@ namespace WindivertDotnet
 
         /// <summary>
         /// 获取或设置Internet Header Length
-        /// ipv4头总字节这该值的4倍
+        /// ipv4头总字节为该值的4倍
         /// </summary>
         public byte HdrLength
         {

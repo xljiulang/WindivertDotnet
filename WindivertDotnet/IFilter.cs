@@ -8,28 +8,33 @@ namespace WindivertDotnet
     public interface IFilter
     {
         /// <summary>
-        /// 时间戳
+        /// 发生的时间戳
         /// </summary>
         [FilterMember("timestamp")]
         long Timestamp { get; }
 
         /// <summary>
-        /// Network层
+        /// 传入/传出本地计算机的网络数据包
         /// </summary>
         INetwork Network { get; }
 
         /// <summary>
-        /// Forward层
+        /// 通过本地计算机的网络数据包
         /// </summary>
         IForward Forward { get; }
 
         /// <summary>
-        /// Socket层
+        /// 网络流已建立/已删除事件
+        /// </summary>
+        IFlow Flow { get; }
+
+        /// <summary>
+        /// 套接字操作事件
         /// </summary>
         ISocket Socket { get; }
 
         /// <summary>
-        /// Reflect层
+        /// WinDivert处理事件
         /// </summary>
         IReflect Reflect { get; }
 
@@ -108,7 +113,9 @@ namespace WindivertDotnet
         public IICmp IcmpV6 { get; }
 
 
-
+        /// <summary>
+        /// 传入/传出本地计算机的网络数据包
+        /// </summary>
         public interface INetwork
         {
             /// <summary>
@@ -191,6 +198,9 @@ namespace WindivertDotnet
             int Length { get; }
         }
 
+        /// <summary>
+        /// 通过本地计算机的网络数据包
+        /// </summary>
         public interface IForward
         {
             /// <summary>
@@ -205,11 +215,15 @@ namespace WindivertDotnet
             [FilterMember("subIfIdx")]
             int SubIfIdx { get; }
 
-
+            /// <summary>
+            /// 冒名顶替数据包
+            /// </summary>
             [FilterMember("impostor")]
             bool Impostor { get; }
 
-
+            /// <summary>
+            /// ip分片包
+            /// </summary>
             [FilterMember("fragment")]
             bool Fragment { get; }
 
@@ -220,6 +234,9 @@ namespace WindivertDotnet
             int Length { get; }
         }
 
+        /// <summary>
+        /// 网络流已建立/已删除事件
+        /// </summary>
         public interface IFlow
         {
             /// <summary>
@@ -234,72 +251,140 @@ namespace WindivertDotnet
             [FilterMember("inbound")]
             bool Inbound { get; }
 
+            /// <summary>
+            /// 环回数据包
+            /// </summary>
             [FilterMember("loopback")]
             bool Loopback { get; }
 
+            /// <summary>
+            /// 流的终结点ID
+            /// </summary>
             [FilterMember("endpointId")]
             int EndpointId { get; }
 
+            /// <summary>
+            /// 流的父终结点ID
+            /// </summary>
             [FilterMember("parentEndpointId")]
             int ParentEndpointId { get; }
 
+            /// <summary>
+            /// 与流关联的进程的ID
+            /// </summary>
             [FilterMember("processId")]
             int ProcessId { get; }
 
+            /// <summary>
+            /// 本机地址
+            /// </summary>
             [FilterMember("localAddr")]
             string LocalAddr { get; }
 
+            /// <summary>
+            /// 本机端口
+            /// </summary>
             [FilterMember("localPort")]
             int LocalPort { get; }
 
+            /// <summary>
+            /// 远程地址
+            /// </summary>
             [FilterMember("remoteAddr")]
             string RemoteAddr { get; }
 
+            /// <summary>
+            /// 远程端口
+            /// </summary>
             [FilterMember("remotePort")]
             int RemotePort { get; }
 
+            /// <summary>
+            /// 协议类型(ProtocolType)
+            /// </summary>
             [FilterMember("protocol")]
             int Protocol { get; }
         }
 
+        /// <summary>
+        /// 套接字操作事件
+        /// </summary>
         public interface ISocket
         {
+            /// <summary>
+            /// 环回数据包
+            /// </summary>
             [FilterMember("loopback")]
             bool Loopback { get; }
 
+            /// <summary>
+            /// 套接字操作的终结点 ID
+            /// </summary>
             [FilterMember("endpointId")]
             int EndpointId { get; }
 
+            /// <summary>
+            /// 套接字操作的父终结点 ID
+            /// </summary>
             [FilterMember("parentEndpointId")]
             int ParentEndpointId { get; }
 
+            /// <summary>
+            /// 与套接字操作关联的进程的 ID
+            /// </summary>
             [FilterMember("processId")]
             int ProcessId { get; }
 
+            /// <summary>
+            /// 本机地址
+            /// </summary>
             [FilterMember("localAddr")]
             string LocalAddr { get; }
 
+            /// <summary>
+            /// 本机端口
+            /// </summary>
             [FilterMember("localPort")]
             int LocalPort { get; }
 
+            /// <summary>
+            /// 远程地址
+            /// </summary>
             [FilterMember("remoteAddr")]
             string RemoteAddr { get; }
 
+            /// <summary>
+            /// 远程端口
+            /// </summary>
             [FilterMember("remotePort")]
             int RemotePort { get; }
 
+            /// <summary>
+            /// 协议类型(ProtocolType)
+            /// </summary>
             [FilterMember("protocol")]
             int Protocol { get; }
         }
 
+        /// <summary>
+        /// WinDivert处理事件
+        /// </summary>
         public interface IReflect
         {
+            /// <summary>
+            /// WinDivert打开句柄的进程的ID
+            /// </summary>
             [FilterMember("processId")]
             int ProcessId { get; }
 
+            /// <summary>
+            /// WinDivertLayer
+            /// </summary>
             [FilterMember("layer")]
             string Layer { get; }
-
+            /// <summary>
+            /// 优先级
+            /// </summary>
             [FilterMember("priority")]
             int Priority { get; }
         }
@@ -309,6 +394,10 @@ namespace WindivertDotnet
         /// </summary>
         public interface IIP
         {
+            /// <summary>
+            /// 获取或设置Internet Header Length
+            /// ipv4头总字节为该值的4倍
+            /// </summary>
             [FilterMember]
             int HdrLength { get; }
 
@@ -318,6 +407,9 @@ namespace WindivertDotnet
             [FilterMember]
             int Version { get; }
 
+            /// <summary>
+            /// 服务类型
+            /// </summary>
             [FilterMember]
             int TOS { get; }
 
@@ -327,9 +419,15 @@ namespace WindivertDotnet
             [FilterMember]
             int Length { get; }
 
+            /// <summary>
+            /// 报文的id
+            /// </summary>
             [FilterMember]
             int Id { get; }
 
+            /// <summary>
+            /// 生存时间
+            /// </summary>
             [FilterMember]
             int TTL { get; }
 
@@ -359,6 +457,9 @@ namespace WindivertDotnet
             string DstAddr { get; }
         }
 
+        /// <summary>
+        /// ipv6
+        /// </summary>
         public interface IIPV6
         {
             /// <summary>
@@ -373,9 +474,15 @@ namespace WindivertDotnet
             [FilterMember]
             int Length { get; }
 
+            /// <summary>
+            /// 下一个报头
+            /// </summary>
             [FilterMember]
             int NextHdr { get; }
 
+            /// <summary>
+            /// 跳跃限制
+            /// </summary>
             [FilterMember]
             int HopLimit { get; }
 
@@ -392,7 +499,9 @@ namespace WindivertDotnet
             string DstAddr { get; }
         }
 
-
+        /// <summary>
+        /// 传输层
+        /// </summary>
         public interface ITransfer
         {
             /// <summary>
@@ -420,39 +529,75 @@ namespace WindivertDotnet
             int DstPort { get; }
         }
 
+        /// <summary>
+        /// tcp
+        /// </summary>
         public interface ITcp : ITransfer
         {
+            /// <summary>
+            /// 序列码
+            /// </summary>
             [FilterMember]
             int SeqNum { get; }
 
+            /// <summary>
+            /// 确认码
+            /// </summary>
             [FilterMember]
             int AckNum { get; }
 
+            /// <summary>
+            /// 结束位
+            /// </summary>
             [FilterMember]
             bool Fin { get; }
 
+            /// <summary>
+            /// 请求位
+            /// </summary>
             [FilterMember]
             bool Syn { get; }
 
+            /// <summary>
+            /// 重置位
+            /// </summary>
             [FilterMember]
             bool Rst { get; }
 
+            /// <summary>
+            /// 确认位
+            /// </summary>
             [FilterMember]
             bool Ack { get; }
 
+            /// <summary>
+            /// 推送位
+            /// </summary>
             [FilterMember]
             bool Psh { get; }
 
+            /// <summary>
+            /// 紧急位
+            /// </summary>
             [FilterMember]
             bool Urg { get; }
 
+            /// <summary>
+            /// 滑动窗口
+            /// </summary>
             [FilterMember]
             int Window { get; }
 
+            /// <summary>
+            /// 紧急指针
+            /// </summary>
             [FilterMember]
             int UrgPtr { get; }
         }
 
+        /// <summary>
+        /// udp
+        /// </summary>
         public interface IUdp : ITransfer
         {
             /// <summary>
@@ -463,31 +608,58 @@ namespace WindivertDotnet
             int Length { get; }
         }
 
+        /// <summary>
+        /// ICMP
+        /// </summary>
         public interface IICmp
         {
+            /// <summary>
+            /// 类型
+            /// </summary>
             [FilterMember]
             int Type { get; }
 
+            /// <summary>
+            /// 代码
+            /// </summary>
             [FilterMember]
             int Code { get; }
 
+            /// <summary>
+            /// 检验和
+            /// </summary>
             [FilterMember]
             int Checksum { get; }
 
+            /// <summary>
+            /// Rest of header
+            /// </summary>
             [FilterMember]
             int Body { get; }
         }
 
-
+        /// <summary>
+        /// Filter成员特性
+        /// </summary>
         [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
         public sealed class FilterMemberAttribute : Attribute
         {
+            /// <summary>
+            /// 成员名称
+            /// </summary>
             public string? Name { get; }
 
+            /// <summary>
+            /// Filter成员特性
+            /// </summary>
             public FilterMemberAttribute()
             {
             }
 
+            /// <summary>
+            /// Filter成员特性
+            /// </summary>
+            /// <param name="name">成员名称</param>
             public FilterMemberAttribute(string name)
             {
                 this.Name = name;

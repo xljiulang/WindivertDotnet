@@ -15,7 +15,7 @@ namespace WindivertDotnet
         private AddressStruct* Pointer => (AddressStruct*)this.handle.ToPointer();
 
         /// <summary>
-        /// 获取结构大小
+        /// 获取WinDivertAddress结构大小
         /// </summary>
         public static int Size { get; } = sizeof(AddressStruct);
 
@@ -74,22 +74,22 @@ namespace WindivertDotnet
         }
 
         /// <summary>
-        /// 获取Network的指针
+        /// 获取网络信息的指针
         /// </summary>
         public WinDivertDataNetwork* Network => &this.Pointer->Network;
 
         /// <summary>
-        /// 获取Flow的指针
+        /// 获取网络流信息的指针
         /// </summary>
         public WinDivertDataFlow* Flow => &this.Pointer->Flow;
 
         /// <summary>
-        /// 获取Socket的指针
+        /// 获取套接字信息的指针
         /// </summary>
         public WinDivertDataSocket* Socket => &this.Pointer->Socket;
 
         /// <summary>
-        /// 获取Reflect的指针
+        /// 获取WinDivert信息的指针
         /// </summary>
         public WinDivertDataReflect* Reflect => &this.Pointer->Reflect;
 
