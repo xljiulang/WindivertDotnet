@@ -9,9 +9,9 @@ namespace WindivertDotnet
     /// 表示WinDivert地址信息
     /// </summary>
     [DebuggerDisplay("Flags = {Flags}")]
-    public unsafe sealed class WinDivertAddress : IDisposable
+    public unsafe class WinDivertAddress : SafeHandleZeroOrMinusOneIsInvalid
     {
-        private readonly WinDivertAddressBuffer buffer = new();
+        private WinDivertAddressStruct* Pointer => (WinDivertAddressStruct*)this.handle.ToPointer();
 
         /// <summary>
         /// 获取结构大小
@@ -23,8 +23,8 @@ namespace WindivertDotnet
         /// </summary>
         public long Timestamp
         {
-            get => this.buffer.Pointer->Timestamp;
-            set => this.buffer.Pointer->Timestamp = value;
+            get => this.Pointer->Timestamp;
+            set => this.Pointer->Timestamp = value;
         }
 
         /// <summary>
@@ -32,8 +32,8 @@ namespace WindivertDotnet
         /// </summary>
         public WinDivertLayer Layer
         {
-            get => this.buffer.Pointer->Layer;
-            set => this.buffer.Pointer->Layer = value;
+            get => this.Pointer->Layer;
+            set => this.Pointer->Layer = value;
         }
 
         /// <summary>
@@ -41,8 +41,8 @@ namespace WindivertDotnet
         /// </summary>
         public WinDivertEvent Event
         {
-            get => this.buffer.Pointer->Event;
-            set => this.buffer.Pointer->Event = value;
+            get => this.Pointer->Event;
+            set => this.Pointer->Event = value;
         }
 
         /// <summary>
@@ -50,8 +50,8 @@ namespace WindivertDotnet
         /// </summary>
         public WinDivertAddressFlag Flags
         {
-            get => this.buffer.Pointer->Flags;
-            set => this.buffer.Pointer->Flags = value;
+            get => this.Pointer->Flags;
+            set => this.Pointer->Flags = value;
         }
 
         /// <summary>
@@ -59,8 +59,8 @@ namespace WindivertDotnet
         /// </summary>
         public byte Reserved
         {
-            get => this.buffer.Pointer->Reserved;
-            set => this.buffer.Pointer->Reserved = value;
+            get => this.Pointer->Reserved;
+            set => this.Pointer->Reserved = value;
         }
 
         /// <summary>
@@ -68,8 +68,8 @@ namespace WindivertDotnet
         /// </summary>
         public uint Reserved2
         {
-            get => this.buffer.Pointer->Reserved2;
-            set => this.buffer.Pointer->Reserved2 = value;
+            get => this.Pointer->Reserved2;
+            set => this.Pointer->Reserved2 = value;
         }
 
         /// <summary>
@@ -77,8 +77,8 @@ namespace WindivertDotnet
         /// </summary>
         public WinDivertDataNetwork Network
         {
-            get => this.buffer.Pointer->Network;
-            set => this.buffer.Pointer->Network = value;
+            get => this.Pointer->Network;
+            set => this.Pointer->Network = value;
         }
 
         /// <summary>
@@ -86,8 +86,8 @@ namespace WindivertDotnet
         /// </summary>
         public WinDivertDataFlow Flow
         {
-            get => this.buffer.Pointer->Flow;
-            set => this.buffer.Pointer->Flow = value;
+            get => this.Pointer->Flow;
+            set => this.Pointer->Flow = value;
         }
 
         /// <summary>
@@ -95,8 +95,8 @@ namespace WindivertDotnet
         /// </summary>
         public WinDivertDataSocket Socket
         {
-            get => this.buffer.Pointer->Socket;
-            set => this.buffer.Pointer->Socket = value;
+            get => this.Pointer->Socket;
+            set => this.Pointer->Socket = value;
         }
 
         /// <summary>
@@ -104,8 +104,29 @@ namespace WindivertDotnet
         /// </summary>
         public WinDivertDataReflect Reflect
         {
-            get => this.buffer.Pointer->Reflect;
-            set => this.buffer.Pointer->Reflect = value;
+            get => this.Pointer->Reflect;
+            set => this.Pointer->Reflect = value;
+        }
+
+        /// <summary>
+        /// WinDivert地址信息
+        /// </summary>
+        public WinDivertAddress()
+            : base(ownsHandle: true)
+        {
+            this.handle = Marshal.AllocHGlobal(Size);
+            this.Clear();
+        }
+
+
+        /// <summary>
+        /// 释放资源
+        /// </summary>
+        /// <returns></returns>
+        protected override bool ReleaseHandle()
+        {
+            Marshal.FreeHGlobal(this.handle);
+            return true;
         }
 
         /// <summary>
@@ -113,53 +134,9 @@ namespace WindivertDotnet
         /// </summary>
         public void Clear()
         {
-            this.buffer.Clear();
+            new Span<byte>(this.handle.ToPointer(), Size).Clear();
         }
 
-        /// <summary>
-        /// 释放资源
-        /// </summary>
-        public void Dispose()
-        {
-            this.buffer.Dispose();
-        }
-
-        /// <summary>
-        /// 隐式转换为SafeHandle
-        /// </summary>
-        /// <param name="addr"></param>
-        public static implicit operator SafeHandle(WinDivertAddress addr)
-        {
-            return addr.buffer;
-        }
-
-        /// <summary>
-        /// 缓存区
-        /// </summary>
-        private class WinDivertAddressBuffer : SafeHandleZeroOrMinusOneIsInvalid
-        {
-            public WinDivertAddressStruct* Pointer => (WinDivertAddressStruct*)this.handle.ToPointer();
-
-            public WinDivertAddressBuffer()
-                : base(true)
-            {
-                this.SetHandle(Marshal.AllocHGlobal(Size));
-                this.Clear();
-            }
-
-            public void Clear()
-            {
-                var span = new Span<byte>(this.handle.ToPointer(), Size);
-                span.Clear();
-            }
-
-            protected override bool ReleaseHandle()
-            {
-                Marshal.FreeHGlobal(this.handle);
-                this.SetHandle(IntPtr.Zero);
-                return true;
-            }
-        }
 
         [StructLayout(LayoutKind.Explicit)]
         private struct WinDivertAddressStruct

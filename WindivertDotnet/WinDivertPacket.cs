@@ -11,7 +11,7 @@ namespace WindivertDotnet
     /// 表示WinDivert的数据包
     /// </summary>
     [DebuggerDisplay("Length = {Length}, Capacity = {Capacity}")]
-    public sealed class WinDivertPacket : SafeHandleZeroOrMinusOneIsInvalid
+    public class WinDivertPacket : SafeHandleZeroOrMinusOneIsInvalid
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private int length;
@@ -48,21 +48,11 @@ namespace WindivertDotnet
         /// </summary>
         /// <param name="capacity">最大容量</param> 
         public WinDivertPacket(int capacity = 0xFFFF + 40)
-            : base(true)
+            : base(ownsHandle: true)
         {
             this.Capacity = capacity;
-            this.SetHandle(Marshal.AllocHGlobal(capacity));
+            this.handle = Marshal.AllocHGlobal(capacity);
             this.GetSpan(capacity).Clear();
-        }
-
-        /// <summary>
-        /// 获取span
-        /// </summary>
-        /// <param name="length"></param>
-        /// <returns></returns>
-        private unsafe Span<byte> GetSpan(int length)
-        {
-            return new Span<byte>(this.handle.ToPointer(), length);
         }
 
         /// <summary>
@@ -73,6 +63,16 @@ namespace WindivertDotnet
         {
             Marshal.FreeHGlobal(this.handle);
             return true;
+        }
+
+        /// <summary>
+        /// 获取span
+        /// </summary>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        private unsafe Span<byte> GetSpan(int length)
+        {
+            return new Span<byte>(this.handle.ToPointer(), length);
         }
 
         /// <summary>

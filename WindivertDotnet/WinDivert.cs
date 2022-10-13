@@ -204,11 +204,19 @@ namespace WindivertDotnet
             return WinDivertNative.WinDivertShutdown(this, how);
         }
 
+        /// <summary>
+        /// 释放句柄
+        /// </summary>
+        /// <returns></returns>
         protected override bool ReleaseHandle()
         {
             return WinDivertNative.WinDivertClose(this);
         }
 
+        /// <summary>
+        /// 释放资源
+        /// </summary>
+        /// <param name="disposing"></param>
         protected override void Dispose(bool disposing)
         {
             if (this.boundHandle.IsValueCreated)
