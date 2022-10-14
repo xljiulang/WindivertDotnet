@@ -90,68 +90,52 @@ namespace WindivertDotnet
         public byte HopLimit;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private uint srcAddrA;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private uint srcAddrB;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private uint srcAddrC;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private uint srcAddrD;
+        private unsafe fixed byte srcAddr[sizeof(int) * 4];
 
         /// <summary>
         /// 获取或设置源IPv6
         /// </summary>
-        public IPAddress SrcAddr
+        public unsafe IPAddress SrcAddr
         {
             get
             {
-                var bytes = new byte[16];
-                BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 0), srcAddrA);
-                BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 1), srcAddrB);
-                BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 2), srcAddrC);
-                BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 3), srcAddrD);
-                return new(bytes);
+                fixed (void* ptr = this.srcAddr)
+                {
+                    return new(new Span<byte>(ptr, sizeof(int) * 4));
+                }
             }
             set
             {
-                var bytes = value.GetAddressBytes();
-                srcAddrA = BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 0));
-                srcAddrB = BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 1));
-                srcAddrC = BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 2));
-                srcAddrD = BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 3));
+                fixed (void* ptr = this.srcAddr)
+                {
+                    var bytes = value.GetAddressBytes();
+                    bytes.CopyTo(new Span<byte>(ptr, sizeof(int) * 4));
+                }
             }
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private uint dstAddrA;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private uint dstAddrB;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private uint dstAddrC;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private uint dstAddrD;
+        private unsafe fixed byte dstAddr[sizeof(int) * 4];
 
         /// <summary>
         /// 获取或设置目的IPV6
         /// </summary>
-        public IPAddress DstAddr
+        public unsafe IPAddress DstAddr
         {
             get
             {
-                var bytes = new byte[16];
-                BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 0), dstAddrA);
-                BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 1), dstAddrB);
-                BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 2), dstAddrC);
-                BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 3), dstAddrD);
-                return new(bytes);
+                fixed (void* ptr = this.dstAddr)
+                {
+                    return new(new Span<byte>(ptr, sizeof(int) * 4));
+                }
             }
             set
             {
-                var bytes = value.GetAddressBytes();
-                dstAddrA = BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 0));
-                dstAddrB = BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 1));
-                dstAddrC = BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 2));
-                dstAddrD = BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(sizeof(uint) * 3));
+                fixed (void* ptr = this.dstAddr)
+                {
+                    var bytes = value.GetAddressBytes();
+                    bytes.CopyTo(new Span<byte>(ptr, sizeof(int) * 4));
+                }
             }
         }
     }

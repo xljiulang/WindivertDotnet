@@ -1,4 +1,5 @@
-﻿using System.Buffers.Binary;
+﻿using System;
+using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
@@ -107,27 +108,53 @@ namespace WindivertDotnet
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private uint srcAddr;
+        private unsafe fixed byte srcAddr[sizeof(int)];
 
         /// <summary>
         /// 获取或设置源IPv4
         /// </summary>
-        public IPAddress SrcAddr
+        public unsafe IPAddress SrcAddr
         {
-            get => new(unchecked(this.srcAddr));
-            set => this.srcAddr = BinaryPrimitives.ReadUInt32LittleEndian(value.GetAddressBytes());
+            get
+            {
+                fixed (void* ptr = this.srcAddr)
+                {
+                    return new(new Span<byte>(ptr, sizeof(int)));
+                }
+            }
+            set
+            {
+                fixed (void* ptr = this.srcAddr)
+                {
+                    var bytes = value.GetAddressBytes();
+                    bytes.CopyTo(new Span<byte>(ptr, sizeof(int)));
+                }
+            }
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private uint dstAddr;
+        private unsafe fixed byte dstAddr[sizeof(int)];
 
         /// <summary>
         /// 获取或设置目的IPv4
         /// </summary>
-        public IPAddress DstAddr
+        public unsafe IPAddress DstAddr
         {
-            get => new(unchecked(this.dstAddr));
-            set => this.dstAddr = BinaryPrimitives.ReadUInt32LittleEndian(value.GetAddressBytes());
+            get
+            {
+                fixed (void* ptr = this.dstAddr)
+                {
+                    return new(new Span<byte>(ptr, sizeof(int)));
+                }
+            }
+            set
+            {
+                fixed (void* ptr = this.dstAddr)
+                {
+                    var bytes = value.GetAddressBytes();
+                    bytes.CopyTo(new Span<byte>(ptr, sizeof(int)));
+                }
+            }
         }
     }
 }
