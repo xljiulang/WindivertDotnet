@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.Net;
 using System.Net.Sockets;
 
 namespace WindivertDotnet
@@ -26,12 +28,53 @@ namespace WindivertDotnet
         /// <summary>
         /// 本机地址
         /// </summary>
-        public fixed uint LocalAddr[4];
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private fixed byte localAddr[sizeof(int) * 4];
+
+        /// <summary>
+        /// 本机地址
+        /// </summary>
+        public unsafe IPAddress LocalAddr
+        {
+            get
+            {
+                fixed (void* ptr = this.localAddr)
+                {
+                    return this.GetIPAddress(ptr);
+                }
+            }
+            set
+            {
+                fixed (void* ptr = this.localAddr)
+                {
+                    this.SetIPAddress(ptr, value);
+                }
+            }
+        }
 
         /// <summary>
         /// 远程地址
         /// </summary>
-        public fixed uint RemoteAddr[4];
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private fixed byte remoteAddr[sizeof(int) * 4];
+
+        public unsafe IPAddress RemoteAddr
+        {
+            get
+            {
+                fixed (void* ptr = this.remoteAddr)
+                {
+                    return this.GetIPAddress(ptr);
+                }
+            }
+            set
+            {
+                fixed (void* ptr = this.remoteAddr)
+                {
+                    this.SetIPAddress(ptr, value);
+                }
+            }
+        }
 
         /// <summary>
         /// 本机端口
@@ -53,6 +96,20 @@ namespace WindivertDotnet
         {
             get => (ProtocolType)protocol;
             set => protocol = (byte)value;
+        }
+
+        private unsafe IPAddress GetIPAddress(void* ptr)
+        {
+            var span = new Span<byte>(ptr, sizeof(int) * 4);
+            span.Reverse();
+            return new(span);
+        }
+
+        private unsafe void SetIPAddress(void* ptr, IPAddress value)
+        {
+            var span = value.GetAddressBytes().AsSpan();
+            span.Reverse();
+            span.CopyTo(new Span<byte>(ptr, sizeof(int) * 4));
         }
     }
 }
