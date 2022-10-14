@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace WindivertDotnet
@@ -48,6 +49,51 @@ namespace WindivertDotnet
         private Filter(Expression<Func<IFilter, bool>> expression)
         {
             this.expression = expression;
+        }
+
+        /// <summary>
+        /// 格式化filter
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="layer"></param>
+        /// <exception cref="FormatException"></exception>
+        /// <returns></returns>
+        public unsafe static string Format(string filter, WinDivertLayer layer)
+        {
+            var size = filter.Length + 1;
+            var buffer = stackalloc byte[size];
+            var status = WinDivertNative.WinDivertHelperFormatFilter(filter, layer, buffer, size);
+            if (status == true)
+            {
+                var ptr = new IntPtr(buffer);
+                return Marshal.PtrToStringAnsi(ptr) ?? string.Empty;
+            }
+
+            throw new FormatException($"{nameof(filter)}格式不正确");
+        }
+
+        /// <summary>
+        /// 编译filter
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="layer"></param>
+        /// <exception cref="FormatException"></exception>
+        public unsafe static string Compile(string filter, WinDivertLayer layer)
+        {
+            const int size = 1024;
+            var obj = stackalloc byte[size];
+            var status = WinDivertNative.WinDivertHelperCompileFilter(filter, layer, obj, size, out var errStrPtr, out var errPos);
+
+            if (status == true)
+            {
+                var ptr = new IntPtr(obj);
+                return Marshal.PtrToStringAnsi(ptr) ?? string.Empty;
+            }
+            else
+            {
+                var message = $"{Marshal.PtrToStringAnsi(errStrPtr)} at position {errPos}";
+                throw new FormatException(message);
+            }
         }
 
         /// <summary>

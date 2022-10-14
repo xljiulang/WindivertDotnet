@@ -88,14 +88,15 @@ namespace WindivertDotnet
         /// <param name="layer">工作层</param>
         /// <param name="priority">优先级</param>
         /// <param name="flags">标记</param>
-        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="FormatException"></exception>
         /// <exception cref="Win32Exception"></exception>
         public WinDivert(string filter, WinDivertLayer layer, short priority = 0, WinDivertFlag flags = WinDivertFlag.None)
             : base(ownsHandle: true)
         {
-            CompileFilter(filter, layer);
+            var formatFitler = WindivertDotnet.Filter.Format(filter, layer);
+            var compileFilter = WindivertDotnet.Filter.Compile(formatFitler, layer);
 
-            this.handle = WinDivertNative.WinDivertOpen(filter, layer, priority, flags);
+            this.handle = WinDivertNative.WinDivertOpen(compileFilter, layer, priority, flags);
             this.boundHandleLazy = new Lazy<ThreadPoolBoundHandle>(() => ThreadPoolBoundHandle.BindHandle(this));
 
             if (this.IsInvalid == true)
@@ -103,25 +104,9 @@ namespace WindivertDotnet
                 throw new Win32Exception();
             }
 
-            this.Filter = filter;
+            this.Filter = formatFitler;
             this.Layer = layer;
             this.Version = this.GetVersion();
-        }
-
-        /// <summary>
-        /// 编译检查filter
-        /// </summary>
-        /// <param name="filter"></param>
-        /// <param name="layer"></param>
-        /// <exception cref="ArgumentException"></exception>
-        private static void CompileFilter(string filter, WinDivertLayer layer)
-        {
-            var status = WinDivertNative.WinDivertHelperCompileFilter(filter, layer, IntPtr.Zero, 0, out var errStrPtr, out var errPos);
-            if (status == false)
-            {
-                var message = $"{Marshal.PtrToStringAnsi(errStrPtr)} at position {errPos}";
-                throw new ArgumentException(message, nameof(filter));
-            }
         }
 
         /// <summary>

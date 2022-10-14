@@ -64,12 +64,18 @@ namespace System.Runtime.InteropServices
             WinDivertParam param1,
             ref long pValue);
 
+        [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern bool WinDivertHelperFormatFilter(
+             [MarshalAs(UnmanagedType.LPStr)] string filter,
+             WinDivertLayer layer,
+             void* buffer,
+             int bufLen);
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern bool WinDivertHelperCompileFilter(
             [MarshalAs(UnmanagedType.LPStr)] string filter,
             WinDivertLayer layer,
-            IntPtr obj,
+            void* obj,
             int objLen,
             out IntPtr errorStr,
             out int errorPos);
