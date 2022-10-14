@@ -1,6 +1,5 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using System;
-using System.Buffers;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.Sockets;
@@ -56,26 +55,7 @@ namespace WindivertDotnet
         {
             this.Capacity = capacity;
             this.handle = Marshal.AllocHGlobal(capacity);
-            this.Clear();
-        }
-
-        /// <summary>
-        /// 清除数据
-        /// </summary>
-        public void Clear()
-        {
             this.GetSpan(0, this.Capacity).Clear();
-        }
-
-        /// <summary>
-        /// 创建缓冲区写入对象
-        /// </summary>
-        /// <param name="offset">缓冲区偏移量</param>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        /// <returns></returns>
-        public IBufferWriter<byte> CreateBufferWriter(int offset = 0)
-        {
-            return new BufferWriter(this, offset);
         }
 
         /// <summary>
@@ -89,25 +69,33 @@ namespace WindivertDotnet
         }
 
         /// <summary>
-        /// 获取span
+        /// 将有效数据清0
         /// </summary>
-        /// <param name="offset"></param>
-        /// <param name="sizeHint"></param>
-        /// <returns></returns>
-        private unsafe Span<byte> GetSpan(int offset, int sizeHint)
+        public void Clear()
         {
-            if (offset > this.Capacity)
+            this.Span.Clear();
+        }
+
+        /// <summary>
+        /// 获取缓冲区的Span
+        /// </summary>
+        /// <param name="offset">偏移量</param>
+        /// <param name="count">字节数</param>
+        /// <returns></returns>
+        public unsafe Span<byte> GetSpan(int offset, int count)
+        {
+            if (offset < 0 || offset > this.Capacity)
             {
                 throw new ArgumentOutOfRangeException(nameof(offset));
             }
 
-            if (this.Capacity - offset < sizeHint)
+            if (count < 0 || this.Capacity - offset < count)
             {
-                throw new ArgumentOutOfRangeException(nameof(sizeHint));
+                throw new ArgumentOutOfRangeException(nameof(count));
             }
 
             var pointer = (byte*)this.handle.ToPointer() + offset;
-            return new Span<byte>(pointer, sizeHint);
+            return new Span<byte>(pointer, count);
         }
 
         /// <summary>
@@ -202,44 +190,6 @@ namespace WindivertDotnet
                 Next = pNext,
                 NextLength = nextLength
             };
-        }
-
-
-        private class BufferWriter : IBufferWriter<byte>
-        {
-            private int index;
-            private readonly WinDivertPacket packet;
-
-            public BufferWriter(WinDivertPacket packet, int offset)
-            {
-                if (offset >= packet.Capacity)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(offset));
-                }
-
-                this.index = offset;
-                this.packet = packet;
-            }
-
-            public void Advance(int count)
-            {
-                this.index += count;
-                this.packet.Length = this.index;
-            }
-
-            public Span<byte> GetSpan(int sizeHint = 0)
-            {
-                if (sizeHint == 0)
-                {
-                    sizeHint = this.packet.Capacity - this.index;
-                }
-                return this.packet.GetSpan(this.index, sizeHint);
-            }
-
-            public Memory<byte> GetMemory(int sizeHint = 0)
-            {
-                throw new NotSupportedException();
-            }
         }
     }
 }
