@@ -3,6 +3,9 @@
 
 ### 1 nuget
 [WindivertDotnet](https://www.nuget.org/packages/WindivertDotnet)
+```
+<PackageReference Include="WindivertDotnet" Version="1.*" /> 
+```
 
 ### 2 功能介绍
 * Filter对象支持Lambda构建filter language，脱离字符串的苦海；
