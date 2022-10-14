@@ -5,7 +5,7 @@ using System.Threading;
 namespace WindivertDotnet
 {
     [SupportedOSPlatform("windows")]
-    sealed unsafe class WinDivertSendOperation : WinDivertOperation
+    sealed class WinDivertSendOperation : WinDivertOperation
     {
         private readonly WinDivert divert;
         private readonly WinDivertPacket packet;
@@ -21,7 +21,7 @@ namespace WindivertDotnet
             this.addr = addr;
         }
 
-        protected override bool IOControl(int* pLength, NativeOverlapped* nativeOverlapped)
+        protected override unsafe bool IOControl(int* pLength, NativeOverlapped* nativeOverlapped)
         {
             return WinDivertNative.WinDivertSendEx(
                 this.divert,

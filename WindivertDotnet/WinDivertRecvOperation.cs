@@ -1,11 +1,12 @@
 ﻿using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace WindivertDotnet
 {
     [SupportedOSPlatform("windows")]
-    sealed unsafe class WinDivertRecvOperation : WinDivertOperation
+    sealed class WinDivertRecvOperation : WinDivertOperation
     {
         private readonly WinDivert divert;
         private readonly WinDivertPacket packet;
@@ -21,7 +22,14 @@ namespace WindivertDotnet
             this.addr = addr;
         }
 
-        protected override bool IOControl(int* pLength, NativeOverlapped* nativeOverlapped)
+        public override async ValueTask<int> IOControlAsync()
+        {
+            var length = await base.IOControlAsync();
+            this.packet.Length = length;
+            return length;
+        }
+
+        protected override unsafe bool IOControl(int* pLength, NativeOverlapped* nativeOverlapped)
         {
             return WinDivertNative.WinDivertRecvEx(
                 this.divert,
@@ -32,18 +40,6 @@ namespace WindivertDotnet
                 this.addr,
                 null,
                 nativeOverlapped);
-        }
-
-        protected override void SetResult(int length)
-        {
-            this.packet.Length = length;
-            base.SetResult(length);
-        }
-
-        protected override void SetException(int errorCode)
-        {
-            this.packet.Length = 0;
-            base.SetException(errorCode);
         }
     }
 }

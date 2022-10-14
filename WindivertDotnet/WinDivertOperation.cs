@@ -11,12 +11,12 @@ namespace WindivertDotnet
     /// Windivert控制器
     /// </summary>
     [SupportedOSPlatform("windows")]
-    abstract unsafe class WinDivertOperation : IDisposable
+    abstract unsafe class WinDivertOperation : IDisposable, IValueTaskSource<int>
     {
         private readonly ThreadPoolBoundHandle boundHandle;
         private readonly NativeOverlapped* nativeOverlapped;
 
-        private readonly ValueTaskCompletionSource<int> taskCompletionSource = new();
+        private ManualResetValueTaskSourceCore<int> taskSource; // 不能readonly
         private static readonly IOCompletionCallback completionCallback = new(IOCompletionCallback);
 
         /// <summary>
@@ -32,17 +32,12 @@ namespace WindivertDotnet
         /// <summary>
         /// io控制
         /// </summary> 
-        /// <exception cref="Win32Exception"></exception>
-        public ValueTask<int> IOControlAsync()
+        public virtual ValueTask<int> IOControlAsync()
         {
-            var length = 0;
-            // 如果触发异步回调，回调里不会反写pLength，所以这里可以指向栈内存的length
-            if (this.IOControl(&length, this.nativeOverlapped))
-            {
-                this.SetResult(length);
-            }
-
-            return this.taskCompletionSource.Task;
+            var length = 0; // 如果触发异步回调，回调里不会反写pLength，所以这里可以声明为方法内部变量
+            return this.IOControl(&length, this.nativeOverlapped)
+                ? new ValueTask<int>(length)
+                : new ValueTask<int>(this, this.taskSource.Version);
         }
 
         /// <summary>
@@ -64,31 +59,13 @@ namespace WindivertDotnet
             var operation = (WinDivertOperation)ThreadPoolBoundHandle.GetNativeOverlappedState(pOVERLAP)!;
             if (errorCode > 0)
             {
-                operation.SetException((int)errorCode);
+                var exception = new Win32Exception((int)errorCode);
+                operation.taskSource.SetException(exception);
             }
             else
             {
-                operation.SetResult((int)numBytes);
+                operation.taskSource.SetResult((int)numBytes);
             }
-        }
-
-        /// <summary>
-        /// 设置结果
-        /// </summary>
-        /// <param name="length"></param>
-        protected virtual void SetResult(int length)
-        {
-            this.taskCompletionSource.SetResult(length);
-        }
-
-        /// <summary>
-        /// 设置异常
-        /// </summary>
-        /// <param name="errorCode"></param>
-        protected virtual void SetException(int errorCode)
-        {
-            var exception = new Win32Exception(errorCode);
-            this.taskCompletionSource.SetException(exception);
         }
 
         /// <summary>
@@ -100,36 +77,19 @@ namespace WindivertDotnet
         }
 
 
-        private class ValueTaskCompletionSource<T> : IValueTaskSource<T>
+        int IValueTaskSource<int>.GetResult(short token)
         {
-            private ManualResetValueTaskSourceCore<T> core;
+            return this.taskSource.GetResult(token);
+        }
 
-            public ValueTask<T> Task => new(this, this.core.Version);
+        ValueTaskSourceStatus IValueTaskSource<int>.GetStatus(short token)
+        {
+            return this.taskSource.GetStatus(token);
+        }
 
-            public void SetResult(T result)
-            {
-                this.core.SetResult(result);
-            }
-
-            public void SetException(Exception error)
-            {
-                this.core.SetException(error);
-            }
-
-            T IValueTaskSource<T>.GetResult(short token)
-            {
-                return this.core.GetResult(token);
-            }
-
-            ValueTaskSourceStatus IValueTaskSource<T>.GetStatus(short token)
-            {
-                return this.core.GetStatus(token);
-            }
-
-            void IValueTaskSource<T>.OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
-            {
-                this.core.OnCompleted(continuation, state, token, flags);
-            }
+        void IValueTaskSource<int>.OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
+        {
+            this.taskSource.OnCompleted(continuation, state, token, flags);
         }
     }
 }
