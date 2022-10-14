@@ -6,7 +6,8 @@ namespace WindivertDotnet
 {
     static unsafe class WinDivertNative
     {
-        private const string library = "WinDivert.dll";
+        private const string library = "WinDivert.dll"; 
+
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern IntPtr WinDivertOpen(
@@ -63,6 +64,17 @@ namespace WindivertDotnet
             WinDivert divert,
             WinDivertParam param1,
             ref long pValue);
+
+
+        [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern bool WinDivertHelperCompileFilter(
+            [MarshalAs(UnmanagedType.LPStr)] string filter,
+            WinDivertLayer layer,
+            IntPtr obj,
+            int objLen,
+            out IntPtr errorStr,
+            out int errorPos);
+
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern int WinDivertHelperHashPacket(
