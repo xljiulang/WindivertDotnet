@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,6 +12,7 @@ namespace WindivertDotnet
     /// <summary>
     /// 表示WinDivert的操作对象
     /// </summary>
+    [SupportedOSPlatform("windows")]
     [DebuggerDisplay("Filter = {Filter}, Layer = {Layer}")]
     public partial class WinDivert : SafeHandleZeroOrMinusOneIsInvalid
     {

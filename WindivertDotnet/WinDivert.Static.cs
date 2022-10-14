@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace WindivertDotnet
 {
@@ -39,7 +40,7 @@ namespace WindivertDotnet
                     Directory.CreateDirectory(dir);
                 }
 
-                using var rsStream = typeof(WinDivert).Assembly.GetManifestResourceStream(name);
+                using var rsStream = typeof(WinDivert).Assembly.GetManifestResourceStream(name)!;
                 using var fileStream = File.OpenWrite(destFilePath);
                 rsStream.CopyTo(fileStream);
             }

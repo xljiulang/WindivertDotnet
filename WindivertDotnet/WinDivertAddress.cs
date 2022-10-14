@@ -99,8 +99,7 @@ namespace WindivertDotnet
         public WinDivertAddress()
             : base(ownsHandle: true)
         {
-            this.handle = Marshal.AllocHGlobal(Size);
-            this.Clear();
+            this.handle = MemoryNative.AllocZeroed(Size);
         }
 
 
@@ -110,7 +109,7 @@ namespace WindivertDotnet
         /// <returns></returns>
         protected override bool ReleaseHandle()
         {
-            Marshal.FreeHGlobal(this.handle);
+            MemoryNative.Free(this.handle);
             return true;
         }
 

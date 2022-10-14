@@ -54,8 +54,7 @@ namespace WindivertDotnet
             : base(ownsHandle: true)
         {
             this.Capacity = capacity;
-            this.handle = Marshal.AllocHGlobal(capacity);
-            this.GetSpan(0, this.Capacity).Clear();
+            this.handle = MemoryNative.AllocZeroed(capacity);
         }
 
         /// <summary>
@@ -64,7 +63,7 @@ namespace WindivertDotnet
         /// <returns></returns>
         protected override bool ReleaseHandle()
         {
-            Marshal.FreeHGlobal(this.handle);
+            MemoryNative.Free(this.handle);
             return true;
         }
 

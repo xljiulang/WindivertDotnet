@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Sources;
@@ -9,6 +10,7 @@ namespace WindivertDotnet
     /// <summary>
     /// Windivert控制器
     /// </summary>
+    [SupportedOSPlatform("windows")]
     abstract unsafe class WinDivertOperation : IDisposable
     {
         private readonly ThreadPoolBoundHandle boundHandle;
@@ -59,7 +61,7 @@ namespace WindivertDotnet
         /// <param name="pOVERLAP"></param>
         private static void IOCompletionCallback(uint errorCode, uint numBytes, NativeOverlapped* pOVERLAP)
         {
-            var operation = (WinDivertOperation)ThreadPoolBoundHandle.GetNativeOverlappedState(pOVERLAP);
+            var operation = (WinDivertOperation)ThreadPoolBoundHandle.GetNativeOverlappedState(pOVERLAP)!;
             if (errorCode > 0)
             {
                 operation.SetException((int)errorCode);
@@ -124,7 +126,7 @@ namespace WindivertDotnet
                 return this.core.GetStatus(token);
             }
 
-            void IValueTaskSource<T>.OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            void IValueTaskSource<T>.OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
             {
                 this.core.OnCompleted(continuation, state, token, flags);
             }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
-
-namespace WindivertDotnet
+﻿namespace System.Runtime.InteropServices
 {
     static class Kernel32Native
     {

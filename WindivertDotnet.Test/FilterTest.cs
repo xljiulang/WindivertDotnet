@@ -1,9 +1,11 @@
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Versioning;
 using Xunit;
 
 namespace WindivertDotnet.Test
 {
+    [SupportedOSPlatform("windows")]
     public class FilterTest
     {
         [Fact]

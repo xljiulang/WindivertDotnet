@@ -1,7 +1,10 @@
-﻿using System.Threading;
+﻿using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
+using System.Threading;
 
 namespace WindivertDotnet
 {
+    [SupportedOSPlatform("windows")]
     sealed unsafe class WinDivertSendOperation : WinDivertOperation
     {
         private readonly WinDivert divert;

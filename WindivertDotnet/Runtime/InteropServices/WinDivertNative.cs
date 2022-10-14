@@ -1,12 +1,11 @@
-using System;
-using System.Runtime.InteropServices;
 using System.Threading;
+using WindivertDotnet;
 
-namespace WindivertDotnet
+namespace System.Runtime.InteropServices
 {
     static unsafe class WinDivertNative
     {
-        private const string library = "WinDivert.dll"; 
+        private const string library = "WinDivert.dll";
 
 
         [DllImport(library, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
