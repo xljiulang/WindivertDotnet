@@ -1,6 +1,5 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -140,7 +139,6 @@ namespace WindivertDotnet
         /// 获取包的解析结果
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="Win32Exception"></exception>
         public unsafe WinDivertParseResult GetParseResult()
         {
             IPV4Header* pIPV4Header;
@@ -155,7 +153,7 @@ namespace WindivertDotnet
             byte* pNext;
             int nextLength;
 
-            var status = WinDivertNative.WinDivertHelperParsePacket(
+            WinDivertNative.WinDivertHelperParsePacket(
                 this,
                 this.length,
                 &pIPV4Header,
@@ -169,11 +167,6 @@ namespace WindivertDotnet
                 &dataLength,
                 &pNext,
                 &nextLength);
-
-            if (status == false)
-            {
-                throw new Win32Exception();
-            }
 
             return new WinDivertParseResult
             {
