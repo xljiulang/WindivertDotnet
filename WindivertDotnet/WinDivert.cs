@@ -209,8 +209,8 @@ namespace WindivertDotnet
             }
 
             var value = 0L;
-            var result = WinDivertNative.WinDivertGetParam(this, param, ref value);
-            return result ? value : throw new Win32Exception();
+            var status = WinDivertNative.WinDivertGetParam(this, param, ref value);
+            return status ? value : throw new Win32Exception();
         }
 
         /// <summary>
@@ -236,9 +236,9 @@ namespace WindivertDotnet
         /// <summary>
         /// 关闭
         /// </summary>
-        /// <param name="how"></param>
+        /// <param name="how">关闭方式</param>
         /// <returns></returns>
-        public bool Shutdown(WinDivertShutdown how)
+        public bool Shutdown(WinDivertShutdown how = WinDivertShutdown.Both)
         {
             return WinDivertNative.WinDivertShutdown(this, how);
         }

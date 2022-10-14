@@ -155,7 +155,7 @@ namespace WindivertDotnet
             byte* pNext;
             int nextLength;
 
-            var flag = WinDivertNative.WinDivertHelperParsePacket(
+            var status = WinDivertNative.WinDivertHelperParsePacket(
                 this,
                 this.length,
                 &pIPV4Header,
@@ -170,7 +170,7 @@ namespace WindivertDotnet
                 &pNext,
                 &nextLength);
 
-            if (flag == false)
+            if (status == false)
             {
                 throw new Win32Exception();
             }
