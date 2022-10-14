@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using System.Threading;
+﻿using System.Threading;
 
 namespace WindivertDotnet
 {
@@ -9,7 +7,6 @@ namespace WindivertDotnet
         private readonly WinDivert divert;
         private readonly WinDivertPacket packet;
         private readonly WinDivertAddress addr;
-        private readonly IntPtr addrLenHandle = Marshal.AllocHGlobal(sizeof(int));
 
         public WinDivertRecvOperation(
             WinDivert divert,
@@ -23,9 +20,6 @@ namespace WindivertDotnet
 
         protected override bool IOControl(int* pLength, NativeOverlapped* nativeOverlapped)
         {
-            var pAddrLen = (int*)addrLenHandle.ToPointer();
-            *pAddrLen = WinDivertAddress.Size;
-
             return WinDivertNative.WinDivertRecvEx(
                 this.divert,
                 this.packet,
@@ -33,7 +27,7 @@ namespace WindivertDotnet
                 pLength,
                 0UL,
                 this.addr,
-                pAddrLen,
+                null,
                 nativeOverlapped);
         }
 
@@ -47,12 +41,6 @@ namespace WindivertDotnet
         {
             this.packet.Length = 0;
             base.SetException(errorCode);
-        }
-
-        public override void Dispose()
-        {
-            Marshal.FreeHGlobal(this.addrLenHandle);
-            base.Dispose();
         }
     }
 }
