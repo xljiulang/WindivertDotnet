@@ -14,7 +14,7 @@ namespace WindivertDotnet
     /// </summary>
     [SupportedOSPlatform("windows")]
     [DebuggerDisplay("Filter = {Filter}, Layer = {Layer}")]
-    public partial class WinDivert : SafeHandleZeroOrMinusOneIsInvalid
+    public class WinDivert : SafeHandleZeroOrMinusOneIsInvalid
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Lazy<ThreadPoolBoundHandle> boundHandleLazy;

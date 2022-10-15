@@ -63,9 +63,13 @@ namespace WindivertDotnet.Test
                 .Or(f => f.Timestamp > 1)
                 ;
 
-            using var divert1 = new WinDivert(filter, WinDivertLayer.Network);
-            using var divert2 = new WinDivert(filter, WinDivertLayer.Forward);
-            using var divert3 = new WinDivert(filter, WinDivertLayer.Socket, 0, WinDivertFlag.ReadOnly);
+            var f1 = Filter.Compile(filter.ToString(), WinDivertLayer.Network);
+            var f2 = Filter.Compile(filter.ToString(), WinDivertLayer.Forward);
+            var f3 = Filter.Compile(filter.ToString(), WinDivertLayer.Socket);
+
+            Assert.True(f1.Length > 0);
+            Assert.True(f2.Length > 0);
+            Assert.True(f3.Length > 0);
         }
 
 
@@ -87,7 +91,8 @@ namespace WindivertDotnet.Test
                 .Or(f => f.Network.RemotePort == 443)
                 .Or(f => f.Network.SubIfIdx == 12);
 
-            using var divert = new WinDivert(filter, WinDivertLayer.Network);
+            var f = Filter.Compile(filter.ToString(), WinDivertLayer.Network);
+            Assert.True(f.Length > 0);
         }
     }
 }
