@@ -11,6 +11,8 @@ namespace WindivertDotnet
     /// </summary>
     public unsafe struct WinDivertDataSocket
     {
+        private const int IPV6_SIZE = sizeof(int) * 4;
+
         /// <summary>
         /// 套接字操作的终结点 ID
         /// </summary>
@@ -30,25 +32,25 @@ namespace WindivertDotnet
         /// 本机地址
         /// </summary>
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private fixed byte localAddr[sizeof(int) * 4];
+        private fixed byte localAddr[IPV6_SIZE];
 
         /// <summary>
         /// 本机地址
         /// </summary>
-        public unsafe IPAddress LocalAddr
+        public IPAddress LocalAddr
         {
             get
             {
                 fixed (void* ptr = this.localAddr)
                 {
-                    return this.GetIPAddress(ptr);
+                    return GetIPAddress(ptr);
                 }
             }
             set
             {
                 fixed (void* ptr = this.localAddr)
                 {
-                    this.SetIPAddress(ptr, value);
+                    SetIPAddress(ptr, value);
                 }
             }
         }
@@ -57,22 +59,25 @@ namespace WindivertDotnet
         /// 远程地址
         /// </summary>
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private fixed byte remoteAddr[sizeof(int) * 4];
+        private fixed byte remoteAddr[IPV6_SIZE];
 
-        public unsafe IPAddress RemoteAddr
+        /// <summary>
+        /// 远程地址
+        /// </summary>
+        public IPAddress RemoteAddr
         {
             get
             {
                 fixed (void* ptr = this.remoteAddr)
                 {
-                    return this.GetIPAddress(ptr);
+                    return GetIPAddress(ptr);
                 }
             }
             set
             {
                 fixed (void* ptr = this.remoteAddr)
                 {
-                    this.SetIPAddress(ptr, value);
+                    SetIPAddress(ptr, value);
                 }
             }
         }
@@ -99,19 +104,18 @@ namespace WindivertDotnet
             set => protocol = (byte)value;
         }
 
-        private unsafe IPAddress GetIPAddress(void* ptr)
+        private static IPAddress GetIPAddress(void* ptr)
         {
-            var span = new Span<byte>(ptr, sizeof(int) * 4);
+            var span = new Span<byte>(ptr, IPV6_SIZE);
             span.Reverse();
             return new(span);
         }
 
-        private unsafe void SetIPAddress(void* ptr, IPAddress value)
+        private static void SetIPAddress(void* ptr, IPAddress value)
         {
             var span = value.GetAddressBytes().AsSpan();
             span.Reverse();
-            span.CopyTo(new Span<byte>(ptr, sizeof(int) * 4));
+            span.CopyTo(new Span<byte>(ptr, IPV6_SIZE));
         }
-
     }
 }

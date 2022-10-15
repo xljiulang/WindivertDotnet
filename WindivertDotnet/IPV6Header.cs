@@ -11,6 +11,8 @@ namespace WindivertDotnet
     [DebuggerDisplay("SrcAddr = {SrcAddr}, DstAddr = {DstAddr}, Size = {sizeof(IPV6Header)}")]
     public struct IPV6Header
     {
+        private const int IPV6_SIZE = sizeof(int) * 4;
+
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private byte bitfield1;
 
@@ -90,7 +92,7 @@ namespace WindivertDotnet
         public byte HopLimit;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private unsafe fixed byte srcAddr[sizeof(int) * 4];
+        private unsafe fixed byte srcAddr[IPV6_SIZE];
 
         /// <summary>
         /// 获取或设置源IPv6
@@ -101,7 +103,7 @@ namespace WindivertDotnet
             {
                 fixed (void* ptr = this.srcAddr)
                 {
-                    return new(new Span<byte>(ptr, sizeof(int) * 4));
+                    return new(new Span<byte>(ptr, IPV6_SIZE));
                 }
             }
             set
@@ -109,13 +111,13 @@ namespace WindivertDotnet
                 fixed (void* ptr = this.srcAddr)
                 {
                     var bytes = value.GetAddressBytes();
-                    bytes.CopyTo(new Span<byte>(ptr, sizeof(int) * 4));
+                    bytes.CopyTo(new Span<byte>(ptr, IPV6_SIZE));
                 }
             }
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private unsafe fixed byte dstAddr[sizeof(int) * 4];
+        private unsafe fixed byte dstAddr[IPV6_SIZE];
 
         /// <summary>
         /// 获取或设置目的IPV6
@@ -126,15 +128,15 @@ namespace WindivertDotnet
             {
                 fixed (void* ptr = this.dstAddr)
                 {
-                    return new(new Span<byte>(ptr, sizeof(int) * 4));
+                    return new(new Span<byte>(ptr, IPV6_SIZE));
                 }
             }
             set
             {
                 fixed (void* ptr = this.dstAddr)
                 {
-                    var bytes = value.GetAddressBytes();
-                    bytes.CopyTo(new Span<byte>(ptr, sizeof(int) * 4));
+                    var span = value.GetAddressBytes().AsSpan();
+                    span.CopyTo(new Span<byte>(ptr, IPV6_SIZE));
                 }
             }
         }
