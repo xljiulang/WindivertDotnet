@@ -46,6 +46,7 @@ namespace WindivertDotnet
 
         /// <summary>
         /// 获取或设置IP数据包的长度
+        /// 包含IPv4头的长度
         /// </summary>
         public ushort Length
         {

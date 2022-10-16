@@ -74,6 +74,7 @@ namespace WindivertDotnet
 
         /// <summary>
         /// 获取或设置有效负载长度
+        /// 不包含IPV6头的固定40字节
         /// </summary>
         public ushort Length
         {
