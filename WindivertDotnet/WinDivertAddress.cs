@@ -107,7 +107,7 @@ namespace WindivertDotnet
         }
 
         /// <summary>
-        /// 获取与远程地址通讯的网络接口索引
+        /// 获取本机与远程地址通讯的网络接口索引
         /// </summary>
         /// <param name="remoteAddress">远程地址</param>
         /// <returns></returns>
@@ -131,6 +131,31 @@ namespace WindivertDotnet
             return socket.LocalEndPoint is IPEndPoint localEndPoint
                 ? localEndPoint.Address
                 : throw new NotSupportedException();
+        }
+
+        /// <summary>
+        /// 获取指定网络接口的通讯数据是否为出口方向
+        /// </summary>
+        /// <param name="interfaceIndex">网络接口索引</param>
+        /// <param name="ipHeader">IP头</param> 
+        /// <returns></returns>
+        [SupportedOSPlatform("windows")]
+        public static bool IsOutboundDirection(int interfaceIndex, IIPHeader ipHeader)
+        {
+            return IsOutboundDirection(interfaceIndex, ipHeader.SrcAddr, ipHeader.DstAddr);
+        }
+
+        /// <summary>
+        /// 获取指定网络接口的通讯数据是否为出口方向
+        /// </summary>
+        /// <param name="interfaceIndex">网络接口索引</param>
+        /// <param name="srcAddr">源地址</param>
+        /// <param name="dstAddr">目标地址</param>
+        /// <returns></returns>
+        [SupportedOSPlatform("windows")]
+        public static bool IsOutboundDirection(int interfaceIndex, IPAddress srcAddr, IPAddress dstAddr)
+        {
+            return IPHelpApiNative.IsOutboundDirection(interfaceIndex, srcAddr, dstAddr);
         }
 
         /// <summary>

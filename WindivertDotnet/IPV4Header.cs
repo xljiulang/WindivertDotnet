@@ -10,7 +10,7 @@ namespace WindivertDotnet
     /// IPV4头
     /// </summary>
     [DebuggerDisplay("SrcAddr = {SrcAddr}, DstAddr = {DstAddr}, Size = {HdrLength * 4}")]
-    public struct IPV4Header
+    public struct IPV4Header : IIPHeader
     {
         private const int IPV4_SIZE = sizeof(int);
 
