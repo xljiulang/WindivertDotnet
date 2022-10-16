@@ -9,7 +9,7 @@ namespace WindivertDotnet
     /// IPv6头
     /// </summary>
     [DebuggerDisplay("SrcAddr = {SrcAddr}, DstAddr = {DstAddr}, Size = {sizeof(IPV6Header)}")]
-    public struct IPV6Header : IIPHeader
+    public struct IPV6Header
     {
         private const int IPV6_SIZE = sizeof(int) * 4;
 

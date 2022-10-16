@@ -1,6 +1,9 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
@@ -112,6 +115,100 @@ namespace WindivertDotnet
         public bool CalcChecksums(WinDivertAddress addr, ChecksumsFlag flag = ChecksumsFlag.All)
         {
             return WinDivertNative.WinDivertHelperCalcChecksums(this, this.length, addr, flag);
+        }
+
+        /// <summary>
+        /// 根据IP地址重新计算和修改addr的Network->IfIdx
+        /// </summary>
+        /// <param name="addr">地址信息</param>
+        /// <returns></returns>
+        /// <exception cref="NetworkInformationException"></exception>
+        public unsafe bool CalcNetworkIfIdx(WinDivertAddress addr)
+        {
+            if (addr.Layer == WinDivertLayer.Network &&
+                this.TryGetIPAddress(out _, out var dstAddr))
+            {
+                addr.Network->IfIdx = IPHelpApiNative.GetInterfaceIndex(dstAddr);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 根据IP地址和addr.Network->IfIdx重新计算和修改addr的Outbound标记
+        /// </summary>
+        /// <param name="addr">地址信息</param>
+        /// <returns></returns>
+        public unsafe bool CalcOutboundFlag(WinDivertAddress addr)
+        {
+            if (addr.Layer != WinDivertLayer.Network ||
+                this.TryGetIPAddress(out var srcAddr, out var dstAddr) == false)
+            {
+                return false;
+            }
+
+            if (IPHelpApiNative.IsOutboundDirection(addr.Network->IfIdx, srcAddr, dstAddr))
+            {
+                addr.Flags |= WinDivertAddressFlag.Outbound;
+            }
+            else
+            {
+                addr.Flags &= ~WinDivertAddressFlag.Outbound;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 根据IP地址重新计算和修改addr的Loopback标记
+        /// </summary> 
+        /// <param name="addr">地址信息</param> 
+        /// <returns></returns>
+        public bool CalcLoopbackFlag(WinDivertAddress addr)
+        {
+            if (this.TryGetIPAddress(out var srcAddr, out var dstAddr))
+            {
+                if (IPAddress.IsLoopback(srcAddr) && srcAddr.Equals(dstAddr))
+                {
+                    addr.Flags |= WinDivertAddressFlag.Loopback;
+                }
+                else
+                {
+                    addr.Flags &= ~WinDivertAddressFlag.Loopback;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 尝试获取IP地址
+        /// </summary>
+        /// <param name="srcAddr"></param>
+        /// <param name="dstAddr"></param>
+        /// <returns></returns>
+        private unsafe bool TryGetIPAddress(
+            [MaybeNullWhen(false)] out IPAddress srcAddr,
+            [MaybeNullWhen(false)] out IPAddress dstAddr)
+        {
+            var result = this.GetParseResult();
+            if (result.IPV4Header != null)
+            {
+                srcAddr = result.IPV4Header->SrcAddr;
+                dstAddr = result.IPV4Header->DstAddr;
+                return true;
+            }
+
+            if (result.IPV6Header != null)
+            {
+                srcAddr = result.IPV6Header->SrcAddr;
+                dstAddr = result.IPV6Header->DstAddr;
+                return true;
+            }
+
+            srcAddr = default;
+            dstAddr = default;
+            return false;
         }
 
         /// <summary>

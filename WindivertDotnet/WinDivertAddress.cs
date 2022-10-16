@@ -1,11 +1,7 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using System;
 using System.Diagnostics;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
 
 namespace WindivertDotnet
 {
@@ -104,97 +100,6 @@ namespace WindivertDotnet
             : base(ownsHandle: true)
         {
             this.handle = MemoryNative.AllocZeroed(Size);
-        }
-
-        /// <summary>
-        /// 获取本机与远程地址通讯的网络接口索引
-        /// </summary>
-        /// <param name="remoteAddress">远程地址</param>
-        /// <returns></returns>
-        /// <exception cref="NetworkInformationException"></exception>
-        [SupportedOSPlatform("windows")]
-        public static int GetInterfaceIndex(IPAddress remoteAddress)
-        {
-            return IPHelpApiNative.GetInterfaceIndex(remoteAddress);
-        }
-
-        /// <summary>
-        /// 获取与远程地址通讯的本机地址
-        /// </summary>
-        /// <param name="remoteAddress">远程地址</param>
-        /// <exception cref="NotSupportedException"></exception>
-        /// <returns></returns>
-        public static IPAddress GetLocalIPAddress(IPAddress remoteAddress)
-        {
-            using var socket = new Socket(remoteAddress.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-            socket.Connect(remoteAddress, 0);
-            return socket.LocalEndPoint is IPEndPoint localEndPoint
-                ? localEndPoint.Address
-                : throw new NotSupportedException();
-        }
-
-        /// <summary>
-        /// 使用Network->IfIdx重算Outbound标记到Flags
-        /// </summary> 
-        /// <param name="ipHeader">IP头</param> 
-        /// <returns></returns>
-        [SupportedOSPlatform("windows")]
-        public bool CalcOutboundFlag(IIPHeader ipHeader)
-        {
-            return this.CalcOutboundFlag(ipHeader.SrcAddr, ipHeader.DstAddr);
-        }
-
-        /// <summary>
-        /// 使用Network->IfIdx重算Outbound标记到Flags
-        /// </summary> 
-        /// <param name="srcAddr">源地址</param>
-        /// <param name="dstAddr">目标地址</param>
-        /// <returns>如果Layer不是Network，返回false</returns>
-        [SupportedOSPlatform("windows")]
-        public bool CalcOutboundFlag(IPAddress srcAddr, IPAddress dstAddr)
-        {
-            if (this.Layer != WinDivertLayer.Network)
-            {
-                return false;
-            }
-
-            if (IPHelpApiNative.IsOutboundDirection(this.Network->IfIdx, srcAddr, dstAddr))
-            {
-                this.Flags |= WinDivertAddressFlag.Outbound;
-            }
-            else
-            {
-                this.Flags &= ~WinDivertAddressFlag.Outbound;
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// 重算Loopback标记到Flags
-        /// </summary> 
-        /// <param name="ipHeader">IP头</param> 
-        /// <returns></returns>
-        public void CalcLoopbackFlag(IIPHeader ipHeader)
-        {
-            this.CalcLoopbackFlag(ipHeader.SrcAddr, ipHeader.DstAddr);
-        }
-
-        /// <summary>
-        /// 重算Loopback标记到Flags
-        /// </summary> 
-        /// <param name="srcAddr">源地址</param>
-        /// <param name="dstAddr">目标地址</param>
-        /// <returns></returns>
-        public void CalcLoopbackFlag(IPAddress srcAddr, IPAddress dstAddr)
-        {
-            if (IPAddress.IsLoopback(srcAddr) && srcAddr.Equals(dstAddr))
-            {
-                this.Flags |= WinDivertAddressFlag.Loopback;
-            }
-            else
-            {
-                this.Flags &= ~WinDivertAddressFlag.Loopback;
-            }
         }
 
         /// <summary>
