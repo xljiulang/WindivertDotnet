@@ -237,6 +237,30 @@ namespace WindivertDotnet
                 throw new InvalidOperationException();
             }
 
+            if (param == WinDivertParam.QueueSize)
+            {
+                if (value < 65535L || value > 33554432L)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                }
+            }
+
+            if (param == WinDivertParam.QueueTime)
+            {
+                if (value < 100L || value > 16000L)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                }
+            }
+
+            if (param == WinDivertParam.QueueLength)
+            {
+                if (value < 32L || value > 16384L)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                }
+            }
+
             if (WinDivertNative.WinDivertSetParam(this, param, value) == false)
             {
                 throw new Win32Exception();
