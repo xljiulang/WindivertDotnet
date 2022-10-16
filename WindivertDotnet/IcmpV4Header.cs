@@ -31,10 +31,17 @@ namespace WindivertDotnet
             set => checksum = BinaryPrimitives.ReverseEndianness(value);
         }
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private uint body;
+
         /// <summary>
         /// 获取或设置Rest of header
         /// 内容因 ICMP 类型和代码而异
         /// </summary>
-        public uint Body;
+        public uint Body
+        {
+            get => BinaryPrimitives.ReverseEndianness(body);
+            set => body = BinaryPrimitives.ReverseEndianness(value);
+        }
     }
 }

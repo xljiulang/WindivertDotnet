@@ -6,7 +6,7 @@ namespace WindivertDotnet
     /// <summary>
     /// Tcp头
     /// </summary>
-    [DebuggerDisplay("SrcPort = {SrcPort}, DstPort = {DstPort}, Size = {sizeof(TcpHeader)}")]
+    [DebuggerDisplay("SrcPort = {SrcPort}, DstPort = {DstPort}, Size = {HdrLength * 4}")]
     public struct TcpHeader
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -72,7 +72,8 @@ namespace WindivertDotnet
         }
 
         /// <summary>
-        /// 获取或设置HdrLength位
+        /// 获取或设置Internet Header Length
+        /// Tcp头总字节为该值的4倍
         /// </summary>
         public ushort HdrLength
         {
