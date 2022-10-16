@@ -18,6 +18,7 @@ namespace WindivertDotnet
         private readonly NativeOverlapped* nativeOverlapped;
 
         private ManualResetValueTaskSourceCore<int> taskSource; // 不能readonly
+        private CancellationTokenRegistration tokenRegistration;
         private static readonly IOCompletionCallback completionCallback = new(IOCompletionCallback);
 
 
@@ -44,7 +45,7 @@ namespace WindivertDotnet
             }
             else if (cancellationToken != CancellationToken.None)
             {
-                cancellationToken.Register(() => Kernel32Native.CancelIoEx(this.divert, this.nativeOverlapped));
+                this.tokenRegistration = cancellationToken.Register(() => Kernel32Native.CancelIoEx(this.divert, this.nativeOverlapped));
             }
 
             var length = 0; // 如果触发异步回调，回调里不会反写pLength，所以这里可以声明为方法内部变量
@@ -91,6 +92,7 @@ namespace WindivertDotnet
         /// </summary>
         public virtual void Dispose()
         {
+            this.tokenRegistration.Dispose();
             this.divert.GetThreadPoolBoundHandle().FreeNativeOverlapped(this.nativeOverlapped);
         }
 
