@@ -128,7 +128,7 @@ namespace WindivertDotnet
         public unsafe bool CalcNetworkIfIdx(WinDivertAddress addr)
         {
             if (addr.Layer == WinDivertLayer.Network &&
-                this.TryGetIPAddress(out _, out var dstAddr))
+                this.TryParsePAddress(out _, out var dstAddr))
             {
                 addr.Network->IfIdx = IPHelpApiNative.GetInterfaceIndex(dstAddr);
                 return true;
@@ -146,7 +146,7 @@ namespace WindivertDotnet
         public unsafe bool CalcOutboundFlag(WinDivertAddress addr)
         {
             if (addr.Layer != WinDivertLayer.Network ||
-                this.TryGetIPAddress(out var srcAddr, out var dstAddr) == false)
+                this.TryParsePAddress(out var srcAddr, out var dstAddr) == false)
             {
                 return false;
             }
@@ -170,7 +170,7 @@ namespace WindivertDotnet
         /// <returns></returns>
         public bool CalcLoopbackFlag(WinDivertAddress addr)
         {
-            if (this.TryGetIPAddress(out var srcAddr, out var dstAddr))
+            if (this.TryParsePAddress(out var srcAddr, out var dstAddr))
             {
                 if (IPAddress.IsLoopback(srcAddr) && srcAddr.Equals(dstAddr))
                 {
@@ -186,28 +186,33 @@ namespace WindivertDotnet
         }
 
         /// <summary>
-        /// 尝试获取IP地址
+        /// 尝试解析IP地址
         /// </summary>
         /// <param name="srcAddr"></param>
         /// <param name="dstAddr"></param>
         /// <returns></returns>
-        private unsafe bool TryGetIPAddress(
+        private unsafe bool TryParsePAddress(
             [MaybeNullWhen(false)] out IPAddress srcAddr,
             [MaybeNullWhen(false)] out IPAddress dstAddr)
         {
-            var result = this.GetParseResult();
-            if (result.IPV4Header != null)
+            if (this.length > 1)
             {
-                srcAddr = result.IPV4Header->SrcAddr;
-                dstAddr = result.IPV4Header->DstAddr;
-                return true;
-            }
+                var version = this.Span[0] >> 4;
+                if (version == 4 && this.length >= sizeof(IPV4Header))
+                {
+                    var header = (IPV4Header*)this.handle.ToPointer();
+                    srcAddr = header->SrcAddr;
+                    dstAddr = header->DstAddr;
+                    return true;
+                }
 
-            if (result.IPV6Header != null)
-            {
-                srcAddr = result.IPV6Header->SrcAddr;
-                dstAddr = result.IPV6Header->DstAddr;
-                return true;
+                if (version == 6 && this.length >= sizeof(IPV6Header))
+                {
+                    var header = (IPV6Header*)this.handle.ToPointer();
+                    srcAddr = header->SrcAddr;
+                    dstAddr = header->DstAddr;
+                    return true;
+                }
             }
 
             srcAddr = default;
