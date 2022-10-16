@@ -13,6 +13,11 @@ namespace WindivertDotnet
     public class WinDivertPacket : SafeHandleZeroOrMinusOneIsInvalid
     {
         /// <summary>
+        /// MTU的最大长度
+        /// </summary>
+        public const int MTU_MAX = 40 + 0xFFFF;
+
+        /// <summary>
         /// 有效数据的长度
         /// </summary>
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -49,7 +54,7 @@ namespace WindivertDotnet
         /// WinDivert的数据包
         /// </summary>
         /// <param name="capacity">最大容量</param> 
-        public WinDivertPacket(int capacity = 0xFFFF + 40)
+        public WinDivertPacket(int capacity = MTU_MAX)
             : base(ownsHandle: true)
         {
             this.Capacity = capacity;
