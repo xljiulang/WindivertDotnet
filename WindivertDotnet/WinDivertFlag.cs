@@ -1,7 +1,7 @@
 ﻿namespace WindivertDotnet
 {
     /// <summary>
-    /// WinDivert选项
+    /// WinDivert方式标志
     /// </summary>
     public enum WinDivertFlag : ulong
     {

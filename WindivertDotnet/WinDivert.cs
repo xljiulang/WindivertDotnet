@@ -30,6 +30,16 @@ namespace WindivertDotnet
         public WinDivertLayer Layer { get; }
 
         /// <summary>
+        /// 获取优先级
+        /// </summary>
+        public short Priority { get; }
+
+        /// <summary>
+        /// 获取工作方式标志
+        /// </summary>
+        public WinDivertFlag Flags { get; }
+
+        /// <summary>
         /// 获取软件版本
         /// </summary>
         public Version Version { get; }
@@ -37,6 +47,7 @@ namespace WindivertDotnet
 
         /// <summary>
         /// 获取或设置列队的容量大小
+        /// 默认为4096，范围为[32,16384]
         /// </summary>
         /// <exception cref="Win32Exception"></exception>
         /// <exception cref="InvalidOperationException"></exception>
@@ -48,6 +59,7 @@ namespace WindivertDotnet
 
         /// <summary>
         /// 获取或设自动丢弃数据包之前可以排队的最短时长
+        /// 默认为2s，范围为100ms到16s
         /// </summary>
         /// <exception cref="Win32Exception"></exception>
         /// <exception cref="InvalidOperationException"></exception>
@@ -59,6 +71,7 @@ namespace WindivertDotnet
 
         /// <summary>
         /// 获取或设置存储在数据包队列中的最大字节数
+        /// 默认4MB，范围为64KB到32MB
         /// </summary>
         /// <exception cref="Win32Exception"></exception>
         /// <exception cref="InvalidOperationException"></exception>
@@ -73,7 +86,7 @@ namespace WindivertDotnet
         /// </summary>
         /// <param name="filter">过滤器 https://reqrypt.org/windivert-doc.html#filter_language</param>
         /// <param name="layer">工作层</param>
-        /// <param name="priority">优先级，越小越高</param>
+        /// <param name="priority">优先级，值越大优先级越高[-30000,30000]</param>
         /// <param name="flags">标记</param>
         /// <exception cref="Win32Exception"></exception>
         public WinDivert(Filter filter, WinDivertLayer layer, short priority = 0, WinDivertFlag flags = WinDivertFlag.None)
@@ -86,14 +99,26 @@ namespace WindivertDotnet
         /// </summary>
         /// <param name="filter">过滤器 https://reqrypt.org/windivert-doc.html#filter_language</param>
         /// <param name="layer">工作层</param>
-        /// <param name="priority">优先级</param>
+        /// <param name="priority">优先级，值越大优先级越高[-30000,30000]</param>
         /// <param name="flags">标记</param>
         /// <exception cref="FormatException"></exception>
         /// <exception cref="Win32Exception"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public WinDivert(string filter, WinDivertLayer layer, short priority = 0, WinDivertFlag flags = WinDivertFlag.None)
             : base(ownsHandle: true)
         {
             var compileFilter = WindivertDotnet.Filter.Compile(filter, layer);
+
+            if (Enum.IsDefined(typeof(WinDivertLayer), layer) == false)
+            {
+                throw new ArgumentOutOfRangeException(nameof(layer));
+            }
+
+            if (priority < -30000 || priority > 30000)
+            {
+                throw new ArgumentOutOfRangeException(nameof(priority), "值范围为[-30000,30000]");
+            }
+
             this.handle = WinDivertNative.WinDivertOpen(compileFilter, layer, priority, flags);
             this.boundHandleLazy = new Lazy<ThreadPoolBoundHandle>(() => ThreadPoolBoundHandle.BindHandle(this));
 
@@ -104,6 +129,8 @@ namespace WindivertDotnet
 
             this.Filter = WindivertDotnet.Filter.Format(filter, layer);
             this.Layer = layer;
+            this.Priority = priority;
+            this.Flags = flags;
             this.Version = this.GetVersion();
         }
 
