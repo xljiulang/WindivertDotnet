@@ -108,6 +108,7 @@ namespace WindivertDotnet
 
         /// <summary>
         /// 重新计算和修改相关的Checksums
+        /// 当修改数据包之后，需要重新计算
         /// </summary>
         /// <param name="addr">地址信息</param>
         /// <param name="flag"></param>
@@ -119,6 +120,7 @@ namespace WindivertDotnet
 
         /// <summary>
         /// 根据IP地址重新计算和修改addr的Network->IfIdx
+        /// 当修改源IP或目标IP(不含对调)之后需要重新计算
         /// </summary>
         /// <param name="addr">地址信息</param>
         /// <returns></returns>
@@ -137,6 +139,7 @@ namespace WindivertDotnet
 
         /// <summary>
         /// 根据IP地址和addr.Network->IfIdx重新计算和修改addr的Outbound标记
+        /// 当修改源IP或目标IP之后需要重新计算
         /// </summary>
         /// <param name="addr">地址信息</param>
         /// <returns></returns>
@@ -161,6 +164,7 @@ namespace WindivertDotnet
 
         /// <summary>
         /// 根据IP地址重新计算和修改addr的Loopback标记
+        /// 当修改源IP或目标IP(不含对调)之后需要重新计算
         /// </summary> 
         /// <param name="addr">地址信息</param> 
         /// <returns></returns>
