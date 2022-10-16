@@ -43,7 +43,8 @@ namespace WindivertDotnet
             {
                 return new ValueTask<int>(Task.FromCanceled<int>(cancellationToken));
             }
-            else if (cancellationToken != CancellationToken.None)
+
+            if (cancellationToken != CancellationToken.None)
             {
                 this.tokenRegistration = cancellationToken.Register(() => Kernel32Native.CancelIoEx(this.divert, this.nativeOverlapped));
             }
