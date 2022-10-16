@@ -5,9 +5,6 @@ namespace System.Runtime.InteropServices
 {
     static unsafe partial class WinDivertNative
     {
-        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
-        private static extern IntPtr LoadLibrary([MarshalAs(UnmanagedType.LPStr)] string lpFileName);
-
         static WinDivertNative()
         {
             if (Environment.Is64BitProcess)
@@ -49,7 +46,7 @@ namespace System.Runtime.InteropServices
 
             if (loadLibray == true)
             {
-                LoadLibrary(destFilePath);
+                Kernel32Native.LoadLibrary(destFilePath);
             }
         }
     }

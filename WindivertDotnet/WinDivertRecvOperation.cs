@@ -8,7 +8,6 @@ namespace WindivertDotnet
     [SupportedOSPlatform("windows")]
     sealed class WinDivertRecvOperation : WinDivertOperation
     {
-        private readonly WinDivert divert;
         private readonly WinDivertPacket packet;
         private readonly WinDivertAddress addr;
 
@@ -17,14 +16,13 @@ namespace WindivertDotnet
             WinDivertPacket packet,
             WinDivertAddress addr) : base(divert)
         {
-            this.divert = divert;
             this.packet = packet;
             this.addr = addr;
         }
 
-        public override async ValueTask<int> IOControlAsync()
+        public override async ValueTask<int> IOControlAsync(CancellationToken cancellationToken)
         {
-            var length = await base.IOControlAsync();
+            var length = await base.IOControlAsync(cancellationToken);
             this.packet.Length = length;
             return length;
         }

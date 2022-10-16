@@ -163,7 +163,21 @@ namespace WindivertDotnet
         /// <exception cref="Win32Exception"></exception>
         public int Recv(WinDivertPacket packet, WinDivertAddress addr)
         {
-            return this.RecvAsync(packet, addr).ConfigureAwait(false).GetAwaiter().GetResult();
+            return this.Recv(packet, addr, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// 同步阻塞读取数据包
+        /// </summary>
+        /// <param name="packet">数据包</param>
+        /// <param name="addr">地址信息</param>
+        /// <param name="cancellationToken">取消令牌</param>
+        /// <returns></returns>
+        /// <exception cref="Win32Exception"></exception>
+        /// <exception cref="TaskCanceledException"></exception>
+        public int Recv(WinDivertPacket packet, WinDivertAddress addr, CancellationToken cancellationToken)
+        {
+            return this.RecvAsync(packet, addr, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -173,10 +187,24 @@ namespace WindivertDotnet
         /// <param name="addr">地址信息</param>
         /// <returns></returns>
         /// <exception cref="Win32Exception"></exception>
-        public async ValueTask<int> RecvAsync(WinDivertPacket packet, WinDivertAddress addr)
+        public ValueTask<int> RecvAsync(WinDivertPacket packet, WinDivertAddress addr)
+        {
+            return this.RecvAsync(packet, addr, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// 异步IO读取数据包
+        /// </summary>
+        /// <param name="packet">数据包</param>
+        /// <param name="addr">地址信息</param>
+        /// <param name="cancellationToken">取消令牌</param>
+        /// <returns></returns>
+        /// <exception cref="Win32Exception"></exception>
+        /// <exception cref="TaskCanceledException"></exception>
+        public async ValueTask<int> RecvAsync(WinDivertPacket packet, WinDivertAddress addr, CancellationToken cancellationToken)
         {
             using var operation = new WinDivertRecvOperation(this, packet, addr);
-            return await operation.IOControlAsync();
+            return await operation.IOControlAsync(cancellationToken);
         }
 
         /// <summary>
@@ -188,7 +216,21 @@ namespace WindivertDotnet
         /// <exception cref="Win32Exception"></exception>
         public int Send(WinDivertPacket packet, WinDivertAddress addr)
         {
-            return this.SendAsync(packet, addr).ConfigureAwait(false).GetAwaiter().GetResult();
+            return this.Send(packet, addr, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// 同步阻塞发送数据包
+        /// </summary>
+        /// <param name="packet">数据包</param>
+        /// <param name="addr">地址信息</param>
+        /// <param name="cancellationToken">取消令牌</param>
+        /// <returns></returns>
+        /// <exception cref="Win32Exception"></exception>
+        /// <exception cref="TaskCanceledException"></exception>
+        public int Send(WinDivertPacket packet, WinDivertAddress addr, CancellationToken cancellationToken)
+        {
+            return this.SendAsync(packet, addr, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -198,10 +240,24 @@ namespace WindivertDotnet
         /// <param name="addr">地址信息</param>
         /// <returns></returns>
         /// <exception cref="Win32Exception"></exception>
-        public async ValueTask<int> SendAsync(WinDivertPacket packet, WinDivertAddress addr)
+        public ValueTask<int> SendAsync(WinDivertPacket packet, WinDivertAddress addr)
+        {
+            return this.SendAsync(packet, addr, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// 异步IO发送数据包
+        /// </summary>
+        /// <param name="packet">数据包</param>
+        /// <param name="addr">地址信息</param>
+        /// <param name="cancellationToken">取消令牌</param>
+        /// <returns></returns>
+        /// <exception cref="Win32Exception"></exception>
+        /// <exception cref="TaskCanceledException"></exception>
+        public async ValueTask<int> SendAsync(WinDivertPacket packet, WinDivertAddress addr, CancellationToken cancellationToken)
         {
             using var operation = new WinDivertSendOperation(this, packet, addr);
-            return await operation.IOControlAsync();
+            return await operation.IOControlAsync(cancellationToken);
         }
 
         /// <summary>

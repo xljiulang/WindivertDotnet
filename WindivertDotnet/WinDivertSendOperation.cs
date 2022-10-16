@@ -7,7 +7,6 @@ namespace WindivertDotnet
     [SupportedOSPlatform("windows")]
     sealed class WinDivertSendOperation : WinDivertOperation
     {
-        private readonly WinDivert divert;
         private readonly WinDivertPacket packet;
         private readonly WinDivertAddress addr;
 
@@ -16,7 +15,6 @@ namespace WindivertDotnet
             WinDivertPacket packet,
             WinDivertAddress addr) : base(divert)
         {
-            this.divert = divert;
             this.packet = packet;
             this.addr = addr;
         }
