@@ -108,7 +108,7 @@ namespace WindivertDotnet
 
         /// <summary>
         /// 重新计算和修改相关的Checksums
-        /// 当修改数据包之后，需要重新计算
+        /// 当修改数据包之后需要重新计算
         /// </summary>
         /// <param name="addr">地址信息</param>
         /// <param name="flag"></param>
@@ -128,7 +128,7 @@ namespace WindivertDotnet
         public unsafe bool CalcNetworkIfIdx(WinDivertAddress addr)
         {
             if (addr.Layer == WinDivertLayer.Network &&
-                this.TryParsePAddress(out _, out var dstAddr))
+                this.TryParseIPAddress(out _, out var dstAddr))
             {
                 addr.Network->IfIdx = IPHelpApiNative.GetInterfaceIndex(dstAddr);
                 return true;
@@ -146,7 +146,7 @@ namespace WindivertDotnet
         public unsafe bool CalcOutboundFlag(WinDivertAddress addr)
         {
             if (addr.Layer != WinDivertLayer.Network ||
-                this.TryParsePAddress(out var srcAddr, out var dstAddr) == false)
+                this.TryParseIPAddress(out var srcAddr, out var dstAddr) == false)
             {
                 return false;
             }
@@ -170,7 +170,7 @@ namespace WindivertDotnet
         /// <returns></returns>
         public bool CalcLoopbackFlag(WinDivertAddress addr)
         {
-            if (this.TryParsePAddress(out var srcAddr, out var dstAddr))
+            if (this.TryParseIPAddress(out var srcAddr, out var dstAddr))
             {
                 if (IPAddress.IsLoopback(srcAddr) && srcAddr.Equals(dstAddr))
                 {
@@ -191,7 +191,7 @@ namespace WindivertDotnet
         /// <param name="srcAddr"></param>
         /// <param name="dstAddr"></param>
         /// <returns></returns>
-        private unsafe bool TryParsePAddress(
+        private unsafe bool TryParseIPAddress(
             [MaybeNullWhen(false)] out IPAddress srcAddr,
             [MaybeNullWhen(false)] out IPAddress dstAddr)
         {
