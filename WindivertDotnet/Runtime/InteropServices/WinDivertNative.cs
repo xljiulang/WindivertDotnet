@@ -1,8 +1,10 @@
+using System.Runtime.Versioning;
 using System.Threading;
 using WindivertDotnet;
 
 namespace System.Runtime.InteropServices
 {
+    [SupportedOSPlatform("windows")]
     static unsafe partial class WinDivertNative
     {
         private const string library = "WinDivert.dll";

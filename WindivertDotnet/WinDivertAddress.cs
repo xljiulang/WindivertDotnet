@@ -1,7 +1,11 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using System;
 using System.Diagnostics;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace WindivertDotnet
 {
@@ -102,6 +106,32 @@ namespace WindivertDotnet
             this.handle = MemoryNative.AllocZeroed(Size);
         }
 
+        /// <summary>
+        /// 获取与远程地址通讯的网络接口索引
+        /// </summary>
+        /// <param name="remoteAddress">远程地址</param>
+        /// <returns></returns>
+        /// <exception cref="NetworkInformationException"></exception>
+        [SupportedOSPlatform("windows")]
+        public static int GetInterfaceIndex(IPAddress remoteAddress)
+        {
+            return IPHelpApiNative.GetInterfaceIndex(remoteAddress);
+        }
+
+        /// <summary>
+        /// 获取与远程地址通讯的本机地址
+        /// </summary>
+        /// <param name="remoteAddress">远程地址</param>
+        /// <exception cref="NotSupportedException"></exception>
+        /// <returns></returns>
+        public static IPAddress GetLocalIPAddress(IPAddress remoteAddress)
+        {
+            using var socket = new Socket(remoteAddress.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            socket.Connect(remoteAddress, 0);
+            return socket.LocalEndPoint is IPEndPoint localEndPoint
+                ? localEndPoint.Address
+                : throw new NotSupportedException();
+        }
 
         /// <summary>
         /// 释放资源

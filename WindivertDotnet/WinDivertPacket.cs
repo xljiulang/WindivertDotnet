@@ -3,12 +3,14 @@ using System;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace WindivertDotnet
 {
     /// <summary>
     /// 表示WinDivert的数据包
     /// </summary>
+    [SupportedOSPlatform("windows")]
     [DebuggerDisplay("Length = {Length}, Capacity = {Capacity}")]
     public class WinDivertPacket : SafeHandleZeroOrMinusOneIsInvalid
     {

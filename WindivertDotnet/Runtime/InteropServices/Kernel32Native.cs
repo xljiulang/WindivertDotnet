@@ -1,7 +1,9 @@
-﻿using System.Threading;
+﻿using System.Runtime.Versioning;
+using System.Threading;
 
 namespace System.Runtime.InteropServices
 {
+    [SupportedOSPlatform("windows")]
     static class Kernel32Native
     {
         private const string library = "kernel32.dll";

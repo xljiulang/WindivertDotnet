@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Text;
 
 namespace WindivertDotnet
@@ -58,6 +59,7 @@ namespace WindivertDotnet
         /// <param name="layer"></param>
         /// <exception cref="FormatException"></exception>
         /// <returns></returns>
+        [SupportedOSPlatform("windows")]
         public unsafe static string Format(string filter, WinDivertLayer layer)
         {
             var size = filter.Length + 1;
@@ -78,6 +80,7 @@ namespace WindivertDotnet
         /// <param name="filter"></param>
         /// <param name="layer"></param>
         /// <exception cref="FormatException"></exception>
+        [SupportedOSPlatform("windows")]
         public unsafe static string Compile(string filter, WinDivertLayer layer)
         {
             const int size = 1024 * 4;
@@ -511,7 +514,7 @@ namespace WindivertDotnet
             {
                 if (node.NodeType == ExpressionType.Not)
                 {
-                    builder.Append("!");
+                    builder.Append('!');
                 }
                 else
                 {
@@ -523,7 +526,7 @@ namespace WindivertDotnet
 
             private void TranslateBinary(BinaryExpression node)
             {
-                builder.Append("(");
+                builder.Append('(');
                 this.Translate(node.Left);
 
                 switch (node.NodeType)
@@ -567,7 +570,7 @@ namespace WindivertDotnet
                 }
 
                 this.Translate(node.Right);
-                builder.Append(")");
+                builder.Append(')');
             }
 
 
