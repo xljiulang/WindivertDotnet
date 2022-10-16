@@ -134,28 +134,67 @@ namespace WindivertDotnet
         }
 
         /// <summary>
-        /// 获取指定网络接口的通讯数据是否为出口方向
-        /// </summary>
-        /// <param name="interfaceIndex">网络接口索引</param>
+        /// 使用Network->IfIdx重算Outbound标记到Flags
+        /// </summary> 
         /// <param name="ipHeader">IP头</param> 
         /// <returns></returns>
         [SupportedOSPlatform("windows")]
-        public static bool IsOutboundDirection(int interfaceIndex, IIPHeader ipHeader)
+        public bool CalcOutboundFlag(IIPHeader ipHeader)
         {
-            return IsOutboundDirection(interfaceIndex, ipHeader.SrcAddr, ipHeader.DstAddr);
+            return this.CalcOutboundFlag(ipHeader.SrcAddr, ipHeader.DstAddr);
         }
 
         /// <summary>
-        /// 获取指定网络接口的通讯数据是否为出口方向
-        /// </summary>
-        /// <param name="interfaceIndex">网络接口索引</param>
+        /// 使用Network->IfIdx重算Outbound标记到Flags
+        /// </summary> 
+        /// <param name="srcAddr">源地址</param>
+        /// <param name="dstAddr">目标地址</param>
+        /// <returns>如果Layer不是Network，返回false</returns>
+        [SupportedOSPlatform("windows")]
+        public bool CalcOutboundFlag(IPAddress srcAddr, IPAddress dstAddr)
+        {
+            if (this.Layer != WinDivertLayer.Network)
+            {
+                return false;
+            }
+
+            if (IPHelpApiNative.IsOutboundDirection(this.Network->IfIdx, srcAddr, dstAddr))
+            {
+                this.Flags |= WinDivertAddressFlag.Outbound;
+            }
+            else
+            {
+                this.Flags &= ~WinDivertAddressFlag.Outbound;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 重算Loopback标记到Flags
+        /// </summary> 
+        /// <param name="ipHeader">IP头</param> 
+        /// <returns></returns>
+        public void CalcLoopbackFlag(IIPHeader ipHeader)
+        {
+            this.CalcLoopbackFlag(ipHeader.SrcAddr, ipHeader.DstAddr);
+        }
+
+        /// <summary>
+        /// 重算Loopback标记到Flags
+        /// </summary> 
         /// <param name="srcAddr">源地址</param>
         /// <param name="dstAddr">目标地址</param>
         /// <returns></returns>
-        [SupportedOSPlatform("windows")]
-        public static bool IsOutboundDirection(int interfaceIndex, IPAddress srcAddr, IPAddress dstAddr)
+        public void CalcLoopbackFlag(IPAddress srcAddr, IPAddress dstAddr)
         {
-            return IPHelpApiNative.IsOutboundDirection(interfaceIndex, srcAddr, dstAddr);
+            if (IPAddress.IsLoopback(srcAddr) && srcAddr.Equals(dstAddr))
+            {
+                this.Flags |= WinDivertAddressFlag.Loopback;
+            }
+            else
+            {
+                this.Flags &= ~WinDivertAddressFlag.Loopback;
+            }
         }
 
         /// <summary>
