@@ -93,9 +93,7 @@ namespace WindivertDotnet
         public WinDivert(string filter, WinDivertLayer layer, short priority = 0, WinDivertFlag flags = WinDivertFlag.None)
             : base(ownsHandle: true)
         {
-            var formatFitler = WindivertDotnet.Filter.Format(filter, layer);
-            var compileFilter = WindivertDotnet.Filter.Compile(formatFitler, layer);
-
+            var compileFilter = WindivertDotnet.Filter.Compile(filter, layer);
             this.handle = WinDivertNative.WinDivertOpen(compileFilter, layer, priority, flags);
             this.boundHandleLazy = new Lazy<ThreadPoolBoundHandle>(() => ThreadPoolBoundHandle.BindHandle(this));
 
@@ -104,7 +102,7 @@ namespace WindivertDotnet
                 throw new Win32Exception();
             }
 
-            this.Filter = formatFitler;
+            this.Filter = WindivertDotnet.Filter.Format(filter, layer);
             this.Layer = layer;
             this.Version = this.GetVersion();
         }

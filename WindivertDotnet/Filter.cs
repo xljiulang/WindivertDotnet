@@ -80,7 +80,7 @@ namespace WindivertDotnet
         /// <exception cref="FormatException"></exception>
         public unsafe static string Compile(string filter, WinDivertLayer layer)
         {
-            const int size = 1024;
+            const int size = 1024 * 4;
             var obj = stackalloc byte[size];
             var status = WinDivertNative.WinDivertHelperCompileFilter(filter, layer, obj, size, out var errStrPtr, out var errPos);
 
