@@ -8,9 +8,13 @@ namespace System.Runtime.InteropServices
     unsafe static class IPHelpApiNative
     {
         private const string library = "iphlpapi.dll";
+        private const int SocketAddress_SIZE = 28;
+        private const int MIB_IPFORWARD_ROW2_SIZE = 103;
 
         [DllImport(library)]
-        private extern static int GetBestInterfaceEx(byte* pDstSockAddr, out int index);
+        private extern static int GetBestInterfaceEx(
+            byte* pDstSockAddr,
+            out int index);
 
         [DllImport(library)]
         private static extern int GetBestRoute2(
@@ -30,7 +34,7 @@ namespace System.Runtime.InteropServices
         /// <exception cref="NetworkInformationException"></exception>
         public static int GetInterfaceIndex(IPAddress dstAddress)
         {
-            var sockAddr = stackalloc byte[28];
+            var sockAddr = stackalloc byte[SocketAddress_SIZE];
             FillSocketAddress(sockAddr, dstAddress);
             var errorCode = GetBestInterfaceEx(sockAddr, out int index);
             return errorCode == 0 ? index : throw new NetworkInformationException(errorCode);
@@ -45,19 +49,18 @@ namespace System.Runtime.InteropServices
         /// <returns></returns>
         public static bool IsOutboundDirection(int interfaceIndex, IPAddress srcAddr, IPAddress dstAddr)
         {
-            var srcSockAddr = stackalloc byte[28];
+            var srcSockAddr = stackalloc byte[SocketAddress_SIZE];
             FillSocketAddress(srcSockAddr, srcAddr);
 
-            var dstSockAddr = stackalloc byte[28];
+            var dstSockAddr = stackalloc byte[SocketAddress_SIZE];
             FillSocketAddress(dstSockAddr, dstAddr);
 
-            var bestRoute = stackalloc byte[103];// sizeof(MIB_IPFORWARD_ROW2)
-            var bestSrcSockAddr = stackalloc byte[28];
+            var bestRoute = stackalloc byte[MIB_IPFORWARD_ROW2_SIZE];
+            var bestSrcSockAddr = stackalloc byte[SocketAddress_SIZE];
 
             var errorCode = GetBestRoute2(default, interfaceIndex, srcSockAddr, dstSockAddr, 0, bestRoute, bestSrcSockAddr);
             return errorCode == 0;
         }
-
 
         /// <summary>
         /// 填充pSockAddr
