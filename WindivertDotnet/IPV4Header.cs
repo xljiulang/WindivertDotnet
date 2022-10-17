@@ -122,15 +122,14 @@ namespace WindivertDotnet
             {
                 fixed (void* ptr = this.srcAddr)
                 {
-                    return new(new Span<byte>(ptr, IPV4_SIZE));
+                    return GetIPAddress(ptr);
                 }
             }
             set
             {
                 fixed (void* ptr = this.srcAddr)
                 {
-                    var bytes = value.GetAddressBytes();
-                    bytes.CopyTo(new Span<byte>(ptr, IPV4_SIZE));
+                    SetIPAddress(ptr, value);
                 }
             }
         }
@@ -147,17 +146,28 @@ namespace WindivertDotnet
             {
                 fixed (void* ptr = this.dstAddr)
                 {
-                    return new(new Span<byte>(ptr, IPV4_SIZE));
+                    return GetIPAddress(ptr);
                 }
             }
             set
             {
                 fixed (void* ptr = this.dstAddr)
                 {
-                    var span = value.GetAddressBytes().AsSpan();
-                    span.CopyTo(new Span<byte>(ptr, IPV4_SIZE));
+                    SetIPAddress(ptr, value);
                 }
             }
+        }
+
+        private unsafe static IPAddress GetIPAddress(void* ptr)
+        {
+            var span = new Span<byte>(ptr, IPV4_SIZE);
+            return new(span);
+        }
+
+        private unsafe static void SetIPAddress(void* ptr, IPAddress value)
+        {
+            var span = new Span<byte>(ptr, IPV4_SIZE);
+            value.TryWriteBytes(span, out _);
         }
     }
 }

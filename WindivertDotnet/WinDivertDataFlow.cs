@@ -41,14 +41,14 @@ namespace WindivertDotnet
             get
             {
                 fixed (void* ptr = this.localAddr)
-                { 
+                {
                     return GetIPAddress(ptr);
                 }
             }
             set
             {
                 fixed (void* ptr = this.localAddr)
-                {                     
+                {
                     SetIPAddress(ptr, value);
                 }
             }
@@ -110,11 +110,12 @@ namespace WindivertDotnet
             return new(span);
         }
 
-        private static void SetIPAddress(void* ptr, IPAddress value)
+        private static void SetIPAddress(void* ptr, IPAddress addr)
         {
-            var span = value.GetAddressBytes().AsSpan();
-            span.Reverse();
-            span.CopyTo(new Span<byte>(ptr, IPV6_SIZE));
+            var span = new Span<byte>(ptr, IPV6_SIZE);
+            var value = addr.GetAddressBytes().AsSpan();
+            value.Reverse();
+            value.CopyTo(span);
         }
     }
 }
