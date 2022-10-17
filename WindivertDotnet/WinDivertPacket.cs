@@ -130,7 +130,7 @@ namespace WindivertDotnet
             if (addr.Layer == WinDivertLayer.Network &&
                 this.TryParseIPAddress(out _, out var dstAddr))
             {
-                addr.Network->IfIdx = IPHelpApiNative.GetInterfaceIndex(dstAddr);
+                addr.Network->IfIdx = WinDivertRouter.GetInterfaceIndex(dstAddr);
                 return true;
             }
 
@@ -151,7 +151,8 @@ namespace WindivertDotnet
                 return false;
             }
 
-            if (IPHelpApiNative.IsOutboundDirection(addr.Network->IfIdx, srcAddr, dstAddr))
+            var router = new WinDivertRouter(dstAddr, srcAddr, addr.Network->IfIdx);
+            if (router.IsOutbound == true)
             {
                 addr.Flags |= WinDivertAddressFlag.Outbound;
             }
