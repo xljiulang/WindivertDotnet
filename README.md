@@ -34,9 +34,9 @@
 | static Filter True { get; }                   | 获取值为true的filter      |
 | static Filter False { get; }                  | 获取值为false的filter     |
 | Filter And(Expression<Func<IFilter, bool>>)   | 使用and逻辑创建新的fitler |
-| Filter And(Filterr)                           | 使用and逻辑创建新的fitler |
+| Filter And(Filter)                           | 使用and逻辑创建新的fitler |
 | Filter Or(Expression<Func<IFilter, bool>>)    | 使用or逻辑创建新的fitler  |
-| Filter Or(Filterr)                            | 使用or逻辑创建新的fitler  |
+| Filter Or(Filter)                            | 使用or逻辑创建新的fitler  |
 
 #### 3.3 WinDivertPacket
 | Api                                                 | 描述                                                            |
