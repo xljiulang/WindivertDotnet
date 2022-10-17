@@ -41,6 +41,7 @@ namespace WindivertDotnet
         /// WinDivert路由
         /// </summary> 
         /// <param name="dstAddr">目标地址</param> 
+        /// <exception cref="ArgumentException"></exception> 
         /// <exception cref="NetworkInformationException"></exception>
         /// <exception cref="NotSupportedException"></exception>
         public WinDivertRouter(IPAddress dstAddr)
@@ -53,6 +54,7 @@ namespace WindivertDotnet
         /// </summary> 
         /// <param name="dstAddr">目标地址</param>
         /// <param name="srcAddr">源地址</param> 
+        /// <exception cref="ArgumentException"></exception> 
         /// <exception cref="NetworkInformationException"></exception>
         /// <exception cref="NotSupportedException"></exception>
         public WinDivertRouter(IPAddress dstAddr, IPAddress srcAddr)
@@ -67,6 +69,8 @@ namespace WindivertDotnet
         /// <param name="dstAddr">目标地址</param>
         /// <param name="srcAddr">源地址</param> 
         /// <param name="interfaceIndex">网络接口索引</param>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="NetworkInformationException"></exception>
         /// <exception cref="NotSupportedException"></exception>
         public WinDivertRouter(IPAddress dstAddr, IPAddress srcAddr, int interfaceIndex)
@@ -80,10 +84,25 @@ namespace WindivertDotnet
         /// <param name="dstAddr">目标地址</param>
         /// <param name="srcAddr">源地址</param>
         /// <param name="interfaceIndex">网络接口索引</param>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="NetworkInformationException"></exception>
         /// <exception cref="NotSupportedException"></exception>
         private WinDivertRouter(IPAddress dstAddr, IPAddress? srcAddr, int? interfaceIndex)
         {
+            EnsureNotAny(dstAddr, nameof(dstAddr));
+            EnsureNotAny(srcAddr, nameof(srcAddr));
+
+            if (srcAddr != null && srcAddr.AddressFamily != dstAddr.AddressFamily)
+            {
+                throw new ArgumentException($"{srcAddr}和{dstAddr}的AddressFamily不一致", nameof(srcAddr));
+            }
+
+            if (InterfaceIndex < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(interfaceIndex));
+            }
+
             byte* srcSockAddr = null;
             if (srcAddr != null)
             {
@@ -125,13 +144,34 @@ namespace WindivertDotnet
         /// </summary>
         /// <param name="dstAddr">目标地址</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         /// <exception cref="NetworkInformationException"></exception>
         public static int GetInterfaceIndex(IPAddress dstAddr)
         {
+            EnsureNotAny(dstAddr, nameof(dstAddr));
+
             var dstSockAddr = stackalloc byte[SocketAddress_SIZE];
             SetIPAddress(dstSockAddr, dstAddr);
             return GetInterfaceIndex(dstSockAddr);
         }
+
+        /// <summary>
+        /// 确保不是任意Ip
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="name"></param>
+        /// <exception cref="ArgumentException"></exception>
+        private static void EnsureNotAny(IPAddress? address, string name)
+        {
+            if (address != null)
+            {
+                if (address.Equals(IPAddress.Any) || address.Equals(IPAddress.IPv6Any))
+                {
+                    throw new ArgumentException($"值不能为{address}", name);
+                }
+            }
+        }
+
 
         /// <summary>
         /// 获取网络接口索引

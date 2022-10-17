@@ -166,6 +166,11 @@ namespace WindivertDotnet
 
         private unsafe static void SetIPAddress(void* ptr, IPAddress value)
         {
+            if (value.AddressFamily != AddressFamily.InterNetwork)
+            {
+                throw new ArgumentException($"AddressFamily要求必须为{AddressFamily.InterNetwork}", nameof(value));
+            }
+
             var span = new Span<byte>(ptr, IPV4_SIZE);
             value.TryWriteBytes(span, out _);
         }

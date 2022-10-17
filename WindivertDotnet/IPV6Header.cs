@@ -2,6 +2,7 @@
 using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Net;
+using System.Net.Sockets;
 
 namespace WindivertDotnet
 {
@@ -148,6 +149,11 @@ namespace WindivertDotnet
 
         private unsafe static void SetIPAddress(void* ptr, IPAddress value)
         {
+            if (value.AddressFamily != AddressFamily.InterNetworkV6)
+            {
+                throw new ArgumentException($"AddressFamily要求必须为{AddressFamily.InterNetworkV6}", nameof(value));
+            }
+
             var span = new Span<byte>(ptr, IPV6_SIZE);
             value.TryWriteBytes(span, out _);
         }
