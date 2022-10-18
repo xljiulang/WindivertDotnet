@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Versioning;
+using WindivertDotnet;
 
 namespace System.Runtime.InteropServices
 {
@@ -9,17 +10,17 @@ namespace System.Runtime.InteropServices
 
         [DllImport(library)]
         public extern static int GetBestInterfaceEx(
-            byte* pDstSockAddr,
+            SockAddress* pDstSockAddr,
             out int index);
 
         [DllImport(library)]
         public static extern int GetBestRoute2(
             IntPtr interfaceLuid,
             int interfaceIndex,
-            byte* sourceAddress,
-            byte* destinationAddress,
+            SockAddress* pSrcSocketAddr,
+            SockAddress* pDstSocketAddr,
             uint addressSortOptions,
-            byte* bestRoute,
-            byte* bestSourceAddress);
+            byte* pBestRoute, // 103字节
+            SockAddress* pBestSrcSocketAddr);
     }
 }

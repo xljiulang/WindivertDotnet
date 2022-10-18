@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Buffers.Binary;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
@@ -14,7 +12,6 @@ namespace WindivertDotnet
     [SupportedOSPlatform("windows")]
     public unsafe class WinDivertRouter
     {
-        private const int SocketAddress_SIZE = 28;
         private const int MIB_IPFORWARD_ROW2_SIZE = 103;
 
         /// <summary>
@@ -110,37 +107,34 @@ namespace WindivertDotnet
                 throw new ArgumentOutOfRangeException(nameof(interfaceIndex));
             }
 
-            byte* srcSockAddr = null;
+            SockAddress* pSrcSockAddr = null;
             if (srcAddr != null)
             {
-                var sockAddr = stackalloc byte[SocketAddress_SIZE];
-                SetIPAddress(sockAddr, srcAddr);
-                srcSockAddr = sockAddr;
+                var sockAddr = new SockAddress { IPAddress = srcAddr };
+                pSrcSockAddr = &sockAddr;
             }
 
-            var dstSockAddr = stackalloc byte[SocketAddress_SIZE];
-            SetIPAddress(dstSockAddr, dstAddr);
+            var dstSockAddr = new SockAddress { IPAddress = dstAddr };
+            interfaceIndex ??= GetInterfaceIndex(&dstSockAddr);
 
-            interfaceIndex ??= GetInterfaceIndex(dstSockAddr);
-
-            var bestRoute = stackalloc byte[MIB_IPFORWARD_ROW2_SIZE];
-            var bestSrcSockAddr = stackalloc byte[SocketAddress_SIZE];
+            var pBestRoute = stackalloc byte[MIB_IPFORWARD_ROW2_SIZE];
+            var bestSrcSockAddr = new SockAddress();
 
             var errorCode = IPHelpApiNative.GetBestRoute2(
                 IntPtr.Zero,
                 interfaceIndex.Value,
-                srcSockAddr,
-                dstSockAddr,
+                pSrcSockAddr,
+                &dstSockAddr,
                 0,
-                bestRoute,
-                bestSrcSockAddr);
+                pBestRoute,
+                &bestSrcSockAddr);
 
             if (errorCode != 0 && srcAddr == null)
             {
                 throw new NotSupportedException($"无法在网络接口索引{interfaceIndex}获取SrcAddress");
             }
 
-            this.SrcAddress = srcAddr ?? GetIPAddress(bestSrcSockAddr);
+            this.SrcAddress = srcAddr ?? bestSrcSockAddr.IPAddress;
             this.DstAddress = dstAddr;
             this.InterfaceIndex = interfaceIndex.Value;
             this.IsOutbound = errorCode == 0;
@@ -160,9 +154,8 @@ namespace WindivertDotnet
                 throw new ArgumentException($"值不能为{dstAddr}", nameof(dstAddr));
             }
 
-            var dstSockAddr = stackalloc byte[SocketAddress_SIZE];
-            SetIPAddress(dstSockAddr, dstAddr);
-            return GetInterfaceIndex(dstSockAddr);
+            var dstSockAddr = new SockAddress { IPAddress = dstAddr };
+            return GetInterfaceIndex(&dstSockAddr);
         }
 
 
@@ -179,58 +172,13 @@ namespace WindivertDotnet
         /// <summary>
         /// 获取网络接口索引
         /// </summary>
-        /// <param name="dstSockAddr"></param>
+        /// <param name="pDstSockAddr"></param>
         /// <returns></returns>
         /// <exception cref="NetworkInformationException"></exception>
-        private static int GetInterfaceIndex(byte* dstSockAddr)
+        private static int GetInterfaceIndex(SockAddress* pDstSockAddr)
         {
-            var errorCode = IPHelpApiNative.GetBestInterfaceEx(dstSockAddr, out var ifIdx);
+            var errorCode = IPHelpApiNative.GetBestInterfaceEx(pDstSockAddr, out var ifIdx);
             return errorCode == 0 ? ifIdx : throw new NetworkInformationException(errorCode);
-        }
-
-        /// <summary>
-        /// 填充IP到pSockAddr
-        /// </summary>
-        /// <param name="pSockAddr"></param>
-        /// <param name="addr"></param>
-        private static void SetIPAddress(byte* pSockAddr, IPAddress addr)
-        {
-            var span = new Span<byte>(pSockAddr, SocketAddress_SIZE);
-            BinaryPrimitives.WriteUInt16LittleEndian(span, (ushort)addr.AddressFamily);
-
-            if (addr.AddressFamily == AddressFamily.InterNetworkV6)
-            {
-                addr.TryWriteBytes(span[8..], out _);
-                BinaryPrimitives.WriteUInt32LittleEndian(span[24..], (uint)addr.ScopeId);
-            }
-            else
-            {
-                addr.TryWriteBytes(span[4..], out _);
-            }
-        }
-
-        /// <summary>
-        /// 从pSockAddr获取IP地址
-        /// </summary>
-        /// <param name="pSockAddr"></param>
-        /// <returns></returns>
-        /// <exception cref="NotSupportedException"></exception>
-        private static IPAddress GetIPAddress(byte* pSockAddr)
-        {
-            var span = new Span<byte>(pSockAddr, SocketAddress_SIZE);
-            var addressFamily = (AddressFamily)BinaryPrimitives.ReadInt16LittleEndian(span);
-            if (addressFamily == AddressFamily.InterNetwork)
-            {
-                var address = span.Slice(4, 4);
-                return new IPAddress(address);
-            }
-            else if (addressFamily == AddressFamily.InterNetworkV6)
-            {
-                var address = span.Slice(8, 16);
-                var scope = BinaryPrimitives.ReadUInt32LittleEndian(span[24..]);
-                return new IPAddress(address, scope);
-            }
-            throw new NotSupportedException($"不支持AddressFamily: {addressFamily}");
         }
     }
 }
