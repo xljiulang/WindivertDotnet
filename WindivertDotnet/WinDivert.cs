@@ -240,7 +240,7 @@ namespace WindivertDotnet
         /// <param name="packet">数据包</param>
         /// <param name="addr">地址信息</param>
         /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="Win32Exception"></exception>
         public int Send(WinDivertPacket packet, WinDivertAddress addr)
         {
@@ -254,7 +254,7 @@ namespace WindivertDotnet
         /// <param name="addr">地址信息</param>
         /// <param name="cancellationToken">取消令牌</param>
         /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="Win32Exception"></exception>
         /// <exception cref="TaskCanceledException"></exception>
         public int Send(WinDivertPacket packet, WinDivertAddress addr, CancellationToken cancellationToken)
@@ -268,7 +268,7 @@ namespace WindivertDotnet
         /// <param name="packet">数据包</param>
         /// <param name="addr">地址信息</param>
         /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="Win32Exception"></exception>
         public ValueTask<int> SendAsync(WinDivertPacket packet, WinDivertAddress addr)
         {
@@ -282,14 +282,14 @@ namespace WindivertDotnet
         /// <param name="addr">地址信息</param>
         /// <param name="cancellationToken">取消令牌</param>
         /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="Win32Exception"></exception>
         /// <exception cref="TaskCanceledException"></exception>
         public async ValueTask<int> SendAsync(WinDivertPacket packet, WinDivertAddress addr, CancellationToken cancellationToken)
         {
-            if (addr.Layer != WinDivertLayer.Network)
+            if (packet.Length == 0)
             {
-                throw new ArgumentException("addr.Layer必须为Network", nameof(addr));
+                throw new ArgumentOutOfRangeException(nameof(packet), $"{nameof(WinDivertPacket.Length)}不能为0");
             }
 
             using var operation = new WinDivertSendOperation(this, packet, addr);

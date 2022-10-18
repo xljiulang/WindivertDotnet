@@ -1,8 +1,11 @@
-﻿namespace WindivertDotnet
+﻿using System;
+
+namespace WindivertDotnet
 {
     /// <summary>
     /// WinDivert方式标志
     /// </summary>
+    [Flags]
     public enum WinDivertFlag : ulong
     {
         ///<summary>
