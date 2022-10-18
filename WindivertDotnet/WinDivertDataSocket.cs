@@ -116,9 +116,8 @@ namespace WindivertDotnet
         private static void SetIPAddress(void* ptr, IPAddress addr)
         {
             var span = new Span<byte>(ptr, IPV6_SIZE);
-            var value = addr.GetAddressBytes().AsSpan();
-            value.Reverse();
-            value.CopyTo(span);
+            addr.TryWriteBytes(span, out _);
+            span.Reverse();
         }
 
         private class IPv6Address : IPAddress
