@@ -14,6 +14,12 @@ namespace WindivertDotnet
         long Timestamp { get; }
 
         /// <summary>
+        /// 事件
+        /// </summary>
+        [FilterMember("event")]
+        Event Event { get; }
+
+        /// <summary>
         /// 传入/传出本地计算机的网络数据包
         /// </summary>
         INetwork Network { get; }
@@ -110,7 +116,7 @@ namespace WindivertDotnet
         /// icmpV6属性集
         /// </summary>
         [FilterMember("icmpv6")]
-        public IICmp IcmpV6 { get; }
+        public IICmp IcmpV6 { get; } 
 
 
         /// <summary>
@@ -641,7 +647,7 @@ namespace WindivertDotnet
         /// <summary>
         /// Filter成员特性
         /// </summary>
-        [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+        [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
         public sealed class FilterMemberAttribute : Attribute
         {
             /// <summary>

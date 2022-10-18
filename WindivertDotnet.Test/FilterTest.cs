@@ -77,6 +77,7 @@ namespace WindivertDotnet.Test
         public void NetworkTest()
         {
             var filter = Filter.False
+                .Or(f => f.Event == Event.PACKET)
                 .Or(f => f.Network.Fragment)
                 .Or(f => f.Network.Inbound)
                 .Or(f => f.Network.Length > 0)
