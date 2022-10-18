@@ -10,7 +10,7 @@ namespace WindivertDotnet
     /// 表示WinDivert路由
     /// </summary>
     [SupportedOSPlatform("windows")]
-    public unsafe class WinDivertRouter
+    public class WinDivertRouter
     {
         private const int MIB_IPFORWARD_ROW2_SIZE = 103;
 
@@ -85,7 +85,7 @@ namespace WindivertDotnet
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="NetworkInformationException"></exception>
         /// <exception cref="NotSupportedException"></exception>
-        private WinDivertRouter(IPAddress dstAddr, IPAddress? srcAddr, int? interfaceIndex)
+        private unsafe WinDivertRouter(IPAddress dstAddr, IPAddress? srcAddr, int? interfaceIndex)
         {
             if (IsIPAddressAny(dstAddr))
             {
@@ -115,7 +115,7 @@ namespace WindivertDotnet
             }
 
             var dstSockAddr = new SockAddress { IPAddress = dstAddr };
-            interfaceIndex ??= GetInterfaceIndex(&dstSockAddr);
+            interfaceIndex ??= GetInterfaceIndex(ref dstSockAddr);
 
             var pBestRoute = stackalloc byte[MIB_IPFORWARD_ROW2_SIZE];
             var bestSrcSockAddr = new SockAddress();
@@ -124,10 +124,10 @@ namespace WindivertDotnet
                 IntPtr.Zero,
                 interfaceIndex.Value,
                 pSrcSockAddr,
-                &dstSockAddr,
-                0,
+                ref dstSockAddr,
+                0U,
                 pBestRoute,
-                &bestSrcSockAddr);
+                ref bestSrcSockAddr);
 
             if (errorCode != 0 && srcAddr == null)
             {
@@ -155,7 +155,7 @@ namespace WindivertDotnet
             }
 
             var dstSockAddr = new SockAddress { IPAddress = dstAddr };
-            return GetInterfaceIndex(&dstSockAddr);
+            return GetInterfaceIndex(ref dstSockAddr);
         }
 
 
@@ -172,12 +172,12 @@ namespace WindivertDotnet
         /// <summary>
         /// 获取网络接口索引
         /// </summary>
-        /// <param name="pDstSockAddr"></param>
+        /// <param name="dstSockAddr"></param>
         /// <returns></returns>
         /// <exception cref="NetworkInformationException"></exception>
-        private static int GetInterfaceIndex(SockAddress* pDstSockAddr)
+        private static int GetInterfaceIndex(ref SockAddress dstSockAddr)
         {
-            var errorCode = IPHelpApiNative.GetBestInterfaceEx(pDstSockAddr, out var ifIdx);
+            var errorCode = IPHelpApiNative.GetBestInterfaceEx(ref dstSockAddr, out var ifIdx);
             return errorCode == 0 ? ifIdx : throw new NetworkInformationException(errorCode);
         }
     }

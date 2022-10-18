@@ -10,7 +10,7 @@ namespace System.Runtime.InteropServices
 
         [DllImport(library)]
         public extern static int GetBestInterfaceEx(
-            SockAddress* pDstSockAddr,
+            ref SockAddress dstSockAddr,
             out int index);
 
         [DllImport(library)]
@@ -18,9 +18,9 @@ namespace System.Runtime.InteropServices
             IntPtr interfaceLuid,
             int interfaceIndex,
             SockAddress* pSrcSocketAddr,
-            SockAddress* pDstSocketAddr,
+            ref SockAddress dstSocketAddr,
             uint addressSortOptions,
             byte* pBestRoute, // 103字节
-            SockAddress* pBestSrcSocketAddr);
+            ref SockAddress bestSrcSocketAddr);
     }
 }
