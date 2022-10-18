@@ -94,7 +94,11 @@ namespace WindivertDotnet
             }
             else
             {
-                var message = $"{Marshal.PtrToStringAnsi(errStrPtr)} at position {errPos}";
+                var message = Marshal.PtrToStringAnsi(errStrPtr);
+                if (errPos < filter.Length)
+                {
+                    message = $"{message}: {filter[errPos..]}";
+                }
                 throw new FormatException(message);
             }
         }
