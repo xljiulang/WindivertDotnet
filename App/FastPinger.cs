@@ -19,7 +19,8 @@ namespace App
 
         public FastPinger()
         {
-            var filter = Filter.True.And(f => f.IsIcmp);
+            // 只接受进入系统的icmp
+            var filter = Filter.True.And(f => f.IsIcmp && f.Network.Inbound);
             this.divert = new WinDivert(filter, WinDivertLayer.Network);
         }
 
@@ -105,6 +106,9 @@ namespace App
                 {
                     replyHashSet.Add(replyAddr);
                 }
+
+                // 把packet发出，避免系统其它软件此刻也有ping而收不到回复
+                await this.divert.SendAsync(packet, addr, cancellationToken);
             }
         }
 
