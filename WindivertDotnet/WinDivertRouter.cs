@@ -95,14 +95,14 @@ namespace WindivertDotnet
                 throw new ArgumentException($"值不能为{dstAddr}", nameof(dstAddr));
             }
 
-            if (IsIPAddressAny(srcAddr)) // any -> null
-            {
-                srcAddr = null;
-            }
-
             if (srcAddr != null && srcAddr.AddressFamily != dstAddr.AddressFamily)
             {
                 throw new ArgumentException($"{srcAddr}和{dstAddr}的AddressFamily不一致", nameof(srcAddr));
+            }
+
+            if (IsIPAddressAny(srcAddr)) // any -> null
+            {
+                srcAddr = null;
             }
 
             if (InterfaceIndex < 0)
