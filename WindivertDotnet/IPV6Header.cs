@@ -144,7 +144,7 @@ namespace WindivertDotnet
         private unsafe static IPAddress GetIPAddress(void* ptr)
         {
             var span = new Span<byte>(ptr, IPV6_SIZE);
-            return new(span);
+            return new IPv6Address(span);
         }
 
         private unsafe static void SetIPAddress(void* ptr, IPAddress value)
@@ -156,6 +156,18 @@ namespace WindivertDotnet
 
             var span = new Span<byte>(ptr, IPV6_SIZE);
             value.TryWriteBytes(span, out _);
+        }
+
+        private class IPv6Address : IPAddress
+        {
+            public IPv6Address(ReadOnlySpan<byte> span)
+                : base(span)
+            {
+            }
+            public override string ToString()
+            {
+                return base.ToString();
+            }
         }
     }
 }

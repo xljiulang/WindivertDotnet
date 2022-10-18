@@ -107,8 +107,10 @@ namespace WindivertDotnet
         private static IPAddress GetIPAddress(void* ptr)
         {
             var span = new Span<byte>(ptr, IPV6_SIZE);
-            span.Reverse();
-            return new(span);
+            Span<byte> value = stackalloc byte[IPV6_SIZE];
+            span.CopyTo(value);
+            value.Reverse();
+            return new IPv6Address(value);
         }
 
         private static void SetIPAddress(void* ptr, IPAddress addr)
@@ -117,6 +119,18 @@ namespace WindivertDotnet
             var value = addr.GetAddressBytes().AsSpan();
             value.Reverse();
             value.CopyTo(span);
+        }
+
+        private class IPv6Address : IPAddress
+        {
+            public IPv6Address(ReadOnlySpan<byte> value)
+                : base(value)
+            {
+            }
+            public override string ToString()
+            {
+                return base.ToString();
+            }
         }
     }
 }
