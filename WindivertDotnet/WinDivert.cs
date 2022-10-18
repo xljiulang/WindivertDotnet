@@ -152,6 +152,7 @@ namespace WindivertDotnet
                         flags = WinDivertFlag.RecvOnly;
                         break;
 
+                    case WinDivertLayer.Flow:
                     case WinDivertLayer.Reflect:
                     case WinDivertLayer.Forward:
                         flags = WinDivertFlag.Sniff | WinDivertFlag.RecvOnly;
@@ -239,6 +240,7 @@ namespace WindivertDotnet
         /// <param name="packet">数据包</param>
         /// <param name="addr">地址信息</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         /// <exception cref="Win32Exception"></exception>
         public int Send(WinDivertPacket packet, WinDivertAddress addr)
         {
@@ -252,6 +254,7 @@ namespace WindivertDotnet
         /// <param name="addr">地址信息</param>
         /// <param name="cancellationToken">取消令牌</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         /// <exception cref="Win32Exception"></exception>
         /// <exception cref="TaskCanceledException"></exception>
         public int Send(WinDivertPacket packet, WinDivertAddress addr, CancellationToken cancellationToken)
@@ -265,6 +268,7 @@ namespace WindivertDotnet
         /// <param name="packet">数据包</param>
         /// <param name="addr">地址信息</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         /// <exception cref="Win32Exception"></exception>
         public ValueTask<int> SendAsync(WinDivertPacket packet, WinDivertAddress addr)
         {
@@ -278,10 +282,16 @@ namespace WindivertDotnet
         /// <param name="addr">地址信息</param>
         /// <param name="cancellationToken">取消令牌</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         /// <exception cref="Win32Exception"></exception>
         /// <exception cref="TaskCanceledException"></exception>
         public async ValueTask<int> SendAsync(WinDivertPacket packet, WinDivertAddress addr, CancellationToken cancellationToken)
         {
+            if (addr.Layer != WinDivertLayer.Network)
+            {
+                throw new ArgumentException("addr.Layer必须为Network", nameof(addr));
+            }
+
             using var operation = new WinDivertSendOperation(this, packet, addr);
             return await operation.IOControlAsync(cancellationToken);
         }
