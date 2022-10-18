@@ -90,8 +90,15 @@ namespace WindivertDotnet
         /// <exception cref="NotSupportedException"></exception>
         private WinDivertRouter(IPAddress dstAddr, IPAddress? srcAddr, int? interfaceIndex)
         {
-            EnsureNotAny(dstAddr, nameof(dstAddr));
-            EnsureNotAny(srcAddr, nameof(srcAddr));
+            if (IsIPAddressAny(dstAddr))
+            {
+                throw new ArgumentException($"值不能为{dstAddr}", nameof(dstAddr));
+            }
+
+            if (IsIPAddressAny(srcAddr)) // any -> null
+            {
+                srcAddr = null;
+            }
 
             if (srcAddr != null && srcAddr.AddressFamily != dstAddr.AddressFamily)
             {
@@ -148,30 +155,26 @@ namespace WindivertDotnet
         /// <exception cref="NetworkInformationException"></exception>
         public static int GetInterfaceIndex(IPAddress dstAddr)
         {
-            EnsureNotAny(dstAddr, nameof(dstAddr));
+            if (IsIPAddressAny(dstAddr))
+            {
+                throw new ArgumentException($"值不能为{dstAddr}", nameof(dstAddr));
+            }
 
             var dstSockAddr = stackalloc byte[SocketAddress_SIZE];
             SetIPAddress(dstSockAddr, dstAddr);
             return GetInterfaceIndex(dstSockAddr);
         }
 
+
         /// <summary>
-        /// 确保不是任意Ip
+        /// 是否为any的ip
         /// </summary>
         /// <param name="address"></param>
-        /// <param name="name"></param>
-        /// <exception cref="ArgumentException"></exception>
-        private static void EnsureNotAny(IPAddress? address, string name)
+        /// <returns></returns>
+        private static bool IsIPAddressAny(IPAddress? address)
         {
-            if (address != null)
-            {
-                if (address.Equals(IPAddress.Any) || address.Equals(IPAddress.IPv6Any))
-                {
-                    throw new ArgumentException($"值不能为{address}", name);
-                }
-            }
+            return address != null && (address.Equals(IPAddress.Any) || address.Equals(IPAddress.IPv6Any));
         }
-
 
         /// <summary>
         /// 获取网络接口索引
