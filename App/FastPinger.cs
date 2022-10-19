@@ -184,13 +184,13 @@ namespace App
                 SequenceNumber = this.sequenceNumber++,
             };
 
-            // 复制数据到packet缓冲区
+            // 将数据写到packet缓冲区
             var packet = new WinDivertPacket(ipHeader.Length);
-            var ptr = (byte*)packet.DangerousGetHandle().ToPointer();
-            *(IPV4Header*)ptr = ipHeader;
-            *(IcmpV4Header*)(ptr + sizeof(IPV4Header)) = icmpHeader;
 
-            packet.Length = ipHeader.Length;
+            var writer = packet.GetWriter();
+            writer.Write(ipHeader);
+            writer.Write(icmpHeader);
+
             return packet;
         }
 

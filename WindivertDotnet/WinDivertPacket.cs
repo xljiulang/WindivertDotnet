@@ -85,6 +85,17 @@ namespace WindivertDotnet
         }
 
         /// <summary>
+        /// 获取缓冲区的Writer对象
+        /// 该对象在写入数据后自动影响Length属性
+        /// </summary>
+        /// <param name="offset">偏移量</param>
+        /// <returns></returns>
+        public WindivertBufferWriter GetWriter(int offset = 0)
+        {
+            return new WindivertBufferWriter(this, offset);
+        }
+
+        /// <summary>
         /// 获取缓冲区的Span
         /// </summary>
         /// <param name="offset">偏移量</param>
