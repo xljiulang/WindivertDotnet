@@ -31,12 +31,13 @@ namespace WindivertDotnet
         public unsafe void WriteReverse<TValue>(TValue value) where TValue : unmanaged
         {
             var valueSpan = new Span<byte>(&value, sizeof(TValue));
-            Span<byte> reverseSpan = stackalloc byte[valueSpan.Length];
+            var span = this.GetSpan(valueSpan.Length);
 
-            valueSpan.CopyTo(reverseSpan);
-            reverseSpan.Reverse();
+            // 先写入后翻转，减少必要的分配
+            valueSpan.CopyTo(span);
+            span[..valueSpan.Length].Reverse();
 
-            this.Write(reverseSpan);
+            this.Advance(valueSpan.Length);
         }
 
         /// <summary>
