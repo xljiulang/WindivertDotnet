@@ -15,13 +15,13 @@ namespace WindivertDotnet
         /// 获取或设置类型
         /// </summary>
         [FieldOffset(0)]
-        public byte Type;
+        public IcmpV6MessageType Type;
 
         /// <summary>
         /// 获取或设置代码
         /// </summary>
         [FieldOffset(1)]
-        public byte Code;
+        public IcmpV6UnreachableCode Code;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         [FieldOffset(2)]

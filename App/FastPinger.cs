@@ -63,53 +63,51 @@ namespace App
         /// <returns></returns>
         public async Task<IPAddress[]> PingAllAsync(IEnumerable<IPAddress> dstAddrs, TimeSpan delay)
         {
-            var hashSet = new HashSet<IPAddress>();
-            using var cts = new CancellationTokenSource();
-
             // 开始监听ping的回复
-            var recvTask = this.RecvReplyAsync(hashSet, cts.Token);
+            using var cts = new CancellationTokenSource();
+            var recvTask = this.RecvEchoReplyAsync(cts.Token);
 
             // 对所有ip发ping
-            await this.SendEchoAsync(dstAddrs);
+            await this.SendEchoRequestAsync(dstAddrs);
 
-            // 取消监听
+            // 延时取消监听
             cts.CancelAfter(delay);
-
-            try
-            {
-                await recvTask;
-            }
-            catch (OperationCanceledException)
-            {
-            }
+            var results = await recvTask;
 
             // 清洗数据
-            return hashSet.Intersect(dstAddrs).ToArray();
+            return results.Intersect(dstAddrs).ToArray();
         }
 
 
         /// <summary>
         /// 监听ping的回复
         /// </summary>
-        /// <param name="replyHashSet">回复的IP列表</param>
         /// <param name="cancellationToken">取消令牌</param>
         /// <returns></returns>
-        private async Task RecvReplyAsync(HashSet<IPAddress> replyHashSet, CancellationToken cancellationToken)
+        private async Task<HashSet<IPAddress>> RecvEchoReplyAsync(CancellationToken cancellationToken)
         {
+            var results = new HashSet<IPAddress>();
             using var packet = new WinDivertPacket();
             using var addr = new WinDivertAddress();
 
             while (cancellationToken.IsCancellationRequested == false)
             {
-                await this.divert.RecvAsync(packet, addr, cancellationToken);
-                if (TryGetReply(packet, out var replyAddr))
+                try
                 {
-                    replyHashSet.Add(replyAddr);
+                    await this.divert.RecvAsync(packet, addr, cancellationToken);
+                    if (TryGetEchoReplyAddr(packet, out var value))
+                    {
+                        results.Add(value);
+                    }
+                    // 把packet发出，避免系统其它软件此刻也有ping而收不到回复
+                    await this.divert.SendAsync(packet, addr, cancellationToken);
                 }
-
-                // 把packet发出，避免系统其它软件此刻也有ping而收不到回复
-                await this.divert.SendAsync(packet, addr, cancellationToken);
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
             }
+            return results;
         }
 
 
@@ -117,27 +115,28 @@ namespace App
         /// 解析出icmp回复信息
         /// </summary>
         /// <param name="packet">数据包</param>
-        /// <param name="srcAddr">回复的IP</param>
+        /// <param name="value">回复的IP</param>
         /// <returns></returns>
-        private unsafe static bool TryGetReply(WinDivertPacket packet, [MaybeNullWhen(false)] out IPAddress srcAddr)
+        private unsafe static bool TryGetEchoReplyAddr(WinDivertPacket packet, [MaybeNullWhen(false)] out IPAddress value)
         {
             var result = packet.GetParseResult();
-            if (result.IcmpV4Header != null && result.IcmpV4Header->Code == 0) // 0是icmp的回复
+            if (result.IcmpV4Header != null &&
+                result.IcmpV4Header->Type == IcmpV4MessageType.EchoReply)
             {
-                srcAddr = result.IPV4Header->SrcAddr;
+                value = result.IPV4Header->SrcAddr;
                 return true;
             }
 
-            srcAddr = null;
+            value = null;
             return false;
         }
 
         /// <summary>
-        /// 发送icmp的echo命令
+        /// 发送icmp的echo请求包
         /// </summary>
         /// <param name="dstAddrs"></param>
         /// <returns></returns>
-        private async Task SendEchoAsync(IEnumerable<IPAddress> dstAddrs)
+        private async Task SendEchoRequestAsync(IEnumerable<IPAddress> dstAddrs)
         {
             foreach (var address in dstAddrs)
             {
@@ -171,17 +170,17 @@ namespace App
                 SrcAddr = router.SrcAddress,
                 Protocol = ProtocolType.Icmp,
                 HdrLength = (byte)(sizeof(IPV4Header) / 4),
-                Id = this.id++,
+                Id = ++this.id,
                 Length = (ushort)(sizeof(IPV4Header) + sizeof(IcmpV4Header))
             };
 
             // icmp头
             var icmpHeader = new IcmpV4Header
             {
-                Type = 8, // echo
-                Code = 0,
+                Type = IcmpV4MessageType.EchoRequest,
+                Code = default,
                 Identifier = ipHeader.Id,
-                SequenceNumber = this.sequenceNumber++,
+                SequenceNumber = ++this.sequenceNumber,
             };
 
             // 将数据写到packet缓冲区
