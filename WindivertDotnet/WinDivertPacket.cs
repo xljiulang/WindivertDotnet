@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
@@ -81,17 +82,6 @@ namespace WindivertDotnet
         public void Clear()
         {
             this.Span.Clear();
-        }
-
-        /// <summary>
-        /// 获取缓冲区的Writer对象
-        /// 该对象在写入数据后自动影响Length属性
-        /// </summary>
-        /// <param name="offset">偏移量</param>
-        /// <returns></returns>
-        public WindivertBufferWriter GetWriter(int offset = 0)
-        {
-            return new WindivertBufferWriter(this, offset);
         }
 
         /// <summary>
@@ -211,10 +201,12 @@ namespace WindivertDotnet
         {
             if (this.length > 1)
             {
-                var version = this.Span[0] >> 4;
+                var ptr = this.handle.ToPointer();
+                var version = Unsafe.Read<byte>(ptr) >> 4;
+
                 if (version == 4 && this.length >= sizeof(IPV4Header))
                 {
-                    var header = (IPV4Header*)this.handle.ToPointer();
+                    var header = (IPV4Header*)ptr;
                     srcAddr = header->SrcAddr;
                     dstAddr = header->DstAddr;
                     return true;
@@ -222,7 +214,7 @@ namespace WindivertDotnet
 
                 if (version == 6 && this.length >= sizeof(IPV6Header))
                 {
-                    var header = (IPV6Header*)this.handle.ToPointer();
+                    var header = (IPV6Header*)ptr;
                     srcAddr = header->SrcAddr;
                     dstAddr = header->DstAddr;
                     return true;
@@ -231,6 +223,34 @@ namespace WindivertDotnet
 
             srcAddr = default;
             dstAddr = default;
+            return false;
+        }
+
+        /// <summary>
+        /// 将属性Length值应用到IPHeader
+        /// 当包的负载数据长度变化后使用此方法很方便
+        /// </summary>
+        /// <returns></returns>
+        public unsafe bool ApplyLengthToIPHeader()
+        {
+            if (this.length > 1)
+            {
+                var ptr = this.handle.ToPointer();
+                var version = Unsafe.Read<byte>(ptr) >> 4;
+
+                if (version == 4 && this.length >= sizeof(IPV4Header))
+                {
+                    ((IPV4Header*)ptr)->Length = (ushort)this.length;
+                    return true;
+                }
+
+                if (version == 6 && this.length >= sizeof(IPV6Header))
+                {
+                    ((IPV6Header*)ptr)->Length = (ushort)(this.length - sizeof(IPV6Header));
+                    return true;
+                }
+            }
+
             return false;
         }
 
@@ -263,6 +283,17 @@ namespace WindivertDotnet
         public int GetHashCode(long seed)
         {
             return WinDivertNative.WinDivertHelperHashPacket(this, this.length, seed);
+        }
+
+        /// <summary>
+        /// 获取缓冲区的Writer对象
+        /// 该对象在写入数据后自动影响Length属性
+        /// </summary>
+        /// <param name="offset">偏移量</param>
+        /// <returns></returns>
+        public WindivertBufferWriter GetWriter(int offset = 0)
+        {
+            return new WindivertBufferWriter(this, offset);
         }
 
         /// <summary>
