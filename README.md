@@ -49,6 +49,7 @@
 | Span<byte> Span { get; }                            | 获取有效数据视图                                                | 无                           |
 | void Clear()                                        | 将有效数据清0                                                   | 无                           |
 | Span<byte> GetSpan(int, int)                        | 获取缓冲区的Span                                                | 无                           |
+| WindivertBufferWriter GetWriter(int)                | 获取缓冲区的Writer对象                                          | 无                           |
 | bool CalcChecksums(WinDivertAddress, ChecksumsFlag) | 重新计算和修改相关的Checksums                                   | WinDivertHelperCalcChecksums |
 | bool CalcNetworkIfIdx(WinDivertAddress )            | 根据IP地址重新计算和修改addr的Network->IfIdx                    | 无                           |
 | bool CalcOutboundFlag(WinDivertAddress)             | 根据IP地址和addr.Network->IfIdx重新计算和修改addr的Outbound标记 | 无                           |
