@@ -35,6 +35,11 @@ namespace WindivertDotnet
         public bool IsOutbound { get; }
 
         /// <summary>
+        /// 获取是否为回环
+        /// </summary>
+        public bool IsLoopback { get; }
+
+        /// <summary>
         /// WinDivert路由
         /// </summary> 
         /// <param name="dstAddr">目标地址</param> 
@@ -138,26 +143,8 @@ namespace WindivertDotnet
             this.DstAddress = dstAddr;
             this.InterfaceIndex = interfaceIndex.Value;
             this.IsOutbound = errorCode == 0;
+            this.IsLoopback = IPAddress.IsLoopback(dstAddr) && dstAddr.Equals(this.SrcAddress);
         }
-
-        /// <summary>
-        /// 获取网络接口索引
-        /// </summary>
-        /// <param name="dstAddr">目标地址</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="NetworkInformationException"></exception>
-        public static int GetInterfaceIndex(IPAddress dstAddr)
-        {
-            if (IsIPAddressAny(dstAddr))
-            {
-                throw new ArgumentException($"值不能为{dstAddr}", nameof(dstAddr));
-            }
-
-            var dstSockAddr = new SockAddress { IPAddress = dstAddr };
-            return GetInterfaceIndex(ref dstSockAddr);
-        }
-
 
         /// <summary>
         /// 是否为any的ip
@@ -182,25 +169,60 @@ namespace WindivertDotnet
         }
 
         /// <summary>
+        /// 获取网络接口索引
+        /// </summary>
+        /// <param name="dstAddr">目标地址</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="NetworkInformationException"></exception>
+        public static int GetInterfaceIndex(IPAddress dstAddr)
+        {
+            if (IsIPAddressAny(dstAddr))
+            {
+                throw new ArgumentException($"值不能为{dstAddr}", nameof(dstAddr));
+            }
+
+            var dstSockAddr = new SockAddress { IPAddress = dstAddr };
+            return GetInterfaceIndex(ref dstSockAddr);
+        }
+
+        /// <summary>
         /// 使用路由信息创建WinDivertAddress对象
         /// </summary>
         /// <returns></returns>
-        public unsafe WinDivertAddress CreateAddress()
+        public WinDivertAddress CreateAddress()
         {
             var addr = new WinDivertAddress();
+            this.ApplyToAddress(addr);
+            return addr;
+        }
+
+        /// <summary>
+        /// 应用路由信息到指定的WinDivertAddress
+        /// 将更改Network->IfIdx、Flags.Outbound和Flags.Loopback
+        /// </summary>
+        /// <param name="addr"></param>
+        public unsafe void ApplyToAddress(WinDivertAddress addr)
+        {
             addr.Network->IfIdx = this.InterfaceIndex;
 
-            if (this.IsOutbound == true)
+            if (this.IsOutbound)
             {
                 addr.Flags |= WinDivertAddressFlag.Outbound;
             }
+            else
+            {
+                addr.Flags &= ~WinDivertAddressFlag.Outbound;
+            }
 
-            if (IPAddress.IsLoopback(this.SrcAddress) && this.SrcAddress.Equals(this.DstAddress))
+            if (this.IsLoopback)
             {
                 addr.Flags |= WinDivertAddressFlag.Loopback;
             }
-
-            return addr;
+            else
+            {
+                addr.Flags &= ~WinDivertAddressFlag.Loopback;
+            }
         }
     }
 }
