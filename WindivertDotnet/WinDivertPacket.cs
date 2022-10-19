@@ -13,7 +13,6 @@ namespace WindivertDotnet
     /// <summary>
     /// 表示WinDivert的数据包
     /// </summary>
-    [SupportedOSPlatform("windows")]
     [DebuggerDisplay("Length = {Length}, Capacity = {Capacity}")]
     public class WinDivertPacket : SafeHandleZeroOrMinusOneIsInvalid
     {
@@ -124,6 +123,7 @@ namespace WindivertDotnet
         /// <param name="addr">地址信息</param>
         /// <param name="flag"></param>
         /// <returns></returns>
+        [SupportedOSPlatform("windows")]
         public bool CalcChecksums(WinDivertAddress addr, ChecksumsFlag flag = ChecksumsFlag.All)
         {
             return WinDivertNative.WinDivertHelperCalcChecksums(this, this.length, addr, flag);
@@ -136,6 +136,7 @@ namespace WindivertDotnet
         /// <param name="addr">地址信息</param>
         /// <returns></returns>
         /// <exception cref="NetworkInformationException"></exception>
+        [SupportedOSPlatform("windows")]
         public unsafe bool CalcNetworkIfIdx(WinDivertAddress addr)
         {
             if (addr.Layer == WinDivertLayer.Network &&
@@ -154,6 +155,7 @@ namespace WindivertDotnet
         /// </summary>
         /// <param name="addr">地址信息</param>
         /// <returns></returns>
+        [SupportedOSPlatform("windows")]
         public unsafe bool CalcOutboundFlag(WinDivertAddress addr)
         {
             if (addr.Layer != WinDivertLayer.Network ||
@@ -236,6 +238,7 @@ namespace WindivertDotnet
         /// ttl减1
         /// </summary>
         /// <returns></returns>
+        [SupportedOSPlatform("windows")]
         public bool DecrementTTL()
         {
             return WinDivertNative.WinDivertHelperDecrementTTL(this, this.length);
@@ -245,6 +248,7 @@ namespace WindivertDotnet
         /// 获取包的哈希
         /// </summary>
         /// <returns></returns>
+        [SupportedOSPlatform("windows")]
         public override int GetHashCode()
         {
             return this.GetHashCode(seed: 0L);
@@ -255,6 +259,7 @@ namespace WindivertDotnet
         /// </summary>
         /// <param name="seed"></param>
         /// <returns></returns>
+        [SupportedOSPlatform("windows")]
         public int GetHashCode(long seed)
         {
             return WinDivertNative.WinDivertHelperHashPacket(this, this.length, seed);
@@ -264,6 +269,7 @@ namespace WindivertDotnet
         /// 获取包的解析结果
         /// </summary>
         /// <returns></returns>
+        [SupportedOSPlatform("windows")]
         public unsafe WinDivertParseResult GetParseResult()
         {
             IPV4Header* pIPV4Header;

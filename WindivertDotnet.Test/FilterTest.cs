@@ -5,7 +5,6 @@ using Xunit;
 
 namespace WindivertDotnet.Test
 {
-    [SupportedOSPlatform("windows")]
     public class FilterTest
     {
         [Fact]
@@ -51,6 +50,7 @@ namespace WindivertDotnet.Test
         }
 
         [Fact]
+        [SupportedOSPlatform("windows")]
         public void BaseTest()
         {
             var filter = Filter.False
@@ -74,6 +74,7 @@ namespace WindivertDotnet.Test
 
 
         [Fact]
+        [SupportedOSPlatform("windows")]
         public void NetworkTest()
         {
             var filter = Filter.False

@@ -6,7 +6,7 @@ namespace WindivertDotnet
 {
     /// <summary>
     /// Windivert缓冲区Writer
-    /// </summary>
+    /// </summary> 
     public class WindivertBufferWriter : IBufferWriter<byte>
     {
         private int index;
@@ -18,7 +18,7 @@ namespace WindivertDotnet
         /// <param name="packet">数据包</param>
         /// <param name="offset">偏移量</param>
         public WindivertBufferWriter(WinDivertPacket packet, int offset)
-        { 
+        {
             this.packet = packet;
             this.index = offset;
         }
@@ -67,9 +67,9 @@ namespace WindivertDotnet
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public void Write(byte value)
         {
-            const int size = 1;
-            this.GetSpan(size)[0] = value;
-            this.Advance(size);
+            const int count = 1;
+            this.GetSpan(count)[0] = value;
+            this.Advance(count);
         }
 
         /// <summary>
@@ -79,9 +79,9 @@ namespace WindivertDotnet
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public void Advance(int count)
         {
-            var value = this.index + count;
-            this.packet.Length = value;
-            this.index = value;
+            var size = this.index + count;
+            this.packet.Length = size;
+            this.index = size;
         }
 
         /// <summary>
