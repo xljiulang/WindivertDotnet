@@ -86,7 +86,17 @@ namespace WindivertDotnet
         /// <summary>
         /// 获取或设置下一个报头
         /// </summary>
-        public byte NextHdr;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private byte nextHdr;
+
+        /// <summary>
+        /// 获取或设置下一个报头协议
+        /// </summary>
+        public ProtocolType NextHdr
+        {
+            get => (ProtocolType)nextHdr;
+            set => nextHdr = (byte)value;
+        }
 
         /// <summary>
         /// 获取或设置跳跃限制

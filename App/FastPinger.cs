@@ -20,7 +20,7 @@ namespace App
         public FastPinger()
         {
             // 只接受进入系统的icmp
-            var filter = Filter.True.And(f => f.IsIcmp && f.Network.Inbound);
+            var filter = Filter.True.And(f => (f.IsIcmp || f.IsIcmpV6) && f.Network.Inbound);
             this.divert = new WinDivert(filter, WinDivertLayer.Network);
         }
 
@@ -46,11 +46,14 @@ namespace App
         /// <returns></returns>
         private static IEnumerable<IPAddress> CreateAddrs(IPAddress startAddr, int count)
         {
-            var start = BinaryPrimitives.ReadUInt32LittleEndian(startAddr.GetAddressBytes());
+            var bytes = startAddr.GetAddressBytes();
+            var start = BinaryPrimitives.ReadUInt32BigEndian(bytes.AsSpan(bytes.Length - 4));
+
             for (var i = 0; i < count; i++)
             {
-                var value = BinaryPrimitives.ReverseEndianness((uint)(start + i));
-                yield return new IPAddress(value);
+                var value = (uint)(start + i);
+                BinaryPrimitives.WriteUInt32BigEndian(bytes.AsSpan(bytes.Length - 4), value);
+                yield return new IPAddress(bytes);
             }
         }
 
@@ -126,6 +129,12 @@ namespace App
                 value = result.IPV4Header->SrcAddr;
                 return true;
             }
+            else if (result.IcmpV6Header != null &&
+                result.IcmpV6Header->Type == IcmpV6MessageType.EchoReply)
+            {
+                value = result.IPV6Header->SrcAddr;
+                return true;
+            }
 
             value = null;
             return false;
@@ -142,7 +151,10 @@ namespace App
             {
                 // 使用router计算将进行通讯的本机地址
                 var router = new WinDivertRouter(address);
-                using var packet = this.CreateEchoPacket(router);
+                using var packet = address.AddressFamily == AddressFamily.InterNetwork
+                    ? this.CreateIPV4EchoPacket(router)
+                    : this.CreateIPV6EchoPacket(router);
+
                 using var addr = new WinDivertAddress();
 
                 packet.CalcChecksums(addr);     // 计算checksums
@@ -159,7 +171,7 @@ namespace App
         /// </summary>
         /// <param name="router"></param>
         /// <returns></returns>
-        private unsafe WinDivertPacket CreateEchoPacket(WinDivertRouter router)
+        private unsafe WinDivertPacket CreateIPV4EchoPacket(WinDivertRouter router)
         {
             // ipv4头
             var ipHeader = new IPV4Header
@@ -185,6 +197,43 @@ namespace App
 
             // 将数据写到packet缓冲区
             var packet = new WinDivertPacket(ipHeader.Length);
+
+            var writer = packet.GetWriter();
+            writer.Write(ipHeader);
+            writer.Write(icmpHeader);
+
+            return packet;
+        }
+
+        /// <summary>
+        /// 创建icmpv6的echo包
+        /// </summary>
+        /// <param name="router"></param>
+        /// <returns></returns>
+        private unsafe WinDivertPacket CreateIPV6EchoPacket(WinDivertRouter router)
+        {
+            // ipv6头
+            var ipHeader = new IPV6Header
+            {
+                DstAddr = router.DstAddress,
+                SrcAddr = router.SrcAddress,
+                Length = (ushort)(sizeof(IcmpV6Header)),
+                Version = 6,
+                NextHdr = ProtocolType.IcmpV6,
+                HopLimit = 128
+            };
+
+            // icmpv6头
+            var icmpHeader = new IcmpV6Header
+            {
+                Type = IcmpV6MessageType.EchoRequest,
+                Code = default,
+                Identifier = ++this.id,
+                SequenceNumber = ++this.sequenceNumber,
+            };
+
+            // 将数据写到packet缓冲区
+            var packet = new WinDivertPacket(sizeof(IPV6Header) + ipHeader.Length);
 
             var writer = packet.GetWriter();
             writer.Write(ipHeader);
