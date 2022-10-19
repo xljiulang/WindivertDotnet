@@ -151,16 +151,12 @@ namespace App
             {
                 // 使用router计算将进行通讯的本机地址
                 var router = new WinDivertRouter(address);
+                using var addr = router.CreateAddress();
                 using var packet = address.AddressFamily == AddressFamily.InterNetwork
-                    ? this.CreateIPV4EchoPacket(router)
-                    : this.CreateIPV6EchoPacket(router);
+                   ? this.CreateIPV4EchoPacket(router.SrcAddress, router.DstAddress)
+                   : this.CreateIPV6EchoPacket(router.SrcAddress, router.DstAddress);
 
-                using var addr = new WinDivertAddress();
-
-                packet.CalcChecksums(addr);     // 计算checksums
-                packet.CalcLoopbackFlag(addr);  // 计算loopback(实际不算也知道不是Loopback)
-                packet.CalcNetworkIfIdx(addr);  // 计算网卡索引
-                packet.CalcOutboundFlag(addr);  // 计算是否为出口(实际不算也知道是Outbound)
+                packet.CalcChecksums(addr);     // 计算checksums，因为创建包时没有计算
 
                 await this.divert.SendAsync(packet, addr);
             }
@@ -169,17 +165,18 @@ namespace App
         /// <summary>
         /// 创建icmp的echo包
         /// </summary>
-        /// <param name="router"></param>
+        /// <param name="srcAddr"></param>
+        /// <param name="dstAddr"></param>
         /// <returns></returns>
-        private unsafe WinDivertPacket CreateIPV4EchoPacket(WinDivertRouter router)
+        private unsafe WinDivertPacket CreateIPV4EchoPacket(IPAddress srcAddr, IPAddress dstAddr)
         {
             // ipv4头
             var ipHeader = new IPV4Header
             {
                 TTL = 128,
                 Version = 4,
-                DstAddr = router.DstAddress,
-                SrcAddr = router.SrcAddress,
+                DstAddr = dstAddr,
+                SrcAddr = srcAddr,
                 Protocol = ProtocolType.Icmp,
                 HdrLength = (byte)(sizeof(IPV4Header) / 4),
                 Id = ++this.id,
@@ -208,15 +205,16 @@ namespace App
         /// <summary>
         /// 创建icmpv6的echo包
         /// </summary>
-        /// <param name="router"></param>
+        /// <param name="srcAddr"></param>
+        /// <param name="dstAddr"></param>
         /// <returns></returns>
-        private unsafe WinDivertPacket CreateIPV6EchoPacket(WinDivertRouter router)
+        private unsafe WinDivertPacket CreateIPV6EchoPacket(IPAddress srcAddr, IPAddress dstAddr)
         {
             // ipv6头
             var ipHeader = new IPV6Header
             {
-                DstAddr = router.DstAddress,
-                SrcAddr = router.SrcAddress,
+                DstAddr = dstAddr,
+                SrcAddr = srcAddr,
                 Length = (ushort)(sizeof(IcmpV6Header)),
                 Version = 6,
                 NextHdr = ProtocolType.IcmpV6,

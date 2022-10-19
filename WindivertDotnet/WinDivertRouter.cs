@@ -180,5 +180,27 @@ namespace WindivertDotnet
             var errorCode = IPHelpApiNative.GetBestInterfaceEx(ref dstSockAddr, out var ifIdx);
             return errorCode == 0 ? ifIdx : throw new NetworkInformationException(errorCode);
         }
+
+        /// <summary>
+        /// 使用路由信息创建WinDivertAddress对象
+        /// </summary>
+        /// <returns></returns>
+        public unsafe WinDivertAddress CreateAddress()
+        {
+            var addr = new WinDivertAddress();
+            addr.Network->IfIdx = this.InterfaceIndex;
+
+            if (this.IsOutbound == true)
+            {
+                addr.Flags |= WinDivertAddressFlag.Outbound;
+            }
+
+            if (IPAddress.IsLoopback(this.SrcAddress) && this.SrcAddress.Equals(this.DstAddress))
+            {
+                addr.Flags |= WinDivertAddressFlag.Loopback;
+            }
+
+            return addr;
+        }
     }
 }
