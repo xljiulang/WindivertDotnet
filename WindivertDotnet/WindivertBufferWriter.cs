@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace WindivertDotnet
 {
@@ -24,20 +25,16 @@ namespace WindivertDotnet
         }
 
         /// <summary>
-        /// 将值翻转顺序后写入
+        /// 将值写入并翻转字节顺序
         /// </summary>
         /// <typeparam name="TValue"></typeparam>
         /// <param name="value">翻转之前的值</param>
         public unsafe void WriteReverse<TValue>(TValue value) where TValue : unmanaged
         {
-            var valueSpan = new Span<byte>(&value, sizeof(TValue));
-            var span = this.GetSpan(valueSpan.Length);
-
-            // 先写入后翻转，减少必要的分配
-            valueSpan.CopyTo(span);
-            span[..valueSpan.Length].Reverse();
-
-            this.Advance(valueSpan.Length);
+            var span = this.GetSpan(sizeof(TValue))[..sizeof(TValue)];
+            Unsafe.WriteUnaligned(ref MemoryMarshal.GetReference(span), value);
+            span.Reverse();
+            this.Advance(sizeof(TValue));
         }
 
         /// <summary>
@@ -47,7 +44,9 @@ namespace WindivertDotnet
         /// <param name="value">值</param>
         public unsafe void Write<TValue>(TValue value) where TValue : unmanaged
         {
-            this.Write(new Span<byte>(&value, sizeof(TValue)));
+            var span = this.GetSpan(sizeof(TValue));
+            Unsafe.WriteUnaligned(ref MemoryMarshal.GetReference(span), value);
+            this.Advance(sizeof(TValue));
         }
 
         /// <summary>
