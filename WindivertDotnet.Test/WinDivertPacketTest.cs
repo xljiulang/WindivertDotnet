@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Versioning;
 using Xunit;
 
 namespace WindivertDotnet.Test
 {
+    [SupportedOSPlatform("windows")]
     public class WinDivertPacketTest
     {
         [Fact]
@@ -80,21 +82,6 @@ namespace WindivertDotnet.Test
             Assert.Equal(router.IsOutbound, addr.Flags.HasFlag(WinDivertAddressFlag.Outbound));
         }
 
-        [Fact]
-        public unsafe void ApplyLengthToIPHeaderTest()
-        {
-            var router = new WinDivertRouter(IPAddress.Loopback);
-            using var packet = new WinDivertPacket();
-
-            var ipv4Header = CreateIPV4Header(router);
-            ipv4Header.Length = 0;
-            packet.GetWriter().Write(ipv4Header);
-
-            packet.ApplyLengthToIPHeader();
-            var result = packet.GetParseResult();
-
-            Assert.Equal(sizeof(IPV4Header), result.IPV4Header->Length);
-        }
 
         private static IPV4Header CreateIPV4Header(WinDivertRouter router)
         {

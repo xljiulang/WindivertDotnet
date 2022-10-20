@@ -227,34 +227,6 @@ namespace WindivertDotnet
         }
 
         /// <summary>
-        /// 将属性Length值应用到IPHeader
-        /// 当包的负载数据长度变化后使用此方法很方便
-        /// </summary>
-        /// <returns></returns>
-        public unsafe bool ApplyLengthToIPHeader()
-        {
-            if (this.length > 1)
-            {
-                var ptr = this.handle.ToPointer();
-                var version = Unsafe.Read<byte>(ptr) >> 4;
-
-                if (version == 4 && this.length >= sizeof(IPV4Header))
-                {
-                    ((IPV4Header*)ptr)->Length = (ushort)this.length;
-                    return true;
-                }
-
-                if (version == 6 && this.length >= sizeof(IPV6Header))
-                {
-                    ((IPV6Header*)ptr)->Length = (ushort)(this.length - sizeof(IPV6Header));
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
         /// ttl减1
         /// </summary>
         /// <returns></returns>
