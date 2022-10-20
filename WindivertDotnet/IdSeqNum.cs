@@ -17,13 +17,13 @@ namespace WindivertDotnet
         public static IdSeqNum Shared { get; } = new IdSeqNum();
 
         /// <summary>
-        /// 生成下一个Id
+        /// 生成下一个UInt16值
         /// </summary>
         /// <returns></returns>
         public ushort NextUInt16() => (ushort)Interlocked.Increment(ref value);
 
         /// <summary>
-        /// 生成下一个Id
+        /// 生成下一个UInt32值
         /// </summary>
         /// <returns></returns>
         public ushort NextUInt32() => (ushort)Interlocked.Increment(ref value);
