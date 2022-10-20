@@ -13,8 +13,6 @@ namespace App
 {
     class FastPinger : IDisposable
     {
-        private ushort id = 0;
-        private ushort sequenceNumber = 0;
         private readonly WinDivert divert;
 
         public FastPinger()
@@ -153,8 +151,8 @@ namespace App
                 var router = new WinDivertRouter(address);
                 using var addr = router.CreateAddress();
                 using var packet = address.AddressFamily == AddressFamily.InterNetwork
-                   ? this.CreateIPV4EchoPacket(router.SrcAddress, router.DstAddress)
-                   : this.CreateIPV6EchoPacket(router.SrcAddress, router.DstAddress);
+                   ? CreateIPV4EchoPacket(router.SrcAddress, router.DstAddress)
+                   : CreateIPV6EchoPacket(router.SrcAddress, router.DstAddress);
 
                 packet.CalcChecksums(addr);     // 计算checksums，因为创建包时没有计算
 
@@ -168,7 +166,7 @@ namespace App
         /// <param name="srcAddr"></param>
         /// <param name="dstAddr"></param>
         /// <returns></returns>
-        private unsafe WinDivertPacket CreateIPV4EchoPacket(IPAddress srcAddr, IPAddress dstAddr)
+        private static unsafe WinDivertPacket CreateIPV4EchoPacket(IPAddress srcAddr, IPAddress dstAddr)
         {
             // ipv4头
             var ipHeader = new IPV4Header
@@ -179,7 +177,7 @@ namespace App
                 SrcAddr = srcAddr,
                 Protocol = ProtocolType.Icmp,
                 HdrLength = (byte)(sizeof(IPV4Header) / 4),
-                Id = ++this.id,
+                Id = IdSeqNum.IdUInt16(),
                 Length = (ushort)(sizeof(IPV4Header) + sizeof(IcmpV4Header))
             };
 
@@ -189,7 +187,7 @@ namespace App
                 Type = IcmpV4MessageType.EchoRequest,
                 Code = default,
                 Identifier = ipHeader.Id,
-                SequenceNumber = ++this.sequenceNumber,
+                SequenceNumber = IdSeqNum.SeqNumUInt16(),
             };
 
             // 将数据写到packet缓冲区
@@ -208,7 +206,7 @@ namespace App
         /// <param name="srcAddr"></param>
         /// <param name="dstAddr"></param>
         /// <returns></returns>
-        private unsafe WinDivertPacket CreateIPV6EchoPacket(IPAddress srcAddr, IPAddress dstAddr)
+        private static unsafe WinDivertPacket CreateIPV6EchoPacket(IPAddress srcAddr, IPAddress dstAddr)
         {
             // ipv6头
             var ipHeader = new IPV6Header
@@ -226,8 +224,8 @@ namespace App
             {
                 Type = IcmpV6MessageType.EchoRequest,
                 Code = default,
-                Identifier = ++this.id,
-                SequenceNumber = ++this.sequenceNumber,
+                Identifier = IdSeqNum.IdUInt16(),
+                SequenceNumber = IdSeqNum.SeqNumUInt16(),
             };
 
             // 将数据写到packet缓冲区
