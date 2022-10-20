@@ -4,32 +4,28 @@ using System.Threading;
 namespace WindivertDotnet
 {
     /// <summary>
-    /// 提供Id和序列号生成
+    /// id或序列号生成器
     /// </summary>
-    public static class IdSeqNum
+    public sealed class IdSeqNum
     {
         private static readonly Random random = new();
-        private static int id = random.Next();
-        private static int seqNum = random.Next();
+        private int value = random.Next();
 
         /// <summary>
-        /// 获取新的16位Id
+        /// 获取公共实例
         /// </summary>
-        public static ushort IdUInt16() => (ushort)Interlocked.Increment(ref id);
+        public static IdSeqNum Shared { get; } = new IdSeqNum();
 
         /// <summary>
-        /// 获取新的32位id
+        /// 生成下一个Id
         /// </summary>
-        public static uint IdUInt32() => (uint)Interlocked.Increment(ref id);
+        /// <returns></returns>
+        public ushort NextUInt16() => (ushort)Interlocked.Increment(ref value);
 
         /// <summary>
-        /// 获取新的16位SeqNum
+        /// 生成下一个Id
         /// </summary>
-        public static ushort SeqNumUInt16() => (ushort)Interlocked.Increment(ref seqNum);
-
-        /// <summary>
-        /// 获取新的32位SeqNum
-        /// </summary>
-        public static uint SeqNumUInt32() => (uint)Interlocked.Increment(ref seqNum);
+        /// <returns></returns>
+        public ushort NextUInt32() => (ushort)Interlocked.Increment(ref value);
     }
 }

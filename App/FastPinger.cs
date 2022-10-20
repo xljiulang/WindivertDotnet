@@ -14,6 +14,7 @@ namespace App
     class FastPinger : IDisposable
     {
         private readonly WinDivert divert;
+        private readonly IdSeqNum idSeqNum = new();
 
         public FastPinger()
         {
@@ -166,7 +167,7 @@ namespace App
         /// <param name="srcAddr"></param>
         /// <param name="dstAddr"></param>
         /// <returns></returns>
-        private static unsafe WinDivertPacket CreateIPV4EchoPacket(IPAddress srcAddr, IPAddress dstAddr)
+        private unsafe WinDivertPacket CreateIPV4EchoPacket(IPAddress srcAddr, IPAddress dstAddr)
         {
             // ipv4头
             var ipHeader = new IPV4Header
@@ -177,7 +178,7 @@ namespace App
                 SrcAddr = srcAddr,
                 Protocol = ProtocolType.Icmp,
                 HdrLength = (byte)(sizeof(IPV4Header) / 4),
-                Id = IdSeqNum.IdUInt16(),
+                Id = IdSeqNum.Shared.NextUInt16(),
                 Length = (ushort)(sizeof(IPV4Header) + sizeof(IcmpV4Header))
             };
 
@@ -186,8 +187,8 @@ namespace App
             {
                 Type = IcmpV4MessageType.EchoRequest,
                 Code = default,
-                Identifier = ipHeader.Id,
-                SequenceNumber = IdSeqNum.SeqNumUInt16(),
+                Identifier = this.idSeqNum.NextUInt16(),
+                SequenceNumber = this.idSeqNum.NextUInt16(),
             };
 
             // 将数据写到packet缓冲区
@@ -206,7 +207,7 @@ namespace App
         /// <param name="srcAddr"></param>
         /// <param name="dstAddr"></param>
         /// <returns></returns>
-        private static unsafe WinDivertPacket CreateIPV6EchoPacket(IPAddress srcAddr, IPAddress dstAddr)
+        private unsafe WinDivertPacket CreateIPV6EchoPacket(IPAddress srcAddr, IPAddress dstAddr)
         {
             // ipv6头
             var ipHeader = new IPV6Header
@@ -224,8 +225,8 @@ namespace App
             {
                 Type = IcmpV6MessageType.EchoRequest,
                 Code = default,
-                Identifier = IdSeqNum.IdUInt16(),
-                SequenceNumber = IdSeqNum.SeqNumUInt16(),
+                Identifier = this.idSeqNum.NextUInt16(),
+                SequenceNumber = this.idSeqNum.NextUInt16(),
             };
 
             // 将数据写到packet缓冲区
