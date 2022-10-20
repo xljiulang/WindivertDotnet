@@ -53,11 +53,10 @@ namespace WindivertDotnet
         }
 
         /// <summary>
-        /// 格式化filter
+        /// 尝试格式化filter
         /// </summary>
         /// <param name="filter"></param>
-        /// <param name="layer"></param>
-        /// <exception cref="FormatException"></exception>
+        /// <param name="layer"></param> 
         /// <returns></returns>
         [SupportedOSPlatform("windows")]
         public unsafe static string Format(string filter, WinDivertLayer layer)
@@ -70,8 +69,7 @@ namespace WindivertDotnet
                 var ptr = new IntPtr(buffer);
                 return Marshal.PtrToStringAnsi(ptr) ?? string.Empty;
             }
-
-            throw new FormatException($"{nameof(filter)}格式不正确");
+            return filter;
         }
 
         /// <summary>
