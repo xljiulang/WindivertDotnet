@@ -107,7 +107,10 @@ namespace WindivertDotnet
         public WinDivert(string filter, WinDivertLayer layer, short priority = 0, WinDivertFlag flags = WinDivertFlag.None)
             : base(ownsHandle: true)
         {
-            AutoFlagsWhenNone(ref flags, layer);
+            if (layer != WinDivertLayer.Network && flags == WinDivertFlag.None)
+            {
+                flags = WinDivertFlag.Sniff | WinDivertFlag.RecvOnly;
+            }
 
             var compileFilter = WindivertDotnet.Filter.Compile(filter, layer);
 
@@ -134,31 +137,6 @@ namespace WindivertDotnet
             this.Priority = priority;
             this.Flags = flags;
             this.Version = this.GetVersion();
-        }
-
-        /// <summary>
-        /// 返回当指示为None时对应的默认值
-        /// </summary>
-        /// <param name="flags"></param>
-        /// <param name="layer"></param>
-        /// <returns></returns>
-        private static void AutoFlagsWhenNone(ref WinDivertFlag flags, WinDivertLayer layer)
-        {
-            if (flags == WinDivertFlag.None)
-            {
-                switch (layer)
-                {
-                    case WinDivertLayer.Socket:
-                        flags = WinDivertFlag.RecvOnly;
-                        break;
-
-                    case WinDivertLayer.Flow:
-                    case WinDivertLayer.Reflect:
-                    case WinDivertLayer.Forward:
-                        flags = WinDivertFlag.Sniff | WinDivertFlag.RecvOnly;
-                        break;
-                }
-            }
         }
 
         /// <summary>
