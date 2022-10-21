@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindivertDotnet", "Windiver
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App", "App\App.csproj", "{9EA97509-CBC0-414E-9C76-283AAA379347}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindivertDotnet.Test", "WindivertDotnet.Test\WindivertDotnet.Test.csproj", "{CD236CAC-7444-458B-8C13-2CEF2CC8333C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindivertDotnet.Test", "WindivertDotnet.Test\WindivertDotnet.Test.csproj", "{CD236CAC-7444-458B-8C13-2CEF2CC8333C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
