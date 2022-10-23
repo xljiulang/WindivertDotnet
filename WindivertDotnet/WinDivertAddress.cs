@@ -120,6 +120,16 @@ namespace WindivertDotnet
             new Span<byte>(this.handle.ToPointer(), Size).Clear();
         }
 
+        /// <summary>
+        /// 克隆
+        /// </summary>
+        /// <returns></returns>
+        public WinDivertAddress Clone()
+        {
+            var addr = new WinDivertAddress();
+            *addr.Pointer = *this.Pointer;
+            return addr;
+        }
 
         [StructLayout(LayoutKind.Explicit)]
         private struct AddressStruct
