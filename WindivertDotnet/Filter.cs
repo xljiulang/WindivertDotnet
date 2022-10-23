@@ -517,17 +517,30 @@ namespace WindivertDotnet
                 if (node.NodeType == ExpressionType.Not)
                 {
                     builder.Append('!');
+                    this.Translate(node.Operand);
+                }
+                else if (node.NodeType == ExpressionType.Convert)
+                {
+                    this.Translate(node.Operand);
                 }
                 else
                 {
                     throw new NotSupportedException(node.ToString());
                 }
-                this.Translate(node.Operand);
             }
 
 
             private void TranslateBinary(BinaryExpression node)
             {
+                if (node.NodeType == ExpressionType.ArrayIndex)
+                {
+                    this.Translate(node.Left);
+                    builder.Append('[');
+                    this.Translate(node.Right);
+                    builder.Append(']');
+                    return;
+                }
+
                 builder.Append('(');
                 this.Translate(node.Left);
 

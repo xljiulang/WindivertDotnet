@@ -116,7 +116,7 @@ namespace WindivertDotnet
         /// icmpV6属性集
         /// </summary>
         [FilterMember("icmpv6")]
-        public IICmp IcmpV6 { get; } 
+        public IICmp IcmpV6 { get; }
 
 
         /// <summary>
@@ -517,12 +517,6 @@ namespace WindivertDotnet
             int Checksum { get; }
 
             /// <summary>
-            /// 负载数据长度
-            /// </summary>
-            [FilterMember]
-            int PayloadLength { get; }
-
-            /// <summary>
             /// 源端口号
             /// </summary>
             [FilterMember]
@@ -533,6 +527,33 @@ namespace WindivertDotnet
             /// </summary>
             [FilterMember]
             int DstPort { get; }
+
+            /// <summary>
+            /// 负载数据长度
+            /// </summary>
+            [FilterMember]
+            int PayloadLength { get; }
+
+            /// <summary>
+            /// 8位形式的负载数据
+            /// 使用索引来读取
+            /// </summary>
+            [FilterMember]
+            byte[] Payload { get; }
+
+            /// <summary>
+            /// 16位形式的负载数据
+            /// 使用索引来读取
+            /// </summary>
+            [FilterMember]
+            ushort[] Payload16 { get; }
+
+            /// <summary>
+            /// 32位形式的负载数据
+            /// 使用索引来读取
+            /// </summary>
+            [FilterMember]
+            uint[] Payload32 { get; }
         }
 
         /// <summary>
@@ -643,6 +664,7 @@ namespace WindivertDotnet
             [FilterMember]
             int Body { get; }
         }
+
 
         /// <summary>
         /// Filter成员特性
