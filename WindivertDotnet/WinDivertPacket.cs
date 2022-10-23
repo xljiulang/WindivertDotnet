@@ -15,7 +15,7 @@ namespace WindivertDotnet
     /// 表示WinDivert的数据包
     /// </summary>
     [DebuggerDisplay("Length = {Length}, Capacity = {Capacity}")]
-    public class WinDivertPacket : SafeHandleZeroOrMinusOneIsInvalid
+    public class WinDivertPacket : SafeHandleZeroOrMinusOneIsInvalid, IEquatable<WinDivertPacket>
     {
         /// <summary>
         /// MTU的最大长度
@@ -316,6 +316,28 @@ namespace WindivertDotnet
                 Next = pNext,
                 NextLength = nextLength
             };
+        }
+
+        /// <summary>
+        /// 是否相等
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns> 
+        public bool Equals(WinDivertPacket? other)
+        {
+            return other != null &&
+                 other.length == this.length &&
+                 other.Span.SequenceEqual(this.Span);
+        }
+
+        /// <summary>
+        /// 是否相等
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object? obj)
+        {
+            return this.Equals(obj as WinDivertPacket);
         }
     }
 }

@@ -82,6 +82,22 @@ namespace WindivertDotnet.Test
             Assert.Equal(router.IsOutbound, addr.Flags.HasFlag(WinDivertAddressFlag.Outbound));
         }
 
+        [Fact]
+        public void EqualsTest()
+        {
+            using var p1 = new WinDivertPacket();
+            using var p2 = new WinDivertPacket();
+            p1.GetWriter().Write(1);
+            p2.GetWriter().Write(1);
+
+            Assert.Equal(p1, p2);
+
+            p1.GetWriter().Write(3);
+            p2.GetWriter().Write(4);
+
+            Assert.NotEqual(p1, p2);
+        }
+
 
         private static IPV4Header CreateIPV4Header(WinDivertRouter router)
         {
