@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<Version>1.0.8</Version>
+		<Version>1.0.9</Version>
 		<TargetFrameworks>netcoreapp3.1;net6.0</TargetFrameworks>
 		<Nullable>enable</Nullable>
 		<NoWarn>CA2012;IDE0079</NoWarn>
