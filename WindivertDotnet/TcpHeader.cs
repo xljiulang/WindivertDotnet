@@ -1,15 +1,18 @@
 ﻿using System.Buffers.Binary;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace WindivertDotnet
 {
     /// <summary>
     /// Tcp头
     /// </summary>
-    [DebuggerDisplay("SrcPort = {SrcPort}, DstPort = {DstPort}, Size = {HdrLength * 4}")]
+    [DebuggerDisplay("SrcPort = {SrcPort}, DstPort = {DstPort}, Flags = {Flags}, Size = {HdrLength * 4}")]
+    [StructLayout(LayoutKind.Explicit)]
     public struct TcpHeader
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        [FieldOffset(0)]
         private ushort srcPort;
 
         /// <summary>
@@ -22,6 +25,7 @@ namespace WindivertDotnet
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        [FieldOffset(2)]
         private ushort dstPort;
 
         /// <summary>
@@ -35,6 +39,7 @@ namespace WindivertDotnet
 
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        [FieldOffset(4)]
         private uint seqNum;
 
         /// <summary>
@@ -48,6 +53,7 @@ namespace WindivertDotnet
 
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        [FieldOffset(8)]
         private uint ackNum;
 
         /// <summary>
@@ -60,7 +66,14 @@ namespace WindivertDotnet
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        [FieldOffset(12)]
         private ushort bitfield;
+
+        /// <summary>
+        /// 标记位
+        /// </summary>
+        [FieldOffset(13)]
+        public TcpFlag Flags;
 
         /// <summary>
         /// 保留
@@ -146,6 +159,7 @@ namespace WindivertDotnet
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        [FieldOffset(14)]
         private ushort window;
 
         /// <summary>
@@ -158,6 +172,7 @@ namespace WindivertDotnet
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        [FieldOffset(16)]
         private ushort checksum;
 
         /// <summary>
@@ -170,6 +185,7 @@ namespace WindivertDotnet
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        [FieldOffset(18)]
         private ushort urgPtr;
 
         /// <summary>

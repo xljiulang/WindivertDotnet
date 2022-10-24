@@ -103,7 +103,7 @@ namespace WindivertDotnet.Test
         {
             return new IPV4Header
             {
-                Version = 4,
+                Version = IPVersion.V4,
                 HdrLength = 5,
                 Length = 20,
                 Protocol = ProtocolType.IP,

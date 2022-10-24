@@ -173,7 +173,7 @@ namespace App
             var ipHeader = new IPV4Header
             {
                 TTL = 128,
-                Version = 4,
+                Version =  IPVersion.V4,
                 DstAddr = dstAddr,
                 SrcAddr = srcAddr,
                 Protocol = ProtocolType.Icmp,
@@ -215,7 +215,7 @@ namespace App
                 DstAddr = dstAddr,
                 SrcAddr = srcAddr,
                 Length = (ushort)(sizeof(IcmpV6Header)),
-                Version = 6,
+                Version = IPVersion.V6,
                 NextHdr = ProtocolType.IcmpV6,
                 HopLimit = 128
             };

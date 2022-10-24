@@ -30,10 +30,10 @@ namespace WindivertDotnet
         /// <summary>
         /// 获取或设置版本
         /// </summary>
-        public byte Version
+        public IPVersion Version
         {
-            get => (byte)((bitfield >> 4) & 0xFu);
-            set => bitfield = (byte)((bitfield & ~(0xFu << 4)) | ((value & 0xFu) << 4));
+            get => (IPVersion)((bitfield >> 4) & 0xFu);
+            set => bitfield = (byte)((bitfield & ~(0xFu << 4)) | (((byte)value & 0xFu) << 4));
         }
 
         /// <summary>

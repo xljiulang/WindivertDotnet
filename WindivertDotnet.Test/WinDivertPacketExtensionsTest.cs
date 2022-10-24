@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Versioning;
 using Xunit;
 
 namespace WindivertDotnet.Test
 {
+    [SupportedOSPlatform("windows")]
     public class WinDivertPacketExtensionsTest
     {
         [Fact]
@@ -33,11 +35,12 @@ namespace WindivertDotnet.Test
         }
 
         [Fact]
+        [SupportedOSPlatform("windows")]
         public unsafe void IPV4TcpReverseEndPointTest()
         {
             var ipHeader = new IPV4Header
             {
-                Version = 4,
+                Version = IPVersion.V4,
                 HdrLength = 5,
                 Protocol = ProtocolType.Tcp,
                 Length = 40,
@@ -71,7 +74,7 @@ namespace WindivertDotnet.Test
         {
             var ipHeader = new IPV6Header
             {
-                Version = 6,
+                Version = IPVersion.V6,
                 NextHdr = ProtocolType.Udp,
                 Length = (ushort)(sizeof(UdpHeader)),
                 SrcAddr = IPAddress.IPv6Loopback,
@@ -105,7 +108,7 @@ namespace WindivertDotnet.Test
         {
             var ipHeader = new IPV4Header
             {
-                Version = 4,
+                Version = IPVersion.V4,
                 HdrLength = 5,
             };
 
@@ -128,7 +131,7 @@ namespace WindivertDotnet.Test
         {
             var ipHeader = new IPV4Header
             {
-                Version = 4,
+                Version = IPVersion.V4,
                 HdrLength = 5,
                 Protocol = ProtocolType.Udp,
             };
@@ -155,7 +158,7 @@ namespace WindivertDotnet.Test
         {
             var ipHeader = new IPV6Header
             {
-                Version = 6,
+                Version = IPVersion.V6,
             };
 
             using var packet = new WinDivertPacket();

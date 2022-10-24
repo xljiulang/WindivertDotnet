@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using System.Runtime.Versioning;
 
 namespace WindivertDotnet
 {
@@ -90,6 +91,7 @@ namespace WindivertDotnet
         /// </summary>
         /// <param name="packet"></param>
         /// <returns></returns>
+        [SupportedOSPlatform("windows")]
         public unsafe static bool ReverseEndPoint(this WinDivertPacket packet)
         {
             var result = packet.GetParseResult();

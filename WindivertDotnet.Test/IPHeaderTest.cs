@@ -13,13 +13,13 @@ namespace WindivertDotnet.Test
             fixed (void* ptr = &packet.Bytes[0])
             {
                 var header = *(IPV4Header*)ptr;
-                Assert.Equal((byte)packet.Version, header.Version);
+                Assert.Equal((byte)packet.Version, (byte)header.Version);
                 Assert.Equal(packet.HeaderLength, header.HdrLength);
                 Assert.Equal(packet.TotalLength, header.Length);
                 Assert.Equal(packet.TimeToLive, header.TTL);
                 Assert.Equal((byte)packet.Protocol, (byte)header.Protocol);
                 Assert.Equal(packet.SourceAddress, header.SrcAddr);
-                Assert.Equal(packet.DestinationAddress, header.DstAddr);
+                Assert.Equal(packet.DestinationAddress, header.DstAddr);                
             }
         }
 
@@ -31,7 +31,7 @@ namespace WindivertDotnet.Test
 
             var header = new IPV4Header
             {
-                Version = 1,
+                Version = IPVersion.V4,
                 Checksum = 2,
                 DstAddr = dstAddr,
                 SrcAddr = srcAddr,
@@ -45,7 +45,7 @@ namespace WindivertDotnet.Test
             };
 
 
-            Assert.Equal(1, header.Version);
+            Assert.Equal(IPVersion.V4, header.Version);
             Assert.Equal(2, header.Checksum);
 
             Assert.Equal(dstAddr, header.DstAddr);
@@ -67,7 +67,7 @@ namespace WindivertDotnet.Test
             fixed (void* ptr = &packet.Bytes[0])
             {
                 var header = *(IPV6Header*)ptr;
-                Assert.Equal((byte)packet.Version, header.Version);
+                Assert.Equal((byte)packet.Version, (byte)header.Version);
                 Assert.Equal(packet.PayloadLength, header.Length);
                 Assert.Equal(packet.HopLimit, header.HopLimit);
                 Assert.Equal((byte)packet.Protocol, (byte)header.NextHdr);
@@ -84,7 +84,7 @@ namespace WindivertDotnet.Test
 
             var header = new IPV6Header
             {
-                Version = 1,
+                Version = IPVersion.V6,
                 FlowLabel0 = 2,
                 FlowLabel1 = 3,
                 HopLimit = 4,
@@ -97,7 +97,7 @@ namespace WindivertDotnet.Test
 
             };
 
-            Assert.Equal(1, header.Version);
+            Assert.Equal(IPVersion.V6, header.Version);
             Assert.Equal(2, header.FlowLabel0);
 
             Assert.Equal(dstAddr, header.DstAddr);

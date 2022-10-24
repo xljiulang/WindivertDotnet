@@ -1,8 +1,10 @@
 ﻿using System.Net;
+using System.Runtime.Versioning;
 using Xunit;
 
 namespace WindivertDotnet.Test
 {
+    [SupportedOSPlatform("windows")]
     public class WindivertRouterTest
     {
         [Fact]
