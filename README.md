@@ -77,7 +77,7 @@ private unsafe WinDivertPacket CreateIPV4EchoPacket(IPAddress srcAddr, IPAddress
     var ipHeader = new IPV4Header
     {
         TTL = 128,
-        Version = 4,
+        Version =  IPVersion.V4,
         DstAddr = dstAddr,
         SrcAddr = srcAddr,
         Protocol = ProtocolType.Icmp,
