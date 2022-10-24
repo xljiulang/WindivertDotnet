@@ -8,7 +8,6 @@ namespace WindivertDotnet
     /// Tcp头
     /// </summary>
     [DebuggerDisplay("SrcPort = {SrcPort}, DstPort = {DstPort}, Flags = {Flags}, Size = {HdrLength * 4}")]
-    [StructLayout(LayoutKind.Explicit)]
     public struct TcpHeader
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
