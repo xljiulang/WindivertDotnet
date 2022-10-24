@@ -94,7 +94,7 @@ namespace WindivertDotnet
         public bool Fin
         {
             get => this.Flags.HasFlag(TcpFlag.Fin);
-            set => this.Flags |= TcpFlag.Fin;
+            set => this.SetFlag(TcpFlag.Fin, value);
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace WindivertDotnet
         public bool Syn
         {
             get => this.Flags.HasFlag(TcpFlag.Syn);
-            set => this.Flags |= TcpFlag.Syn;
+            set => this.SetFlag(TcpFlag.Syn, value);
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace WindivertDotnet
         public bool Rst
         {
             get => this.Flags.HasFlag(TcpFlag.Rst);
-            set => this.Flags |= TcpFlag.Rst;
+            set => this.SetFlag(TcpFlag.Rst, value);
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace WindivertDotnet
         public bool Psh
         {
             get => this.Flags.HasFlag(TcpFlag.Psh);
-            set => this.Flags |= TcpFlag.Psh;
+            set => this.SetFlag(TcpFlag.Psh, value);
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace WindivertDotnet
         public bool Ack
         {
             get => this.Flags.HasFlag(TcpFlag.Ack);
-            set => this.Flags |= TcpFlag.Ack;
+            set => this.SetFlag(TcpFlag.Ack, value);
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace WindivertDotnet
         public bool Urg
         {
             get => this.Flags.HasFlag(TcpFlag.Urg);
-            set => this.Flags |= TcpFlag.Urg;
+            set => this.SetFlag(TcpFlag.Urg, value);
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -176,6 +176,18 @@ namespace WindivertDotnet
         {
             get => BinaryPrimitives.ReverseEndianness(urgPtr);
             set => urgPtr = BinaryPrimitives.ReverseEndianness(value);
+        }
+
+        private void SetFlag(TcpFlag flag, bool value)
+        {
+            if (value)
+            {
+                this.Flags |= flag;
+            }
+            else
+            {
+                this.Flags &= ~flag;
+            }
         }
     }
 }

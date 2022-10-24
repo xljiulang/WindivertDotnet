@@ -35,7 +35,6 @@ namespace WindivertDotnet.Test
                 Ack = true,
                 Fin = true,
                 Psh = true,
-                Syn = true,
                 Urg = true,
                 Rst = true,
 
@@ -57,7 +56,7 @@ namespace WindivertDotnet.Test
             Assert.True(header.Flags.HasFlag(TcpFlag.Psh));
             Assert.True(header.Flags.HasFlag(TcpFlag.Rst));
             Assert.True(header.Flags.HasFlag(TcpFlag.Fin));
-            Assert.True(header.Flags.HasFlag(TcpFlag.Syn));
+            Assert.False(header.Flags.HasFlag(TcpFlag.Syn));
 
             Assert.Equal(2U, header.AckNum);
             Assert.Equal(3, header.Checksum);
@@ -68,6 +67,12 @@ namespace WindivertDotnet.Test
             Assert.Equal(12U, header.SeqNum);
             Assert.Equal(13, header.SrcPort);
             Assert.Equal(16, header.Window);
+
+
+            header.Flags &= ~(TcpFlag.Fin | TcpFlag.Rst);
+            Assert.False(header.Flags.HasFlag(TcpFlag.Rst));
+            Assert.False(header.Flags.HasFlag(TcpFlag.Fin));
+
         }
     }
 }
