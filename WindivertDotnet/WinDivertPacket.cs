@@ -15,7 +15,7 @@ namespace WindivertDotnet
     /// 表示WinDivert的数据包
     /// </summary>
     [DebuggerDisplay("Length = {Length}, Capacity = {Capacity}")]
-    public class WinDivertPacket : SafeHandleZeroOrMinusOneIsInvalid, IEquatable<WinDivertPacket>
+    public class WinDivertPacket : SafeHandleZeroOrMinusOneIsInvalid, IEquatable<WinDivertPacket>, ICloneable
     {
         /// <summary>
         /// MTU的最大长度
@@ -202,9 +202,9 @@ namespace WindivertDotnet
             if (this.length > 1)
             {
                 var ptr = this.handle.ToPointer();
-                var version = Unsafe.Read<byte>(ptr) >> 4;
+                var version = (IPVersion)(Unsafe.Read<byte>(ptr) >> 4);
 
-                if (version == 4 && this.length >= sizeof(IPV4Header))
+                if (version == IPVersion.V4 && this.length >= sizeof(IPV4Header))
                 {
                     var header = (IPV4Header*)ptr;
                     srcAddr = header->SrcAddr;
@@ -212,7 +212,7 @@ namespace WindivertDotnet
                     return true;
                 }
 
-                if (version == 6 && this.length >= sizeof(IPV6Header))
+                if (version == IPVersion.V6 && this.length >= sizeof(IPV6Header))
                 {
                     var header = (IPV6Header*)ptr;
                     srcAddr = header->SrcAddr;
@@ -317,6 +317,127 @@ namespace WindivertDotnet
                 NextLength = nextLength
             };
         }
+
+        /// <summary>
+        /// 克隆
+        /// </summary>  
+        /// <returns></returns>
+        public WinDivertPacket Clone()
+        {
+            var target = new WinDivertPacket(this.Capacity);
+            this.CopyTo(target);
+            return target;
+        }
+
+        object ICloneable.Clone()
+        {
+            return this.Clone();
+        }
+
+        /// <summary>
+        /// 复制数据到指定目标
+        /// </summary> 
+        /// <param name="target"></param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public void CopyTo(WinDivertPacket target)
+        {
+            target.GetWriter().Write(this.Span);
+        }
+
+        /// <summary>
+        /// 翻转Src和Dst地址和端口
+        /// </summary> 
+        /// <returns></returns>
+        [SupportedOSPlatform("windows")]
+        public unsafe bool ReverseEndPoint()
+        {
+            var result = this.GetParseResult();
+            if (result.IPV4Header != null)
+            {
+                var src = result.IPV4Header->SrcAddr;
+                result.IPV4Header->SrcAddr = result.IPV4Header->DstAddr;
+                result.IPV4Header->DstAddr = src;
+            }
+            else if (result.IPV6Header != null)
+            {
+                var src = result.IPV6Header->SrcAddr;
+                result.IPV6Header->SrcAddr = result.IPV6Header->DstAddr;
+                result.IPV6Header->DstAddr = src;
+            }
+            else
+            {
+                return false;
+            }
+
+            if (result.TcpHeader != null)
+            {
+                var src = result.TcpHeader->SrcPort;
+                result.TcpHeader->SrcPort = result.TcpHeader->DstPort;
+                result.TcpHeader->DstPort = src;
+            }
+
+            if (result.UdpHeader != null)
+            {
+                var src = result.UdpHeader->SrcPort;
+                result.UdpHeader->SrcPort = result.UdpHeader->DstPort;
+                result.UdpHeader->DstPort = src;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 应用当前的Length值到IP头和Udp头
+        /// 返回影响到Header数
+        /// </summary> 
+        /// <returns></returns>
+        public unsafe int ApplyLengthToHeaders()
+        {
+            if (this.length < sizeof(IPV4Header))
+            {
+                return 0;
+            }
+
+            var count = 0;
+            var ptr = (byte*)this.handle.ToPointer();
+            var version = (IPVersion)(Unsafe.Read<byte>(ptr) >> 4);
+
+            ProtocolType protocol;
+            int ipHeaderLength;
+
+            if (version == IPVersion.V4)
+            {
+                var header = (IPV4Header*)ptr;
+                header->Length = (ushort)this.length;
+                protocol = header->Protocol;
+                ipHeaderLength = header->HdrLength * 4;
+                count += 1;
+            }
+            else if (version == IPVersion.V6 && this.length >= sizeof(IPV6Header))
+            {
+                var header = (IPV6Header*)ptr;
+                header->Length = (ushort)(this.length - sizeof(IPV6Header));
+                protocol = header->NextHdr;
+                ipHeaderLength = sizeof(IPV6Header);
+                count += 1;
+            }
+            else
+            {
+                return count;
+            }
+
+            if (protocol == ProtocolType.Udp &&
+                this.length >= ipHeaderLength + sizeof(UdpHeader))
+            {
+                var header = (UdpHeader*)(ptr + ipHeaderLength);
+                header->Length = (ushort)(this.length - ipHeaderLength);
+                count += 1;
+            }
+
+            return count;
+        }
+
+
 
         /// <summary>
         /// 是否相等

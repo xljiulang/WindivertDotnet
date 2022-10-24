@@ -9,7 +9,7 @@ namespace WindivertDotnet
     /// 表示WinDivert地址信息
     /// </summary>
     [DebuggerDisplay("Flags = {Flags}")]
-    public unsafe class WinDivertAddress : SafeHandleZeroOrMinusOneIsInvalid
+    public unsafe class WinDivertAddress : SafeHandleZeroOrMinusOneIsInvalid, ICloneable
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private AddressStruct* Pointer => (AddressStruct*)this.handle.ToPointer();
@@ -129,6 +129,11 @@ namespace WindivertDotnet
             var addr = new WinDivertAddress();
             *addr.Pointer = *this.Pointer;
             return addr;
+        }
+
+        object ICloneable.Clone()
+        {
+            return this.Clone();
         }
 
         [StructLayout(LayoutKind.Explicit)]
