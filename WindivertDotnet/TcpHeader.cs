@@ -67,7 +67,27 @@ namespace WindivertDotnet
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         [FieldOffset(12)]
-        private ushort bitfield;
+        private byte bitfield;
+
+
+        /// <summary>
+        /// 保留
+        /// </summary>
+        public byte Reserved1
+        {
+            get => (byte)(bitfield & 0xFu);
+            set => bitfield = (byte)((bitfield & ~0xFu) | (value & 0xFu));
+        }
+
+        /// <summary>
+        /// 获取或设置Internet Header Length
+        /// Tcp头总字节为该值的4倍
+        /// </summary>
+        public byte HdrLength
+        {
+            get => (byte)((bitfield >> 4) & 0xFu);
+            set => bitfield = (byte)((bitfield & ~(0xFu << 4)) | ((value & 0xFu) << 4));
+        }
 
         /// <summary>
         /// 标记位
@@ -75,87 +95,59 @@ namespace WindivertDotnet
         [FieldOffset(13)]
         public TcpFlag Flags;
 
-        /// <summary>
-        /// 保留
-        /// </summary>
-        public ushort Reserved1
-        {
-            get => (ushort)(bitfield & 0xFu);
-            set => bitfield = (ushort)((bitfield & ~0xFu) | (value & 0xFu));
-        }
-
-        /// <summary>
-        /// 获取或设置Internet Header Length
-        /// Tcp头总字节为该值的4倍
-        /// </summary>
-        public ushort HdrLength
-        {
-            get => (ushort)((bitfield >> 4) & 0xFu);
-            set => bitfield = (ushort)((bitfield & ~(0xFu << 4)) | ((value & 0xFu) << 4));
-        }
 
         /// <summary>
         /// 获取或设置结束位
         /// </summary>
-        public ushort Fin
+        public bool Fin
         {
-            get => (ushort)((bitfield >> 8) & 0x1u);
-            set => bitfield = (ushort)((bitfield & ~(0x1u << 8)) | ((value & 0x1u) << 8));
+            get => this.Flags.HasFlag(TcpFlag.Fin);
+            set => this.Flags |= TcpFlag.Fin;
         }
-
 
         /// <summary>
         /// 获取或设置请求位
         /// </summary>
-        public ushort Syn
+        public bool Syn
         {
-            get => (ushort)((bitfield >> 9) & 0x1u);
-            set => bitfield = (ushort)((bitfield & ~(0x1u << 9)) | ((value & 0x1u) << 9));
+            get => this.Flags.HasFlag(TcpFlag.Syn);
+            set => this.Flags |= TcpFlag.Syn;
         }
 
         /// <summary>
         /// 获取或设置重置位
         /// </summary>
-        public ushort Rst
+        public bool Rst
         {
-            get => (ushort)((bitfield >> 10) & 0x1u);
-            set => bitfield = (ushort)((bitfield & ~(0x1u << 10)) | ((value & 0x1u) << 10));
+            get => this.Flags.HasFlag(TcpFlag.Rst);
+            set => this.Flags |= TcpFlag.Rst;
         }
 
         /// <summary>
         /// 获取或设置推送位
         /// </summary>
-        public ushort Psh
+        public bool Psh
         {
-            get => (ushort)((bitfield >> 11) & 0x1u);
-            set => bitfield = (ushort)((bitfield & ~(0x1u << 11)) | ((value & 0x1u) << 11));
+            get => this.Flags.HasFlag(TcpFlag.Psh);
+            set => this.Flags |= TcpFlag.Psh;
         }
 
         /// <summary>
         /// 获取或设置确认位
         /// </summary>
-        public ushort Ack
+        public bool Ack
         {
-            get => (ushort)((bitfield >> 12) & 0x1u);
-            set => bitfield = (ushort)((bitfield & ~(0x1u << 12)) | ((value & 0x1u) << 12));
+            get => this.Flags.HasFlag(TcpFlag.Ack);
+            set => this.Flags |= TcpFlag.Ack;
         }
 
         /// <summary>
         /// 获取或设置紧急位
         /// </summary>
-        public ushort Urg
+        public bool Urg
         {
-            get => (ushort)((bitfield >> 13) & 0x1u);
-            set => bitfield = (ushort)((bitfield & ~(0x1u << 13)) | ((value & 0x1u) << 13));
-        }
-
-        /// <summary>
-        /// 保留
-        /// </summary>
-        public ushort Reserved2
-        {
-            get => (ushort)((bitfield >> 14) & 0x3u);
-            set => bitfield = (ushort)((bitfield & ~(0x3u << 14)) | ((value & 0x3u) << 14));
+            get => this.Flags.HasFlag(TcpFlag.Urg);
+            set => this.Flags |= TcpFlag.Urg;
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]

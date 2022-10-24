@@ -37,5 +37,15 @@ namespace WindivertDotnet
         /// 紧急位
         /// </summary>
         Urg = 0x20,
+
+        /// <summary>
+        /// 保留1
+        /// </summary>
+        Reserved1 = 0x40,
+
+        /// <summary>
+        /// 保留2
+        /// </summary>
+        Reserved2 = 0x80,
     }
 }
