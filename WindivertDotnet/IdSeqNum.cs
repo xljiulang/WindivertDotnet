@@ -26,6 +26,6 @@ namespace WindivertDotnet
         /// 生成下一个UInt32值
         /// </summary>
         /// <returns></returns>
-        public ushort NextUInt32() => (ushort)Interlocked.Increment(ref value);
+        public uint NextUInt32() => (uint)Interlocked.Increment(ref value);
     }
 }
