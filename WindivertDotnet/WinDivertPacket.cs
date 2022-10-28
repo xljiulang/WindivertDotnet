@@ -36,7 +36,7 @@ namespace WindivertDotnet
         /// <summary>
         /// 获取有效数据视图
         /// </summary>
-        public Span<byte> Span => this.GetSpan(0, this.length);
+        public unsafe Span<byte> Span => new(this.handle.ToPointer(), this.length);
 
         /// <summary>
         /// 获取或设置有效数据的长度
@@ -60,10 +60,23 @@ namespace WindivertDotnet
         /// </summary>
         /// <param name="capacity">最大容量</param> 
         public WinDivertPacket(int capacity = MTU_MAX)
-            : base(ownsHandle: true)
+            : this(MemoryNative.AllocZeroed(capacity), capacity, ownsHandle: true)
         {
             this.Capacity = capacity;
             this.handle = MemoryNative.AllocZeroed(capacity);
+        }
+
+        /// <summary>
+        /// WinDivert的数据包
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="capacity"></param>
+        /// <param name="ownsHandle"></param>
+        private unsafe WinDivertPacket(IntPtr handle, int capacity, bool ownsHandle)
+            : base(ownsHandle)
+        {
+            this.handle = handle;
+            this.Capacity = capacity;
         }
 
         /// <summary>
@@ -89,8 +102,39 @@ namespace WindivertDotnet
         /// </summary>
         /// <param name="offset">偏移量</param>
         /// <param name="count">字节数</param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <returns></returns>
         public unsafe Span<byte> GetSpan(int offset, int count)
+        {
+            var pointer = this.GetPointer(offset, count);
+            return new Span<byte>(pointer, count);
+        }
+
+        /// <summary>
+        /// 切片
+        /// </summary>
+        /// <param name="offset">偏移量</param>
+        /// <param name="count">大小</param>
+        /// <returns></returns>
+        public unsafe WinDivertPacket Slice(int offset, int count)
+        {
+            var pointer = this.GetPointer(offset, count);
+            var handle = new IntPtr(pointer);
+            return new WinDivertPacket(handle, count, ownsHandle: false)
+            {
+                length = count
+            };
+        }
+
+
+        /// <summary>
+        /// 获取指针
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        private unsafe void* GetPointer(int offset, int count)
         {
             if (offset < 0 || offset > this.Capacity)
             {
@@ -102,8 +146,7 @@ namespace WindivertDotnet
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
 
-            var pointer = (byte*)this.handle.ToPointer() + offset;
-            return new Span<byte>(pointer, count);
+            return (this.handle + offset).ToPointer();
         }
 
         /// <summary>

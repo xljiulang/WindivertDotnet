@@ -39,6 +39,24 @@ namespace WindivertDotnet.Test
             Assert.Throws<ArgumentOutOfRangeException>(() => packet.GetSpan(1, 10));
         }
 
+
+        [Fact]
+        public void SliceTest()
+        {
+            using var packet = new WinDivertPacket(10);
+            var slicePacket = packet.Slice(2, 8);
+
+            var span = packet.GetSpan(0, packet.Capacity);
+            span[1] = 1;
+            span[2] = 2;
+            span[4] = 4;
+            span[8] = 8;
+           
+            Assert.Equal(8, slicePacket.Capacity);
+            Assert.Equal(8, slicePacket.Length);
+            Assert.True(span.Slice(2, 8).SequenceEqual(slicePacket.Span));
+        }
+
         [Fact]
         public unsafe void CalcNetworkIfIdxTest()
         {
