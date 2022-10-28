@@ -88,7 +88,7 @@ namespace WindivertDotnet.Test
                 .Or(f => f.Network.LocalPort > 0)
                 .Or(f => f.Network.Loopback)
                 .Or(f => f.Network.Outbound)
-                .Or(f => f.Network.Protocol == (int)ProtocolType.Udp)
+                .Or(f => f.Network.Protocol == ProtocolType.Udp)
                 .Or(f => f.Network.RemoteAddr == IPAddress.Loopback.ToString())
                 .Or(f => f.Network.RemotePort == 443)
                 .Or(f => f.Network.SubIfIdx == 12);

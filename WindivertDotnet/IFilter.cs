@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Sockets;
 
 namespace WindivertDotnet
 {
@@ -116,7 +117,7 @@ namespace WindivertDotnet
         /// icmpV6属性集
         /// </summary>
         [FilterMember("icmpv6")]
-        public IICmp IcmpV6 { get; }
+        public IICmpV6 IcmpV6 { get; }
 
 
         /// <summary>
@@ -171,7 +172,7 @@ namespace WindivertDotnet
             /// <para>ProtocolType</para>
             /// </summary>
             [FilterMember("protocol")]
-            int Protocol { get; }
+            ProtocolType Protocol { get; }
 
             /// <summary>
             /// 本机IP地址
@@ -309,7 +310,7 @@ namespace WindivertDotnet
             /// 协议类型(ProtocolType)
             /// </summary>
             [FilterMember("protocol")]
-            int Protocol { get; }
+            ProtocolType Protocol { get; }
         }
 
         /// <summary>
@@ -369,7 +370,7 @@ namespace WindivertDotnet
             /// 协议类型(ProtocolType)
             /// </summary>
             [FilterMember("protocol")]
-            int Protocol { get; }
+            ProtocolType Protocol { get; }
         }
 
         /// <summary>
@@ -442,7 +443,7 @@ namespace WindivertDotnet
             /// <para>ProtocolType</para>
             /// </summary>
             [FilterMember]
-            int Protocol { get; }
+            ProtocolType Protocol { get; }
 
             /// <summary>
             /// 检验和
@@ -644,13 +645,43 @@ namespace WindivertDotnet
             /// 类型
             /// </summary>
             [FilterMember]
-            int Type { get; }
+            IcmpV4MessageType Type { get; }
 
             /// <summary>
             /// 代码
             /// </summary>
             [FilterMember]
-            int Code { get; }
+            IcmpV4UnreachableCode Code { get; }
+
+            /// <summary>
+            /// 检验和
+            /// </summary>
+            [FilterMember]
+            int Checksum { get; }
+
+            /// <summary>
+            /// Rest of header
+            /// </summary>
+            [FilterMember]
+            int Body { get; }
+        }
+
+        /// <summary>
+        /// ICMP
+        /// </summary>
+        public interface IICmpV6
+        {
+            /// <summary>
+            /// 类型
+            /// </summary>
+            [FilterMember]
+            IcmpV6MessageType Type { get; }
+
+            /// <summary>
+            /// 代码
+            /// </summary>
+            [FilterMember]
+            IcmpV6UnreachableCode Code { get; }
 
             /// <summary>
             /// 检验和
