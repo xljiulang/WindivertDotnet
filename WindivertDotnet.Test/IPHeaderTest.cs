@@ -19,7 +19,7 @@ namespace WindivertDotnet.Test
                 Assert.Equal(packet.TimeToLive, header.TTL);
                 Assert.Equal((byte)packet.Protocol, (byte)header.Protocol);
                 Assert.Equal(packet.SourceAddress, header.SrcAddr);
-                Assert.Equal(packet.DestinationAddress, header.DstAddr);                
+                Assert.Equal(packet.DestinationAddress, header.DstAddr);
             }
         }
 
@@ -36,12 +36,13 @@ namespace WindivertDotnet.Test
                 DstAddr = dstAddr,
                 SrcAddr = srcAddr,
                 TOS = 3,
-                FragOff0 = 4,
                 HdrLength = 5,
                 Id = 6,
                 Length = 7,
                 Protocol = ProtocolType.Ggp,
-                TTL = 8
+                TTL = 8,
+                FragmentFlags = FragmentFlag.MoreFragments,
+                FragmentOffset = 9,
             };
 
 
@@ -51,13 +52,15 @@ namespace WindivertDotnet.Test
             Assert.Equal(dstAddr, header.DstAddr);
             Assert.Equal(srcAddr, header.SrcAddr);
             Assert.Equal(3, header.TOS);
-            Assert.Equal(4, header.FragOff0);
             Assert.Equal(5, header.HdrLength);
             Assert.Equal(6, header.Id);
 
             Assert.Equal(7, header.Length);
             Assert.Equal(ProtocolType.Ggp, header.Protocol);
             Assert.Equal(8, header.TTL);
+
+            Assert.Equal(FragmentFlag.MoreFragments, header.FragmentFlags);
+            Assert.Equal(9, header.FragmentOffset);
         }
 
         [Fact]

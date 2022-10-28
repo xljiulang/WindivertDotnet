@@ -81,6 +81,51 @@ namespace WindivertDotnet
         }
 
         /// <summary>
+        /// 标记位
+        /// </summary>
+        public FragmentFlag FragmentFlags
+        {
+            get => (FragmentFlag)MoveRight(fragOff0, 13);
+            set => fragOff0 = (ushort)(MoveLeft((ushort)value, 13) | MoveLeftRight(fragOff0, 3));
+        }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private ushort FragmentOffsetRaw
+        {
+            get => MoveLeftRight(fragOff0, 3);
+            set => fragOff0 = (ushort)(MoveRightLeft(fragOff0, 13) | MoveLeftRight(value, 3));
+        }
+
+        /// <summary>
+        /// 分片偏移量13位
+        /// </summary>
+        public ushort FragmentOffset
+        {
+            get => BinaryPrimitives.ReverseEndianness(this.FragmentOffsetRaw);
+            set => this.FragmentOffsetRaw = BinaryPrimitives.ReverseEndianness(value);
+        }
+
+        private static ushort MoveLeft(ushort value, byte count)
+        {
+            return (ushort)(value << count);
+        }
+
+        private static ushort MoveRight(ushort value, byte count)
+        {
+            return (ushort)(value >> count);
+        }
+
+        private static ushort MoveLeftRight(ushort value, byte count)
+        {
+            return MoveRight(MoveLeft(value, count), count);
+        }
+
+        private static ushort MoveRightLeft(ushort value, byte count)
+        {
+            return MoveLeft(MoveRight(value, count), count);
+        }
+
+        /// <summary>
         /// 获取或设置生存时间
         /// </summary>
         public byte TTL;
