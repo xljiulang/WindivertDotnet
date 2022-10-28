@@ -60,7 +60,7 @@ namespace WindivertDotnet
         /// </summary>
         /// <param name="capacity">最大容量</param> 
         public WinDivertPacket(int capacity = MTU_MAX)
-            : this(MemoryNative.AllocZeroed(capacity), capacity, ownsHandle: true)
+            : base(ownsHandle: true)
         {
             this.Capacity = capacity;
             this.handle = MemoryNative.AllocZeroed(capacity);
@@ -69,14 +69,14 @@ namespace WindivertDotnet
         /// <summary>
         /// WinDivert的数据包
         /// </summary>
-        /// <param name="handle"></param>
-        /// <param name="capacity"></param>
-        /// <param name="ownsHandle"></param>
-        private unsafe WinDivertPacket(IntPtr handle, int capacity, bool ownsHandle)
-            : base(ownsHandle)
+        /// <param name="handle">外部创建的句柄</param>
+        /// <param name="length">字节长度</param>
+        private unsafe WinDivertPacket(IntPtr handle, int length)
+            : base(ownsHandle: false)
         {
             this.handle = handle;
-            this.Capacity = capacity;
+            this.length = length;
+            this.Capacity = length;
         }
 
         /// <summary>
@@ -119,11 +119,7 @@ namespace WindivertDotnet
         public unsafe WinDivertPacket Slice(int offset, int count)
         {
             var pointer = this.GetPointer(offset, count);
-            var handle = new IntPtr(pointer);
-            return new WinDivertPacket(handle, count, ownsHandle: false)
-            {
-                length = count
-            };
+            return new WinDivertPacket(new IntPtr(pointer), count);
         }
 
 
@@ -134,6 +130,7 @@ namespace WindivertDotnet
         /// <param name="count"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private unsafe void* GetPointer(int offset, int count)
         {
             if (offset < 0 || offset > this.Capacity)
@@ -238,6 +235,7 @@ namespace WindivertDotnet
         /// <param name="srcAddr"></param>
         /// <param name="dstAddr"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private unsafe bool TryParseIPAddress(
             [MaybeNullWhen(false)] out IPAddress srcAddr,
             [MaybeNullWhen(false)] out IPAddress dstAddr)

@@ -12,6 +12,9 @@ namespace WindivertDotnet.Test
 
             using var clone = addr.Clone();
             Assert.Equal(addr.Flags, clone.Flags);
+
+            addr.Flags = WinDivertAddressFlag.IPv6;
+            Assert.NotEqual(addr.Flags, clone.Flags);
         }
     }
 }
