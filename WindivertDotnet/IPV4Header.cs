@@ -3,6 +3,7 @@ using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 
 namespace WindivertDotnet
 {
@@ -10,11 +11,13 @@ namespace WindivertDotnet
     /// IPV4头
     /// </summary>
     [DebuggerDisplay("SrcAddr = {SrcAddr}, DstAddr = {DstAddr}, Size = {HdrLength * 4}")]
+    [StructLayout(LayoutKind.Explicit)]
     public struct IPV4Header
     {
         private const int IPV4_SIZE = sizeof(int);
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        [FieldOffset(0)]
         private byte bitfield;
 
         /// <summary>
@@ -39,9 +42,11 @@ namespace WindivertDotnet
         /// <summary>
         /// 获取或设置服务类型
         /// </summary>
+        [FieldOffset(1)]
         public byte TOS;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        [FieldOffset(2)]
         private ushort length;
 
         /// <summary>
@@ -55,6 +60,7 @@ namespace WindivertDotnet
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        [FieldOffset(4)]
         private ushort id;
 
         /// <summary>
@@ -69,6 +75,11 @@ namespace WindivertDotnet
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        [FieldOffset(6)]
+        private byte frag;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        [FieldOffset(6)]
         private ushort fragOff0;
 
         /// <summary>
@@ -85,15 +96,8 @@ namespace WindivertDotnet
         /// </summary>
         public FragmentFlag FragmentFlags
         {
-            get => (FragmentFlag)MoveRight(fragOff0, 13);
-            set => fragOff0 = (ushort)(MoveLeft((ushort)value, 13) | MoveLeftRight(fragOff0, 3));
-        }
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private ushort FragmentOffsetRaw
-        {
-            get => MoveLeftRight(fragOff0, 3);
-            set => fragOff0 = (ushort)(MoveRightLeft(fragOff0, 13) | MoveLeftRight(value, 3));
+            get => (FragmentFlag)(this.frag >> 5);
+            set => this.frag = (byte)(((uint)((byte)value << 5)) | (this.frag & 0b_0001_1111u));
         }
 
         /// <summary>
@@ -101,36 +105,18 @@ namespace WindivertDotnet
         /// </summary>
         public ushort FragmentOffset
         {
-            get => BinaryPrimitives.ReverseEndianness(this.FragmentOffsetRaw);
-            set => this.FragmentOffsetRaw = BinaryPrimitives.ReverseEndianness(value);
-        }
-
-        private static ushort MoveLeft(ushort value, byte count)
-        {
-            return (ushort)(value << count);
-        }
-
-        private static ushort MoveRight(ushort value, byte count)
-        {
-            return (ushort)(value >> count);
-        }
-
-        private static ushort MoveLeftRight(ushort value, byte count)
-        {
-            return MoveRight(MoveLeft(value, count), count);
-        }
-
-        private static ushort MoveRightLeft(ushort value, byte count)
-        {
-            return MoveLeft(MoveRight(value, count), count);
+            get => (ushort)(this.FragOff0 & 0b_0001_1111_1111_1111u);
+            set => this.FragOff0 = (ushort)((value & 0b_0001_1111_1111_1111u) | (this.FragOff0 & 0b_1110_0000_0000_0000u));
         }
 
         /// <summary>
         /// 获取或设置生存时间
         /// </summary>
+        [FieldOffset(8)]
         public byte TTL;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        [FieldOffset(9)]
         private byte protocol;
 
 
@@ -144,6 +130,7 @@ namespace WindivertDotnet
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        [FieldOffset(10)]
         private ushort checksum;
 
         /// <summary>
@@ -156,6 +143,7 @@ namespace WindivertDotnet
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        [FieldOffset(12)]
         private unsafe fixed byte srcAddr[IPV4_SIZE];
 
         /// <summary>
@@ -180,6 +168,7 @@ namespace WindivertDotnet
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        [FieldOffset(16)]
         private unsafe fixed byte dstAddr[IPV4_SIZE];
 
         /// <summary>

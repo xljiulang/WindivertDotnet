@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Security;
 using System.Net.Sockets;
 using Xunit;
 
@@ -82,7 +83,7 @@ namespace WindivertDotnet.Test
         [Fact]
         public unsafe void IPV6WriteTest()
         {
-            var dstAddr = IPAddress.IPv6Loopback;
+            var dstAddr = IPAddress.Parse("2409:895a:f138:8189:3c42:fd9f:8ee6:4041");
             var srcAddr = IPAddress.IPv6Loopback;
 
             var header = new IPV6Header
@@ -91,7 +92,7 @@ namespace WindivertDotnet.Test
                 FlowLabel0 = 2,
                 FlowLabel1 = 3,
                 HopLimit = 4,
-                Length = 5,
+                Length = 0,
                 TrafficClass0 = 6,
                 TrafficClass1 = 7,
                 DstAddr = dstAddr,
@@ -107,11 +108,15 @@ namespace WindivertDotnet.Test
             Assert.Equal(srcAddr, header.SrcAddr);
             Assert.Equal(3, header.FlowLabel1);
             Assert.Equal(4, header.HopLimit);
-            Assert.Equal(5, header.Length);
+            Assert.Equal(0, header.Length);
             Assert.Equal(6, header.TrafficClass0);
 
             Assert.Equal(7, header.TrafficClass1);
             Assert.Equal(ProtocolType.Ggp, header.NextHdr);
+
+            using var packet = new WinDivertPacket();
+            packet.GetWriter().Write(header);
+            var r = packet.GetParseResult();
         }
     }
 }

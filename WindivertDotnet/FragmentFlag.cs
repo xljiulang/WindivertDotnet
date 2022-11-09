@@ -6,7 +6,7 @@ namespace WindivertDotnet
     /// IPv4标记位
     /// </summary>
     [Flags]
-    public enum FragmentFlag : ushort
+    public enum FragmentFlag : byte
     { 
         /// <summary>
         /// 有分片
