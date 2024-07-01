@@ -12,21 +12,20 @@ namespace WindivertDotnet
     /// Windivert控制器
     /// </summary>
     [SupportedOSPlatform("windows")]
-    abstract unsafe class WinDivertOperation : IDisposable, IValueTaskSource<int>
+    abstract class WinDivertOperation : IDisposable, IValueTaskSource<int>
     {
         protected readonly WinDivert divert;
-        private readonly NativeOverlapped* nativeOverlapped;
+        private readonly unsafe NativeOverlapped* nativeOverlapped;
 
-        private ManualResetValueTaskSourceCore<int> taskSource; // 不能readonly
-        private CancellationTokenRegistration tokenRegistration;
-        private static readonly IOCompletionCallback completionCallback = new(IOCompletionCallback);
+        private ManualResetValueTaskSourceCore<int> taskSource; // 不能readonly 
+        private static readonly unsafe IOCompletionCallback completionCallback = new(IOCompletionCallback);
 
 
         /// <summary>
         /// Windivert控制器
         /// </summary>
         /// <param name="divert"></param> 
-        public WinDivertOperation(WinDivert divert)
+        public unsafe WinDivertOperation(WinDivert divert)
         {
             this.divert = divert;
             this.nativeOverlapped = divert.GetThreadPoolBoundHandle().AllocateNativeOverlapped(completionCallback, this, null);
@@ -37,22 +36,26 @@ namespace WindivertDotnet
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public virtual ValueTask<int> IOControlAsync(CancellationToken cancellationToken)
+        public virtual async ValueTask<int> IOControlAsync(CancellationToken cancellationToken)
         {
-            if (cancellationToken.IsCancellationRequested)
+            cancellationToken.ThrowIfCancellationRequested();
+            using (cancellationToken.Register(CancelIoEx))
             {
-                return new ValueTask<int>(Task.FromCanceled<int>(cancellationToken));
+                return await IOControlAsync();
             }
 
-            if (cancellationToken != CancellationToken.None)
+            unsafe void CancelIoEx()
             {
-                this.tokenRegistration = cancellationToken.Register(() => Kernel32Native.CancelIoEx(this.divert, this.nativeOverlapped));
+                Kernel32Native.CancelIoEx(this.divert, this.nativeOverlapped);
             }
 
-            var length = 0; // 如果触发异步回调，回调里不会反写pLength，所以这里可以声明为方法内部变量
-            return this.IOControl(&length, this.nativeOverlapped)
-                ? new ValueTask<int>(length)
-                : new ValueTask<int>(this, this.taskSource.Version);
+            unsafe ValueTask<int> IOControlAsync()
+            {
+                var length = 0; // 如果触发异步回调，回调里不会反写pLength，所以这里可以声明为方法内部变量
+                return this.IOControl(&length, this.nativeOverlapped)
+                    ? new ValueTask<int>(length)
+                    : new ValueTask<int>(this, this.taskSource.Version);
+            }
         }
 
         /// <summary>
@@ -61,7 +64,7 @@ namespace WindivertDotnet
         /// <param name="pLength"></param>
         /// <param name="nativeOverlapped"></param>
         /// <returns></returns>
-        protected abstract bool IOControl(int* pLength, NativeOverlapped* nativeOverlapped);
+        protected abstract unsafe bool IOControl(int* pLength, NativeOverlapped* nativeOverlapped);
 
         /// <summary>
         /// io完成回调
@@ -69,7 +72,7 @@ namespace WindivertDotnet
         /// <param name="errorCode"></param>
         /// <param name="numBytes"></param>
         /// <param name="pOVERLAP"></param>
-        private static void IOCompletionCallback(uint errorCode, uint numBytes, NativeOverlapped* pOVERLAP)
+        private static unsafe void IOCompletionCallback(uint errorCode, uint numBytes, NativeOverlapped* pOVERLAP)
         {
             var operation = (WinDivertOperation)ThreadPoolBoundHandle.GetNativeOverlappedState(pOVERLAP)!;
             if (errorCode == 0)
@@ -91,9 +94,8 @@ namespace WindivertDotnet
         /// <summary>
         /// 释放资源
         /// </summary>
-        public virtual void Dispose()
+        public virtual unsafe void Dispose()
         {
-            this.tokenRegistration.Dispose();
             this.divert.GetThreadPoolBoundHandle().FreeNativeOverlapped(this.nativeOverlapped);
         }
 
